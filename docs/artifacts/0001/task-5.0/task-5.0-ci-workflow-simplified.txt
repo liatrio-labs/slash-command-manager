@@ -1,0 +1,37 @@
+name: Lint and Format Check
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint (uv + ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies (frozen)
+        run: uv sync --all-groups --frozen
+
+      - name: Run ruff lint
+        run: uv run ruff check .
+
+      - name: Format (check)
+        run: uv run ruff format --check .
+
+      - name: Pre-commit (meta checks)
+        run: uv run pre-commit run --all-files --show-diff-on-failure

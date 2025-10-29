@@ -1,0 +1,57 @@
+commit dc0a57a51bbd8cb67b622fe161f1570f07e4e5a2
+Author: Damien Storm <damien.r.storm@gmail.com>
+Date:   Wed Oct 29 18:43:25 2025 -0400
+
+    refactor: extract generator and MCP server to slash-command-manager
+
+    Remove extracted components:
+
+    - Remove slash_commands/ directory (generator CLI)
+
+    - Remove mcp_server/ directory (MCP server)
+
+    - Remove server.py entry point
+
+    - Remove generator and MCP test files
+
+    - Remove vhs_demos/ directory
+
+    Update configuration:
+
+    - Simplify pyproject.toml: remove generator/MCP dependencies, CLI entry points, and build config
+
+    - Simplify CI workflow: remove test runs and packaging steps, keep linting only
+
+    - Update README.md: add migration notice and update installation instructions
+
+    This repository now focuses on SDD workflow prompts and documentation.
+
+    Generator CLI and MCP server are available via:
+
+    https://github.com/liatrio-labs/slash-command-manager
+
+ .github/workflows/ci.yml                    |  51 +--
+ README.md                                   | 102 +++--
+ mcp_server/__init__.py                      |  51 ---
+ mcp_server/config.py                        |  69 ---
+ mcp_server/prompt_utils.py                  | 144 ------
+ mcp_server/prompts_loader.py                |  36 --
+ pyproject.toml                              |  25 +-
+ server.py                                   |  48 --
+ slash_commands/__init__.py                  |  19 -
+ slash_commands/cli.py                       | 419 ------------------
+ slash_commands/config.py                    | 108 -----
+ slash_commands/detection.py                 |  48 --
+ slash_commands/generators.py                | 274 ------------
+ slash_commands/writer.py                    | 445 -------------------
+ tests/test_cli.py                           | 663 ----------------------------
+ tests/test_config.py                        | 166 -------
+ tests/test_detection.py                     |  59 ---
+ tests/test_generators.py                    | 199 ---------
+ tests/test_prompts.py                       | 115 -----
+ tests/test_validation.py                    | 193 --------
+ tests/test_writer.py                        | 644 ---------------------------
+ vhs_demos/run_generator_demo.sh             |  34 --
+ vhs_demos/slash-command-generator-demo.mp4  | Bin 1600264 -> 0 bytes
+ vhs_demos/slash-command-generator-demo.tape | 289 ------------
+ 24 files changed, 64 insertions(+), 4137 deletions(-)
