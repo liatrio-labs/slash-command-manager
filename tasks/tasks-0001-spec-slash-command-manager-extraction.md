@@ -47,6 +47,14 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
 - Use `pytest tests/` to run all tests. Running without a path executes all tests found by the pytest configuration
 - Source repository code locations will need to be identified during implementation (assumed to exist based on spec)
 
+### Proof Artifacts
+
+> **Artifact Storage:** All proof artifacts and demo files generated during task implementation should be stored in `./docs/artifacts/<spec-number>/task-<task-number>/` (e.g., `./docs/artifacts/0001/task-1.0/`). This organization ensures artifacts are properly categorized by specification number and task number for easy review and documentation.
+>
+> **Naming Convention:** Artifact files should be named descriptively (e.g., `directory-structure.txt`, `wheel-build.log`, `pyproject.toml.txt`).
+>
+> Each task directory should include a `README.md` explaining what artifacts are present and their purpose.
+
 ## Tasks
 
 - [x] 1.0 Set up Slash Command Manager Repository Structure and Configuration
@@ -62,7 +70,7 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [x] 1.8 Create basic `README.md` structure with project description, installation instructions, and links to documentation
   - [x] 1.9 Create `CONTRIBUTING.md` with contribution guidelines
   - [x] 1.10 Verify package structure: run `python -m build --wheel` and confirm successful wheel build in `dist/` directory
-  
+
 - [ ] 2.0 Extract and Port Generator Code (`slash_commands/` package)
   - Demo Criteria: "All `slash_commands/` modules (CLI, config, writer, detection) copied and adapted with updated imports; CLI entry point `slash-man` configured in `pyproject.toml`; `slash-man --help` displays usage without errors"
   - Proof Artifact(s): "CLI invocation output: `$ slash-man --help`; directory structure showing all modules; `pyproject.toml` entry points section"
@@ -75,7 +83,7 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [ ] 2.7 Verify `pyproject.toml` has correct entry point configuration: `[project.scripts]` section with `slash-man = "slash_commands.cli:main"` (or appropriate entry point)
   - [ ] 2.8 Install package in editable mode: `pip install -e .` (or `uv pip install -e .`)
   - [ ] 2.9 Test CLI entry point: run `slash-man --help` and verify it displays usage information without import or runtime errors
-  
+
 - [ ] 3.0 Extract and Port MCP Server Code (`mcp_server/` package and `server.py`)
   - Demo Criteria: "`mcp_server/` package ported with all MCP functionality; `server.py` entry point ported; `prompts/` directory copied; MCP server starts without errors"
   - Proof Artifact(s): "Directory structure showing `mcp_server/` and `server.py`; successful server startup log or test run"
@@ -89,7 +97,7 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [ ] 3.8 Review and update `server.py` to ensure it correctly imports from `mcp_server` package and references `prompts/` directory correctly
   - [ ] 3.9 Verify MCP server dependencies are listed in `pyproject.toml` (fastmcp, pyyaml)
   - [ ] 3.10 Test MCP server startup: run `python server.py` (or appropriate command) and verify it starts without import or configuration errors
-  
+
 - [ ] 4.0 Port and Adapt Test Suite
   - Demo Criteria: "All generator and MCP tests copied and adapted with updated import paths; all tests pass: `pytest tests/`; pre-commit hooks pass: `pre-commit run --all-files`"
   - Proof Artifact(s): "Test run output showing all tests passing; pre-commit run summary; test coverage report"
@@ -103,7 +111,7 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [ ] 4.8 Verify all tests pass: confirm pytest summary shows all tests passing with appropriate coverage
   - [ ] 4.9 Install pre-commit hooks: `pre-commit install`
   - [ ] 4.10 Run pre-commit on all files: `pre-commit run --all-files` and fix any linting or formatting issues
-  
+
 - [ ] 5.0 Refactor SDD Workflow Repository (Remove Extracted Components)
   - Demo Criteria: "Generator and MCP code removed from SDD workflow repo (`slash_commands/`, `mcp_server/`, `server.py`, related tests); dependencies cleaned from `pyproject.toml`; README updated with Slash Command Manager link; pre-commit passes"
   - Proof Artifact(s): "Git diff showing removed files and dependencies; updated README snippet; pre-commit pass confirmation"
@@ -121,7 +129,7 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [ ] 5.12 Verify `prompts/` directory is retained in SDD workflow repository (for reference)
   - [ ] 5.13 Run pre-commit in SDD workflow repository: `pre-commit run --all-files` and verify it passes
   - [ ] 5.14 Create git commit in SDD workflow repository with clear message documenting the extraction
-  
+
 - [ ] 6.0 Create Release Artifacts and Migration Documentation
   - Demo Criteria: "CHANGELOG entry created in Slash Command Manager; migration guide added to SDD workflow README; Slash Command Manager tagged with initial semantic version (e.g., `v1.0.0`); package installable via `uvx --from ./dist slash-man generate --help`"
   - Proof Artifact(s): "CHANGELOG entry; migration guide document; git tag and release notes; `uvx` test output showing CLI working from locally-built wheel"

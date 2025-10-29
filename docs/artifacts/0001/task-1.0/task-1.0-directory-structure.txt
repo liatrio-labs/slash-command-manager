@@ -1,0 +1,21 @@
+[01;34m.[0m
+├── [01;34mdocs[0m
+│   └── [01;34martifacts[0m
+├── [01;34mmcp_server[0m
+│   └── __init__.py
+├── [01;34mprompts[0m
+├── [01;34mslash_commands[0m
+│   └── __init__.py
+├── [01;34mtasks[0m
+│   ├── 0001-spec-slash-command-manager-extraction.md
+│   └── tasks-0001-spec-slash-command-manager-extraction.md
+├── [01;34mtemp[0m
+│   └── command-generator-extraction-plan.md
+├── [01;34mtests[0m
+├── CONTRIBUTING.md
+├── LICENSE
+├── pyproject.toml
+├── README.md
+└── __version__.py
+
+9 directories, 10 files

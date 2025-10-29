@@ -53,6 +53,8 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ## Demoable Units of Work
 
+> **Note:** All proof artifacts and demo files generated during implementation should be stored in `./docs/artifacts/<spec-number>/task-<task-number>/` (e.g., `./docs/artifacts/0001/task-1.0/`) for review and documentation purposes. This organization ensures artifacts are properly categorized by specification and task.
+
 ### Unit 1: Slash Command Manager Repository Prepared & Functional
 
 **Purpose:** Demonstrate that Slash Command Manager is a self-contained, working repository with all generator code, MCP server code, tests, and packaging in place.
@@ -346,4 +348,3 @@ sdd-workflow/
 - **Communication:** Coordinate with team before cutover; announce changes on completion
 - **Key Dates:** No hard deadline; coordination required to minimize disruption to users
 - **Future Work:** MCP subcommand integration (`slash-man mcp serve`) and SDD workflow repository cleanup are separate follow-up tasks
-

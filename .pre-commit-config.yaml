@@ -24,7 +24,6 @@ repos:
       - id: pytest
         name: pytest
         entry: pytest
-        entry: pytest
         language: system
         pass_filenames: false
         always_run: true
