@@ -71,18 +71,18 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [x] 1.9 Create `CONTRIBUTING.md` with contribution guidelines
   - [x] 1.10 Verify package structure: run `python -m build --wheel` and confirm successful wheel build in `dist/` directory
 
-- [ ] 2.0 Extract and Port Generator Code (`slash_commands/` package)
+- [x] 2.0 Extract and Port Generator Code (`slash_commands/` package)
   - Demo Criteria: "All `slash_commands/` modules (CLI, config, writer, detection) copied and adapted with updated imports; CLI entry point `slash-man` configured in `pyproject.toml`; `slash-man --help` displays usage without errors"
   - Proof Artifact(s): "CLI invocation output: `$ slash-man --help`; directory structure showing all modules; `pyproject.toml` entry points section"
-  - [ ] 2.1 Copy `slash_commands/` directory from source SDD workflow repository to Slash Command Manager repository
-  - [ ] 2.2 Review and update `slash_commands/__init__.py` to ensure proper package initialization and exports
-  - [ ] 2.3 Review `slash_commands/cli.py` and update any import paths that reference old repository structure; ensure CLI uses Typer framework correctly
-  - [ ] 2.4 Review and update `slash_commands/config.py` for any path or package name references
-  - [ ] 2.5 Review and update `slash_commands/writer.py` for any import path changes
-  - [ ] 2.6 Review and update `slash_commands/detection.py` for any import path changes
-  - [ ] 2.7 Verify `pyproject.toml` has correct entry point configuration: `[project.scripts]` section with `slash-man = "slash_commands.cli:main"` (or appropriate entry point)
-  - [ ] 2.8 Install package in editable mode: `pip install -e .` (or `uv pip install -e .`)
-  - [ ] 2.9 Test CLI entry point: run `slash-man --help` and verify it displays usage information without import or runtime errors
+  - [x] 2.1 Copy `slash_commands/` directory from source SDD workflow repository to Slash Command Manager repository
+  - [x] 2.2 Review and update `slash_commands/__init__.py` to ensure proper package initialization and exports
+  - [x] 2.3 Review `slash_commands/cli.py` and update any import paths that reference old repository structure; ensure CLI uses Typer framework correctly
+  - [x] 2.4 Review and update `slash_commands/config.py` for any path or package name references
+  - [x] 2.5 Review and update `slash_commands/writer.py` for any import path changes
+  - [x] 2.6 Review and update `slash_commands/detection.py` for any import path changes
+  - [x] 2.7 Verify `pyproject.toml` has correct entry point configuration: `[project.scripts]` section with `slash-man = "slash_commands.cli:main"` (or appropriate entry point)
+  - [x] 2.8 Install package in editable mode: `pip install -e .` (or `uv pip install -e .`)
+  - [x] 2.9 Test CLI entry point: run `slash-man --help` and verify it displays usage information without import or runtime errors
 
 - [ ] 3.0 Extract and Port MCP Server Code (`mcp_server/` package and `server.py`)
   - Demo Criteria: "`mcp_server/` package ported with all MCP functionality; `server.py` entry point ported; `prompts/` directory copied; MCP server starts without errors"

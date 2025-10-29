@@ -1,0 +1,6 @@
+slash_commands/cli.py
+slash_commands/config.py
+slash_commands/detection.py
+slash_commands/generators.py
+slash_commands/__init__.py
+slash_commands/writer.py
