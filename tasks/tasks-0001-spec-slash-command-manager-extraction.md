@@ -112,23 +112,23 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [x] 4.9 Install pre-commit hooks: `pre-commit install`
   - [x] 4.10 Run pre-commit on all files: `pre-commit run --all-files` and fix any linting or formatting issues
 
-- [ ] 5.0 Refactor SDD Workflow Repository (Remove Extracted Components)
+- [x] 5.0 Refactor SDD Workflow Repository (Remove Extracted Components)
   - Demo Criteria: "Generator and MCP code removed from SDD workflow repo (`slash_commands/`, `mcp_server/`, `server.py`, related tests); dependencies cleaned from `pyproject.toml`; README updated with Slash Command Manager link; pre-commit passes"
   - Proof Artifact(s): "Git diff showing removed files and dependencies; updated README snippet; pre-commit pass confirmation"
-  - [ ] 5.1 Remove `slash_commands/` directory from SDD workflow repository
-  - [ ] 5.2 Remove `mcp_server/` directory from SDD workflow repository
-  - [ ] 5.3 Remove `server.py` entry point file from SDD workflow repository
-  - [ ] 5.4 Remove generator-related test files (`tests/test_cli.py`, `tests/test_generators.py`, `tests/test_detection.py`, `tests/test_config.py`) from SDD workflow repository
-  - [ ] 5.5 Remove MCP server test files from SDD workflow repository (if they exist)
-  - [ ] 5.6 Remove VHS demo files and scripts (`vhs_demos/` directory and related scripts) from SDD workflow repository
-  - [ ] 5.7 Update `pyproject.toml` in SDD workflow repository: remove generator/MCP dependencies (fastmcp, questionary, tomli-w, rich, typer, pyyaml) and remove CLI entry points section
-  - [ ] 5.8 Update `pyproject.toml` in SDD workflow repository: retain only shared tooling dependencies (pytest, ruff, pre-commit) if needed, or simplify to minimal configuration for docs-only repo
-  - [ ] 5.9 Update `README.md` in SDD workflow repository: add clear section explaining that generator and MCP functionality moved to Slash Command Manager, include installation link and migration instructions
-  - [ ] 5.10 Update `.github/workflows/ci.yml` in SDD workflow repository: simplify or remove workflows that no longer apply (remove test runs, packaging steps; keep minimal linting for docs if desired)
-  - [ ] 5.11 Update or remove `.github/workflows/release.yml` in SDD workflow repository (SDD workflow no longer publishes as package)
-  - [ ] 5.12 Verify `prompts/` directory is retained in SDD workflow repository (for reference)
-  - [ ] 5.13 Run pre-commit in SDD workflow repository: `pre-commit run --all-files` and verify it passes
-  - [ ] 5.14 Create git commit in SDD workflow repository with clear message documenting the extraction
+  - [x] 5.1 Remove `slash_commands/` directory from SDD workflow repository
+  - [x] 5.2 Remove `mcp_server/` directory from SDD workflow repository
+  - [x] 5.3 Remove `server.py` entry point file from SDD workflow repository
+  - [x] 5.4 Remove generator-related test files (`tests/test_cli.py`, `tests/test_generators.py`, `tests/test_detection.py`, `tests/test_config.py`) from SDD workflow repository
+  - [x] 5.5 Remove MCP server test files from SDD workflow repository (if they exist)
+  - [x] 5.6 Remove VHS demo files and scripts (`vhs_demos/` directory and related scripts) from SDD workflow repository
+  - [x] 5.7 Update `pyproject.toml` in SDD workflow repository: remove generator/MCP dependencies (fastmcp, questionary, tomli-w, rich, typer, pyyaml) and remove CLI entry points section
+  - [x] 5.8 Update `pyproject.toml` in SDD workflow repository: retain only shared tooling dependencies (pytest, ruff, pre-commit) if needed, or simplify to minimal configuration for docs-only repo
+  - [x] 5.9 Update `README.md` in SDD workflow repository: add clear section explaining that generator and MCP functionality moved to Slash Command Manager, include installation link and migration instructions
+  - [x] 5.10 Update `.github/workflows/ci.yml` in SDD workflow repository: simplify or remove workflows that no longer apply (remove test runs, packaging steps; keep minimal linting for docs if desired)
+  - [x] 5.11 Update or remove `.github/workflows/release.yml` in SDD workflow repository (SDD workflow no longer publishes as package)
+  - [x] 5.12 Verify `prompts/` directory is retained in SDD workflow repository (for reference)
+  - [x] 5.13 Run pre-commit in SDD workflow repository: `pre-commit run --all-files` and verify it passes
+  - [x] 5.14 Create git commit in SDD workflow repository with clear message documenting the extraction
 
 - [ ] 6.0 Create Release Artifacts and Migration Documentation
   - Demo Criteria: "CHANGELOG entry created in Slash Command Manager; migration guide added to SDD workflow README; Slash Command Manager tagged with initial semantic version (e.g., `v1.0.0`); package installable via `uvx --from ./dist slash-man generate --help`"
