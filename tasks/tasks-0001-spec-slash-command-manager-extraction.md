@@ -98,19 +98,19 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [x] 3.9 Verify MCP server dependencies are listed in `pyproject.toml` (fastmcp, pyyaml)
   - [x] 3.10 Test MCP server startup: run `python server.py` (or appropriate command) and verify it starts without import or configuration errors
 
-- [ ] 4.0 Port and Adapt Test Suite
+- [x] 4.0 Port and Adapt Test Suite
   - Demo Criteria: "All generator and MCP tests copied and adapted with updated import paths; all tests pass: `pytest tests/`; pre-commit hooks pass: `pre-commit run --all-files`"
   - Proof Artifact(s): "Test run output showing all tests passing; pre-commit run summary; test coverage report"
-  - [ ] 4.1 Copy `tests/conftest.py` from source repository and update any fixture paths or import references
-  - [ ] 4.2 Copy generator test files (`tests/test_cli.py`, `tests/test_generators.py`, `tests/test_detection.py`, `tests/test_config.py`) from source repository
-  - [ ] 4.3 Copy MCP server test files (e.g., `tests/test_mcp_server.py` or equivalent) if they exist in source repository
-  - [ ] 4.4 Update all test files to use correct import paths for `slash_commands` and `mcp_server` packages (change from old package structure if needed)
-  - [ ] 4.5 Update any test fixtures or test data paths that reference source repository structure
-  - [ ] 4.6 Review `pyproject.toml` to ensure pytest configuration includes correct test paths and coverage settings
-  - [ ] 4.7 Run test suite: `pytest tests/` and fix any failing tests due to import or path issues
-  - [ ] 4.8 Verify all tests pass: confirm pytest summary shows all tests passing with appropriate coverage
-  - [ ] 4.9 Install pre-commit hooks: `pre-commit install`
-  - [ ] 4.10 Run pre-commit on all files: `pre-commit run --all-files` and fix any linting or formatting issues
+  - [x] 4.1 Copy `tests/conftest.py` from source repository and update any fixture paths or import references
+  - [x] 4.2 Copy generator test files (`tests/test_cli.py`, `tests/test_generators.py`, `tests/test_detection.py`, `tests/test_config.py`) from source repository
+  - [x] 4.3 Copy MCP server test files (e.g., `tests/test_mcp_server.py` or equivalent) if they exist in source repository
+  - [x] 4.4 Update all test files to use correct import paths for `slash_commands` and `mcp_server` packages (change from old package structure if needed)
+  - [x] 4.5 Update any test fixtures or test data paths that reference source repository structure
+  - [x] 4.6 Review `pyproject.toml` to ensure pytest configuration includes correct test paths and coverage settings
+  - [x] 4.7 Run test suite: `pytest tests/` and fix any failing tests due to import or path issues
+  - [x] 4.8 Verify all tests pass: confirm pytest summary shows all tests passing with appropriate coverage
+  - [x] 4.9 Install pre-commit hooks: `pre-commit install`
+  - [x] 4.10 Run pre-commit on all files: `pre-commit run --all-files` and fix any linting or formatting issues
 
 - [ ] 5.0 Refactor SDD Workflow Repository (Remove Extracted Components)
   - Demo Criteria: "Generator and MCP code removed from SDD workflow repo (`slash_commands/`, `mcp_server/`, `server.py`, related tests); dependencies cleaned from `pyproject.toml`; README updated with Slash Command Manager link; pre-commit passes"

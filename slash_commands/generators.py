@@ -197,18 +197,20 @@ class MarkdownCommandGenerator:
     def _build_meta(self, prompt: MarkdownPrompt, agent: AgentConfig) -> dict:
         """Build metadata section for the command."""
         meta = prompt.meta.copy() if prompt.meta else {}
-        meta.update({
-            "agent": agent.key,
-            "agent_display_name": agent.display_name,
-            "command_dir": agent.command_dir,
-            "command_format": agent.command_format.value,
-            "command_file_extension": agent.command_file_extension,
-            "source_prompt": prompt.name,
-            # Store only basename to avoid leaking absolute paths
-            "source_path": prompt.path.name,
-            "version": __version__,
-            "updated_at": datetime.now(UTC).isoformat(),
-        })
+        meta.update(
+            {
+                "agent": agent.key,
+                "agent_display_name": agent.display_name,
+                "command_dir": agent.command_dir,
+                "command_format": agent.command_format.value,
+                "command_file_extension": agent.command_file_extension,
+                "source_prompt": prompt.name,
+                # Store only basename to avoid leaking absolute paths
+                "source_path": prompt.path.name,
+                "version": __version__,
+                "updated_at": datetime.now(UTC).isoformat(),
+            }
+        )
         return meta
 
 

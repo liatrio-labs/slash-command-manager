@@ -6,15 +6,15 @@ import importlib.resources
 import os
 import re
 import shutil
-
-# tomllib is part of the Python standard library since Python 3.11
-# Project requires Python 3.12+ for compatibility with all dependencies
-import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
 import questionary
+
+# tomllib is part of the Python standard library since Python 3.11
+# Project requires Python 3.12+ for compatibility with all dependencies
+import tomllib
 import yaml
 
 from mcp_server.prompt_utils import MarkdownPrompt, load_markdown_prompt
@@ -308,13 +308,15 @@ class SlashCommandWriter:
                     if self._is_generated_file(file_path, agent):
                         # Convert Path to string explicitly using os.fspath
                         path_str = os.fspath(file_path)
-                        found_files.append({
-                            "path": path_str,
-                            "agent": agent.key,
-                            "agent_display_name": agent.display_name,
-                            "type": "command",
-                            "reason": "Has generated metadata",
-                        })
+                        found_files.append(
+                            {
+                                "path": path_str,
+                                "agent": agent.key,
+                                "agent_display_name": agent.display_name,
+                                "type": "command",
+                                "reason": "Has generated metadata",
+                            }
+                        )
 
                 # Check for backup files
                 if include_backups:
@@ -325,13 +327,15 @@ class SlashCommandWriter:
                         if file_path.is_file() and pattern.match(file_path.name):
                             # Convert Path to string explicitly using os.fspath
                             path_str = os.fspath(file_path)
-                            found_files.append({
-                                "path": path_str,
-                                "agent": agent.key,
-                                "agent_display_name": agent.display_name,
-                                "type": "backup",
-                                "reason": "Matches backup pattern",
-                            })
+                            found_files.append(
+                                {
+                                    "path": path_str,
+                                    "agent": agent.key,
+                                    "agent_display_name": agent.display_name,
+                                    "type": "backup",
+                                    "reason": "Matches backup pattern",
+                                }
+                            )
             except KeyError:
                 # Agent key not found, skip
                 continue

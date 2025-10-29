@@ -1,3 +1,2 @@
 [project.scripts]
 slash-man = "slash_commands.cli:main"
-

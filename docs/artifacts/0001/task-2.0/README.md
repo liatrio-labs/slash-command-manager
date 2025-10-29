@@ -1,6 +1,6 @@
 # Proof Artifacts: Task 2.0
 
-**Spec:** 0001-spec-slash-command-manager-extraction.md  
+**Spec:** 0001-spec-slash-command-manager-extraction.md
 **Task:** 2.0 - Extract and Port Generator Code (`slash_commands/` package)
 
 This directory contains proof artifacts demonstrating completion of Task 2.0.
@@ -13,8 +13,8 @@ This directory contains proof artifacts demonstrating completion of Task 2.0.
 
 ## Demo Criteria Verification
 
-? All `slash_commands/` modules copied and adapted with updated imports  
-? CLI entry point `slash-man` configured in `pyproject.toml`  
+? All `slash_commands/` modules copied and adapted with updated imports
+? CLI entry point `slash-man` configured in `pyproject.toml`
 ? `slash-man --help` displays usage without errors
 
 ## Notes

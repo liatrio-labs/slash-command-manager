@@ -1,6 +1,6 @@
 # Proof Artifacts: Task 3.0
 
-**Spec:** 0001-spec-slash-command-manager-extraction.md  
+**Spec:** 0001-spec-slash-command-manager-extraction.md
 **Task:** 3.0 - Extract and Port MCP Server Code (`mcp_server/` package and `server.py`)
 
 This directory contains proof artifacts demonstrating completion of Task 3.0.
@@ -12,9 +12,9 @@ This directory contains proof artifacts demonstrating completion of Task 3.0.
 
 ## Demo Criteria Verification
 
-? `mcp_server/` package ported with all MCP functionality  
-? `server.py` entry point ported and updated  
-? `prompts/` directory copied  
+? `mcp_server/` package ported with all MCP functionality
+? `server.py` entry point ported and updated
+? `prompts/` directory copied
 ? MCP server starts without import or configuration errors
 
 ## Notes
