@@ -1,0 +1,12 @@
+mcp_server/config.py
+mcp_server/__init__.py
+mcp_server/prompts_loader.py
+mcp_server/prompt_utils.py
+mcp_server/__pycache__/config.cpython-312.pyc
+mcp_server/__pycache__/__init__.cpython-312.pyc
+mcp_server/__pycache__/prompts_loader.cpython-312.pyc
+mcp_server/__pycache__/prompt_utils.cpython-312.pyc
+prompts/generate-spec.md
+prompts/generate-task-list-from-spec.md
+prompts/manage-tasks.md
+server.py

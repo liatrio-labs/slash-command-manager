@@ -84,19 +84,19 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [x] 2.8 Install package in editable mode: `pip install -e .` (or `uv pip install -e .`)
   - [x] 2.9 Test CLI entry point: run `slash-man --help` and verify it displays usage information without import or runtime errors
 
-- [ ] 3.0 Extract and Port MCP Server Code (`mcp_server/` package and `server.py`)
+- [x] 3.0 Extract and Port MCP Server Code (`mcp_server/` package and `server.py`)
   - Demo Criteria: "`mcp_server/` package ported with all MCP functionality; `server.py` entry point ported; `prompts/` directory copied; MCP server starts without errors"
   - Proof Artifact(s): "Directory structure showing `mcp_server/` and `server.py`; successful server startup log or test run"
-  - [ ] 3.1 Copy `mcp_server/` directory from source SDD workflow repository to Slash Command Manager repository
-  - [ ] 3.2 Review and update `mcp_server/__init__.py` to ensure proper package initialization
-  - [ ] 3.3 Review `mcp_server/config.py` and update any import paths or configuration references
-  - [ ] 3.4 Review `mcp_server/prompt_utils.py` and update any import paths
-  - [ ] 3.5 Review `mcp_server/prompts_loader.py` and update paths to `prompts/` directory (ensure it references the correct location)
-  - [ ] 3.6 Copy `prompts/` directory from source repository to Slash Command Manager repository
-  - [ ] 3.7 Copy `server.py` entry point file from source repository to Slash Command Manager repository root
-  - [ ] 3.8 Review and update `server.py` to ensure it correctly imports from `mcp_server` package and references `prompts/` directory correctly
-  - [ ] 3.9 Verify MCP server dependencies are listed in `pyproject.toml` (fastmcp, pyyaml)
-  - [ ] 3.10 Test MCP server startup: run `python server.py` (or appropriate command) and verify it starts without import or configuration errors
+  - [x] 3.1 Copy `mcp_server/` directory from source SDD workflow repository to Slash Command Manager repository
+  - [x] 3.2 Review and update `mcp_server/__init__.py` to ensure proper package initialization
+  - [x] 3.3 Review `mcp_server/config.py` and update any import paths or configuration references
+  - [x] 3.4 Review `mcp_server/prompt_utils.py` and update any import paths
+  - [x] 3.5 Review `mcp_server/prompts_loader.py` and update paths to `prompts/` directory (ensure it references the correct location)
+  - [x] 3.6 Copy `prompts/` directory from source repository to Slash Command Manager repository
+  - [x] 3.7 Copy `server.py` entry point file from source repository to Slash Command Manager repository root
+  - [x] 3.8 Review and update `server.py` to ensure it correctly imports from `mcp_server` package and references `prompts/` directory correctly
+  - [x] 3.9 Verify MCP server dependencies are listed in `pyproject.toml` (fastmcp, pyyaml)
+  - [x] 3.10 Test MCP server startup: run `python server.py` (or appropriate command) and verify it starts without import or configuration errors
 
 - [ ] 4.0 Port and Adapt Test Suite
   - Demo Criteria: "All generator and MCP tests copied and adapted with updated import paths; all tests pass: `pytest tests/`; pre-commit hooks pass: `pre-commit run --all-files`"
