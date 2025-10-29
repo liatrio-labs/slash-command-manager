@@ -49,19 +49,19 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
 
 ## Tasks
 
-- [ ] 1.0 Set up Slash Command Manager Repository Structure and Configuration
+- [x] 1.0 Set up Slash Command Manager Repository Structure and Configuration
   - Demo Criteria: "Repository initialized with all necessary directory structure, packaging configuration (`pyproject.toml`), versioning (`__version__.py`), license files, and CI/CD workflow scaffolding; package build succeeds: `python -m build --wheel`"
   - Proof Artifact(s): "Directory tree output showing structure; `pyproject.toml` content; successful wheel build log; `__version__.py` showing initial version"
-  - [ ] 1.1 Create directory structure: `slash_commands/`, `mcp_server/`, `prompts/`, `tests/`, `docs/`, `.github/workflows/`
-  - [ ] 1.2 Create `pyproject.toml` with package metadata, build system configuration, dependencies (fastmcp, questionary, tomli-w, rich, typer, pyyaml, pytest, ruff, pre-commit), and entry point definition for `slash-man`
-  - [ ] 1.3 Create `__version__.py` with initial semantic version (e.g., `__version__ = "1.0.0"`)
-  - [ ] 1.4 Copy `LICENSE` file from source SDD workflow repository
-  - [ ] 1.5 Create `.pre-commit-config.yaml` with hooks for ruff, pytest, and other code quality tools (copy and adapt from source repo)
-  - [ ] 1.6 Create `.github/workflows/ci.yml` workflow for linting (`ruff check`), testing (`pytest`), and pre-commit validation
-  - [ ] 1.7 Create `.github/workflows/release.yml` workflow for semantic versioning and package publishing to PyPI
-  - [ ] 1.8 Create basic `README.md` structure with project description, installation instructions, and links to documentation
-  - [ ] 1.9 Create `CONTRIBUTING.md` with contribution guidelines
-  - [ ] 1.10 Verify package structure: run `python -m build --wheel` and confirm successful wheel build in `dist/` directory
+  - [x] 1.1 Create directory structure: `slash_commands/`, `mcp_server/`, `prompts/`, `tests/`, `docs/`, `.github/workflows/`
+  - [x] 1.2 Create `pyproject.toml` with package metadata, build system configuration, dependencies (fastmcp, questionary, tomli-w, rich, typer, pyyaml, pytest, ruff, pre-commit), and entry point definition for `slash-man`
+  - [x] 1.3 Create `__version__.py` with initial semantic version (e.g., `__version__ = "1.0.0"`)
+  - [x] 1.4 Copy `LICENSE` file from source SDD workflow repository
+  - [x] 1.5 Create `.pre-commit-config.yaml` with hooks for ruff, pytest, and other code quality tools (copy and adapt from source repo)
+  - [x] 1.6 Create `.github/workflows/ci.yml` workflow for linting (`ruff check`), testing (`pytest`), and pre-commit validation
+  - [x] 1.7 Create `.github/workflows/release.yml` workflow for semantic versioning and package publishing to PyPI
+  - [x] 1.8 Create basic `README.md` structure with project description, installation instructions, and links to documentation
+  - [x] 1.9 Create `CONTRIBUTING.md` with contribution guidelines
+  - [x] 1.10 Verify package structure: run `python -m build --wheel` and confirm successful wheel build in `dist/` directory
   
 - [ ] 2.0 Extract and Port Generator Code (`slash_commands/` package)
   - Demo Criteria: "All `slash_commands/` modules (CLI, config, writer, detection) copied and adapted with updated imports; CLI entry point `slash-man` configured in `pyproject.toml`; `slash-man --help` displays usage without errors"
