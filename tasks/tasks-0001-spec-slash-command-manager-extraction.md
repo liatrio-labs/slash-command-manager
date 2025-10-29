@@ -130,16 +130,16 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
   - [x] 5.13 Run pre-commit in SDD workflow repository: `pre-commit run --all-files` and verify it passes
   - [x] 5.14 Create git commit in SDD workflow repository with clear message documenting the extraction
 
-- [ ] 6.0 Create Release Artifacts and Migration Documentation
+- [x] 6.0 Create Release Artifacts and Migration Documentation
   - Demo Criteria: "CHANGELOG entry created in Slash Command Manager; migration guide added to SDD workflow README; Slash Command Manager tagged with initial semantic version (e.g., `v1.0.0`); package installable via `uvx --from ./dist slash-man generate --help`"
   - Proof Artifact(s): "CHANGELOG entry; migration guide document; git tag and release notes; `uvx` test output showing CLI working from locally-built wheel"
-  - [ ] 6.1 Create or update `CHANGELOG.md` in Slash Command Manager with initial release entry documenting project launch and extracted components from SDD workflow
-  - [ ] 6.2 Update `README.md` in Slash Command Manager with complete installation instructions (uvx, pip), usage examples, and link back to SDD workflow repository
-  - [ ] 6.3 Create migration guide section in SDD workflow `README.md` explaining: how to install Slash Command Manager separately, migration from old `sdd-commands` entry point to `slash-man`, backward compatibility notes for old scripts/CI
-  - [ ] 6.4 Build final package wheel: `python -m build --wheel` in Slash Command Manager repository
-  - [ ] 6.5 Test package installation locally: `uvx --from ./dist slash-man generate --help` and verify CLI works correctly
-  - [ ] 6.6 Test package installation via pip workflow: `pip install ./dist/*.whl` (or equivalent) and verify `slash-man --help` works
-  - [ ] 6.7 Create git tag in Slash Command Manager repository: `git tag -a v1.0.0 -m "Initial release: Slash Command Manager extraction"`
-  - [ ] 6.8 Prepare release notes (can be GitHub release description) summarizing the initial release, extracted components, and migration path
-  - [ ] 6.9 Update GitHub repository metadata: add topics/tags, update description, add links to documentation
-  - [ ] 6.10 Update SDD workflow repository with final links and ensure migration guide is complete and clear
+  - [x] 6.1 Create or update `CHANGELOG.md` in Slash Command Manager with initial release entry documenting project launch and extracted components from SDD workflow
+  - [x] 6.2 Update `README.md` in Slash Command Manager with complete installation instructions (uvx, pip), usage examples, and link back to SDD workflow repository
+  - [x] 6.3 Create migration guide section in SDD workflow `README.md` explaining: how to install Slash Command Manager separately, migration from old `sdd-commands` entry point to `slash-man`, backward compatibility notes for old scripts/CI
+  - [x] 6.4 Build final package wheel: `python -m build --wheel` in Slash Command Manager repository
+  - [x] 6.5 Test package installation locally: `uvx --from ./dist slash-man generate --help` and verify CLI works correctly
+  - [x] 6.6 Test package installation via pip workflow: `pip install ./dist/*.whl` (or equivalent) and verify `slash-man --help` works
+  - [x] 6.7 Create git tag in Slash Command Manager repository: `git tag -a v1.0.0 -m "Initial release: Slash Command Manager extraction"`
+  - [x] 6.8 Prepare release notes (can be GitHub release description) summarizing the initial release, extracted components, and migration path
+  - [x] 6.9 Update GitHub repository metadata: add topics/tags, update description, add links to documentation
+  - [x] 6.10 Update SDD workflow repository with final links and ensure migration guide is complete and clear
