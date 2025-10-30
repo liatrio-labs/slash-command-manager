@@ -33,22 +33,12 @@ Once published to PyPI, you'll be able to use:
 uvx slash-command-manager generate --yes
 ```
 
-### Using pip
-
-```bash
-# Install from PyPI (once published)
-pip install slash-command-manager
-
-# Or install from a local wheel
-pip install ./dist/*.whl
-```
-
 ### From Source
 
 ```bash
 git clone https://github.com/liatrio-labs/slash-command-manager.git
 cd slash-command-manager
-pip install -e .
+uv pip install -e .
 ```
 
 ## Quick Start

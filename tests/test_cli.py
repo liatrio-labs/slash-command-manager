@@ -131,7 +131,13 @@ def test_cli_handles_invalid_agent_key(mock_prompts_dir):
     )
 
     assert result.exit_code == 2  # Validation error
-    assert "unsupported agent" in result.stdout.lower() or "error" in result.stdout.lower()
+    # Error messages are printed to stderr, but may be mixed in stdout by default
+    # Try to get stderr if available, otherwise just use stdout
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "unsupported agent" in output or "invalid agent key" in output
 
 
 def test_cli_handles_missing_prompts_directory(tmp_path):
@@ -178,9 +184,13 @@ def test_cli_explicit_path_shows_specific_directory_error(tmp_path):
         )
 
         assert result.exit_code == 3  # I/O error
-        # Should mention specific directory check
-        assert "Ensure the specified prompts directory exists" in result.stdout
-        assert f"current: {prompts_dir}" in result.stdout
+        # Error messages are printed to stderr, but may be mixed in stdout by default
+        try:
+            output = result.stdout + result.stderr
+        except (ValueError, AttributeError):
+            output = result.stdout
+        assert "Ensure the specified prompts directory exists" in output
+        assert f"current: {prompts_dir}" in output
 
 
 def test_cli_shows_summary(mock_prompts_dir, tmp_path):
@@ -435,7 +445,12 @@ def test_cli_interactive_agent_selection_cancels_on_no_selection(mock_prompts_di
 
         # Should exit with exit code 1 (user cancellation)
         assert result.exit_code == 1
-        assert "no agents selected" in result.stdout.lower()
+        # Cancellation messages are printed to stderr, but may be mixed in stdout by default
+        try:
+            output = (result.stdout + result.stderr).lower()
+        except (ValueError, AttributeError):
+            output = result.stdout.lower()
+        assert "no agents selected" in output
 
 
 def test_cli_interactive_agent_selection_bypassed_with_yes_flag(mock_prompts_dir, tmp_path):
@@ -482,7 +497,12 @@ def test_cli_no_agents_detected_exit_code(tmp_path):
     )
 
     assert result.exit_code == 2  # Validation error
-    assert "no agents detected" in result.stdout.lower()
+    # Error messages are printed to stderr, but may be mixed in stdout by default
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "no agents detected" in output
 
 
 def test_cli_exit_code_user_cancellation(mock_prompts_dir, tmp_path):
@@ -510,7 +530,12 @@ def test_cli_exit_code_user_cancellation(mock_prompts_dir, tmp_path):
         )
 
         assert result.exit_code == 1  # User cancellation
-        assert "cancelled" in result.stdout.lower() or "cancel" in result.stdout.lower()
+        # Cancellation messages are printed to stderr, but may be mixed in stdout by default
+        try:
+            output = (result.stdout + result.stderr).lower()
+        except (ValueError, AttributeError):
+            output = result.stdout.lower()
+        assert "cancelled" in output or "cancel" in output
 
 
 def test_cli_cleanup_command(tmp_path):

@@ -18,4 +18,4 @@ uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man g
 # Or install locally
 git clone https://github.com/liatrio-labs/slash-command-manager.git
 cd slash-command-manager
-pip install -e .
+uv pip install -e .

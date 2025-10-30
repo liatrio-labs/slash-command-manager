@@ -11,9 +11,6 @@ from pathlib import Path
 from typing import Any, Literal
 
 import questionary
-
-# tomllib is part of the Python standard library since Python 3.11
-# Project requires Python 3.12+ for compatibility with all dependencies
 import tomllib
 import yaml
 

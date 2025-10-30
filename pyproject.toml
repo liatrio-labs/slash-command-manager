@@ -7,8 +7,8 @@ name = "slash-command-manager"
 version = "1.0.0"
 description = "Slash Command Generator and MCP Server for SDD Workflow"
 readme = "README.md"
-requires-python = ">=3.8"
-license = {text = "MIT"}
+requires-python = ">=3.11"
+license = "MIT"
 authors = [
     {name = "Liatrio", email = "info@liatrio.com"}
 ]
@@ -16,11 +16,7 @@ keywords = ["cli", "generator", "mcp", "slash-commands", "sdd"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -66,7 +62,9 @@ addopts = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py310"
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -82,8 +80,8 @@ ignore = [
     "C901",  # too complex
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # allow unused imports in __init__.py files
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["slash_commands", "mcp_server"]

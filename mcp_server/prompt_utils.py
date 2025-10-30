@@ -137,7 +137,7 @@ def _ensure_tag_set(raw: Any) -> set[str] | None:
     if raw is None:
         return None
 
-    if isinstance(raw, Iterable) and not isinstance(raw, (str, bytes)):
+    if isinstance(raw, Iterable) and not isinstance(raw, str | bytes):
         tags = {str(tag) for tag in raw}
         return tags or None
 

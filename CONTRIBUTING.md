@@ -9,7 +9,7 @@ Thank you for your interest in contributing to Slash Command Manager! This docum
 3. Create a branch: `git checkout -b feature/your-feature-name`
 4. Set up the development environment:
    ```bash
-   pip install -e ".[dev]"
+   uv pip install -e ".[dev]"
    pre-commit install
    ```
 

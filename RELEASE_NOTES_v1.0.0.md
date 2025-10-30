@@ -33,10 +33,10 @@ A Model Context Protocol server for programmatic access to slash command generat
 uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man generate --yes
 ```
 
-### Via pip
+### Via uv
 
 ```bash
-pip install slash-command-manager
+uv add slash-command-manager
 ```
 
 ### From Source
@@ -44,7 +44,7 @@ pip install slash-command-manager
 ```bash
 git clone https://github.com/liatrio-labs/slash-command-manager.git
 cd slash-command-manager
-pip install -e .
+uv pip install -e .
 ```
 
 ## Migration from SDD Workflow

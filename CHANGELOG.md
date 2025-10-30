@@ -50,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   # Install via uvx
   uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man generate --yes
 
-  # Or via pip (once published)
-  pip install slash-command-manager
+  # Or via uv (once published)
+  uv add slash-command-manager
   ```
 - **SDD Workflow Repository**: The original repository now focuses on workflow prompts and documentation. Generator and MCP functionality are available via this package.
 

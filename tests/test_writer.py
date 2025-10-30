@@ -183,11 +183,9 @@ def test_writer_handles_missing_prompts_directory(tmp_path):
     )
 
     # Mock the fallback function to return None to test the error case
-    with (
-        patch("slash_commands.writer._find_package_prompts_dir", return_value=None),
-        pytest.raises(ValueError, match="Prompts directory does not exist"),
-    ):
-        writer.generate()
+    with patch("slash_commands.writer._find_package_prompts_dir", return_value=None):
+        with pytest.raises(ValueError, match="Prompts directory does not exist"):
+            writer.generate()
 
 
 def test_writer_finds_bundled_prompts(tmp_path):
@@ -380,19 +378,17 @@ def test_writer_backs_up_existing_files(mock_prompt_load: Path, tmp_path):
         base_path=tmp_path,
     )
 
-    with (
-        patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt,
-        patch("slash_commands.writer.create_backup") as mock_backup,
-    ):
-        mock_prompt.return_value = "backup"
-        mock_backup.return_value = output_path.with_suffix(".md.bak")
+    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+        with patch("slash_commands.writer.create_backup") as mock_backup:
+            mock_prompt.return_value = "backup"
+            mock_backup.return_value = output_path.with_suffix(".md.bak")
 
-        writer.generate()
+            writer.generate()
 
-        # Verify backup was created
-        mock_backup.assert_called_once_with(output_path)
-        # Verify file was overwritten
-        assert "Test Prompt" in output_path.read_text()
+            # Verify backup was created
+            mock_backup.assert_called_once_with(output_path)
+            # Verify file was overwritten
+            assert "Test Prompt" in output_path.read_text()
 
 
 def test_writer_applies_overwrite_globally(mock_prompt_load: Path, tmp_path):
