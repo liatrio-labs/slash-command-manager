@@ -100,6 +100,69 @@ The generator supports the following AI coding assistants:
 
 - [SDD Workflow](https://github.com/liatrio-labs/spec-driven-workflow) - Spec-Driven Development prompts and workflow documentation
 
+## Development
+
+### Testing in Clean Environment (Docker)
+
+For testing the installation in a completely clean environment without any local dependencies, use these `docker` commands:
+
+```bash
+# Build and test in an ephemeral Docker container
+docker run --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "
+    pip install uv && \
+    uv sync && \
+    uv run slash-man generate --list-agents && \
+    echo '✅ Installation test passed - CLI is functional'
+"
+```
+
+This command:
+
+- Uses a fresh Python 3.12 slim container
+- Installs uv package manager
+- Syncs dependencies from scratch
+- Tests the CLI functionality
+- Automatically cleans up the container when done
+
+For a more comprehensive test including package building:
+
+```bash
+# Full test: build package and test CLI in clean environment
+docker run --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "
+    pip install uv build && \
+    uv sync && \
+    python -m build && \
+    pip install dist/*.whl && \
+    slash-man generate --list-agents && \
+    slash-man generate --agent claude-code && \
+    ls -lh ~/.claude/commands/ | grep .md && \
+    echo '✅ Full installation and functionality test passed'
+"
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=mcp_server --cov=slash_commands --cov-report=term-missing
+
+# Run pre-commit hooks
+uv run pre-commit run --all-files
+```
+
+### Building Package
+
+```bash
+# Build wheel and source distribution
+uv run python -m build
+
+# Install built package locally
+pip install dist/*.whl
+```
+
 ## SDD Workflow Integration
 
 This package was extracted from the [SDD Workflow](https://github.com/liatrio-labs/spec-driven-workflow) repository to enable independent versioning and release cycles.
