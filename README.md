@@ -106,6 +106,8 @@ The generator supports the following AI coding assistants:
 
 For testing the installation in a completely clean environment without any local dependencies, use these `docker` commands:
 
+#### Option 1: One-line Testing
+
 ```bash
 # Build and test in an ephemeral Docker container
 docker run --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "
@@ -138,6 +140,21 @@ docker run --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "
     ls -lh ~/.claude/commands/ | grep .md && \
     echo '✅ Full installation and functionality test passed'
 "
+```
+
+#### Option 2: Interactive Docker Container
+
+Build the Docker image and run it interactively:
+
+```bash
+# Build the Docker image
+docker build -t slash-command-manager .
+
+# Run interactively with shell access
+docker run -it --rm slash-command-manager bash
+
+# Or run directly with the CLI
+docker run -it --rm slash-command-manager generate --list-agents
 ```
 
 ### Running Tests
