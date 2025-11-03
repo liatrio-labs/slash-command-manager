@@ -91,6 +91,8 @@ The generator supports the following AI coding assistants:
 ## Documentation
 
 - [Generator Documentation](docs/slash-command-generator.md)
+- [Operations Guide](docs/operations.md)
+- [MCP Prompt Support](docs/mcp-prompt-support.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
@@ -121,4 +123,4 @@ For complete documentation on the SDD workflow, see the [SDD Workflow repository
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details
+Apache License 2.0 - see [LICENSE](LICENSE) file for details
