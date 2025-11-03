@@ -8,7 +8,7 @@ This document outlines the GitHub repository metadata updates that should be com
 
 Update the repository description to:
 
-```
+```text
 A standalone CLI tool and MCP server for generating and managing slash commands for AI coding assistants. Extracted from SDD Workflow.
 ```
 

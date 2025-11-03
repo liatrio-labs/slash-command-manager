@@ -6,12 +6,12 @@ This directory contains proof artifacts and demo files generated during the impl
 
 Artifacts are organized by specification number and task number:
 
-```
+```text
 docs/artifacts/
-??? <spec-number>/          # e.g., 0001/
-?   ??? task-<task-number>/ # e.g., task-1.0/
-?       ??? README.md       # Documentation of artifacts in this task
-?       ??? <artifact-files>
+├── <spec-number>/          # e.g., 0001/
+│   └── task-<task-number>/ # e.g., task-1.0/
+│       ├── README.md       # Documentation of artifacts in this task
+│       └── <artifact-files>
 ```
 
 **Example:** Artifacts for Task 1.0 of Spec 0001 would be in `./docs/artifacts/0001/task-1.0/`

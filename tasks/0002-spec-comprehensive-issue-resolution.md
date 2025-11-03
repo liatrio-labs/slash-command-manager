@@ -115,22 +115,22 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 
 ### High Priority Requirements
 
-5. **MCP Entry Point**: The system SHALL provide a functional `slash-man` console script as documented in the README
-6. **License Compliance**: The system SHALL use Apache-2.0 license as required by the original specification
-7. **Documentation Completeness**: The system SHALL include all required documentation files: `docs/mcp-prompt-support.md`, `docs/operations.md`, `docs/slash-command-generator.md`
-8. **Dependency Management**: The system SHALL use uv dependency management with a consistent `uv.lock` file
+1. **MCP Entry Point**: The system SHALL provide a functional `slash-man` console script as documented in the README
+2. **License Compliance**: The system SHALL use Apache-2.0 license as required by the original specification
+3. **Documentation Completeness**: The system SHALL include all required documentation files: `docs/mcp-prompt-support.md`, `docs/operations.md`, `docs/slash-command-generator.md`
+4. **Dependency Management**: The system SHALL use uv dependency management with a consistent `uv.lock` file
 
 ### Medium Priority Requirements
 
-9. **CI Workflow Consistency**: The system SHALL use uv instead of pip in CI workflows, include coverage reporting, and maintain Python version matrix testing
-10. **Pre-commit Configuration**: The system SHALL include commitlint hook and maintain consistent tool versions with the original repository
-11. **Build System Standards**: The system SHALL use hatchling build backend following modern Python packaging standards
-12. **Version Integration**: The system SHALL properly integrate `__version__.py` with semantic-release to prevent version skew
+1. **CI Workflow Consistency**: The system SHALL use uv instead of pip in CI workflows, include coverage reporting, and maintain Python version matrix testing
+2. **Pre-commit Configuration**: The system SHALL include commitlint hook and maintain consistent tool versions with the original repository
+3. **Build System Standards**: The system SHALL use hatchling build backend following modern Python packaging standards
+4. **Version Integration**: The system SHALL properly integrate `__version__.py` with semantic-release to prevent version skew
 
 ### Low Priority Requirements
 
-13. **Python Version Consistency**: The system SHALL maintain consistent `requires-python` configuration with the original repository
-15. **Reference Updates**: The system SHALL update all repository references to work correctly as a standalone project
+1. **Python Version Consistency**: The system SHALL maintain consistent `requires-python` configuration with the original repository
+2. **Reference Updates**: The system SHALL update all repository references to work correctly as a standalone project
 
 ## Non-Goals (Out of Scope)
 

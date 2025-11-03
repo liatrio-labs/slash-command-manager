@@ -19,10 +19,10 @@ Thank you for your interest in contributing to Slash Command Manager! This docum
 1. Make your changes
 2. Run tests: `pytest tests/`
 3. Run linting: `ruff check .`
-3. Run formatting: `ruff format .`
-4. Run pre-commit hooks: `pre-commit run --all-files`
-5. Commit your changes with a conventional commit message
-6. Push to your fork and create a pull request
+4. Run formatting: `ruff format .`
+5. Run pre-commit hooks: `pre-commit run --all-files`
+6. Commit your changes with a conventional commit message
+7. Push to your fork and create a pull request
 
 ## Code Style
 
@@ -42,7 +42,7 @@ Thank you for your interest in contributing to Slash Command Manager! This docum
 
 We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 feat: add new command generation feature
 fix: resolve issue with file detection
 docs: update installation instructions

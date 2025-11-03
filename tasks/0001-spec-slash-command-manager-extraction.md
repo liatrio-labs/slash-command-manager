@@ -171,20 +171,19 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ### SDD Workflow Repository (Refocused)
 
-14. **Removed Code:** Must not contain `slash_commands/`, `mcp_server/`, `server.py`, or any code package.
-15. **Core Components:** Must retain `prompts/` directory for reference and workflow documentation.
-16. **Updated Docs:** Must update README and docs to link to Slash Command Manager for generator and MCP functionality.
-17. **No Package:** Must not be packaged/published as a Python package (prompts/docs only).
-18. **Dependencies:** Must have all code-related dependencies removed from `pyproject.toml`.
-19. **CI/CD:** Must have simplified GitHub Actions (if any CI is retained).
-20. **Cleanup:** Repository cleanup and polish to be handled in follow-up task.
+1. **Removed Code:** Must not contain `slash_commands/`, `mcp_server/`, `server.py`, or any code package.
+2. **Core Components:** Must retain `prompts/` directory for reference and workflow documentation.
+3. **Updated Docs:** Must update README and docs to link to Slash Command Manager for generator and MCP functionality.
+4. **No Package:** Must not be packaged/published as a Python package (prompts/docs only).
+5. **Dependencies:** Must have all code-related dependencies removed from `pyproject.toml`.
+6. **CI/CD:** Must have simplified GitHub Actions (if any CI is retained).
 
 ### Release & Migration
 
-21. **CHANGELOG:** Slash Command Manager must document initial project launch and extracted components.
-22. **Migration Guide:** SDD workflow repo must include instructions for installing Slash Command Manager.
-23. **Backward Compatibility Notes:** Must provide guidance for scripts/CI using old `sdd-commands` entry point.
-24. **PyPI Distribution:** Slash Command Manager package published to PyPI with clear, distinct name and purpose.
+1. **CHANGELOG:** Slash Command Manager must document initial project launch and extracted components.
+2. **Migration Guide:** SDD workflow repo must include instructions for installing Slash Command Manager.
+3. **Backward Compatibility Notes:** Must provide guidance for scripts/CI using old `sdd-commands` entry point.
+4. **PyPI Distribution:** Slash Command Manager package published to PyPI with clear, distinct name and purpose.
 
 ---
 
@@ -205,7 +204,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ### Repository Structure – Slash Command Manager
 
-```
+```text
 slash-command-manager/
 ├── slash_commands/
 │   ├── __init__.py
@@ -246,7 +245,7 @@ slash-command-manager/
 
 ### Repository Structure – SDD Workflow (Refocused)
 
-```
+```text
 sdd-workflow/
 ├── prompts/
 │   └── ... (SDD workflow prompts - reference only)
