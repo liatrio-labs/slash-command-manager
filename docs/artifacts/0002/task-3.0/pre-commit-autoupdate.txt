@@ -1,0 +1,7 @@
+=== Pre-commit autoupdate ===
+[WARNING] Unexpected key(s) present on https://github.com/igorshubovych/markdownlint-cli: exclude
+[WARNING] Unexpected key(s) present on https://github.com/alessandrojcm/commitlint-pre-commit-hook: args, stages
+[https://github.com/pre-commit/pre-commit-hooks] already up to date!
+[https://github.com/astral-sh/ruff-pre-commit] updating v0.14.0 -> v0.14.3
+[https://github.com/igorshubovych/markdownlint-cli] already up to date!
+[https://github.com/alessandrojcm/commitlint-pre-commit-hook] already up to date!

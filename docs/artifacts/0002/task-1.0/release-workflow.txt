@@ -1,3 +1,4 @@
+=== release.yml workflow ===
 name: Semantic Release
 
 on:

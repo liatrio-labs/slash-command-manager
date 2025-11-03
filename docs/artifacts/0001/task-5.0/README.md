@@ -56,6 +56,7 @@ This directory contains proof artifacts demonstrating that Task 5.0 has been com
 ### Summary
 
 Task 5.0 successfully refactored the SDD Workflow repository by:
+
 - Removing all extracted components (generator CLI, MCP server, tests, demos)
 - Cleaning up dependencies and configuration files
 - Simplifying CI/CD workflows

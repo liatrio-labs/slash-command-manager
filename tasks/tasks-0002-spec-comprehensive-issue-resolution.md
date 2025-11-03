@@ -27,29 +27,29 @@
 
 ## Tasks
 
-- [ ] 1.0 Critical Infrastructure Restoration
+- [x] 1.0 Critical Infrastructure Restoration
   - Demo Criteria: "Semantic release configuration functional; release workflow automated; GitHub authentication working"
   - Proof Artifact(s): "CLI: semantic-release --help; Diff: release.yml vs original; File: chainguard config present"
-  - [ ] 1.1 Add complete `[tool.semantic_release]` configuration to pyproject.toml by copying from original repository
-  - [ ] 1.2 Restore release workflow to use automated `workflow_run` trigger pattern by copying exact content from original repository
-  - [ ] 1.3 Create missing `.github/chainguard/main-semantic-release.sts.yaml` by copying from original repository
-  - [ ] 1.4 Configure semantic-release integration with `__version__.py` based on original repository pattern
+  - [x] 1.1 Add complete `[tool.semantic_release]` configuration to pyproject.toml by copying from original repository
+  - [x] 1.2 Restore release workflow to use automated `workflow_run` trigger pattern by copying exact content from original repository
+  - [x] 1.3 Create missing `.github/chainguard/main-semantic-release.sts.yaml` by copying from original repository
+  - [x] 1.4 Configure semantic-release integration with `__version__.py` based on original repository pattern
 
-- [ ] 2.0 Package Production Readiness
+- [x] 2.0 Package Production Readiness
   - Demo Criteria: "Package builds with hatchling; wheel includes all assets; slash-man command works after installation"
   - Proof Artifact(s): "CLI: python -m build && unzip -l dist/*.whl; Test: clean install test; CLI: slash-man --help"
-  - [ ] 2.1 Switch build system from setuptools to hatchling in pyproject.toml based on original repository configuration
-  - [ ] 2.2 Configure hatchling package data inclusion to include prompts/ directory and server.py based on original repository pattern
-  - [ ] 2.3 Verify and fix slash-man console script entry point configuration based on original repository
-  - [ ] 2.4 Test package building and installation in clean environment (docker container)
+  - [x] 2.1 Switch build system from setuptools to hatchling in pyproject.toml based on original repository configuration
+  - [x] 2.2 Configure hatchling package data inclusion to include prompts/ directory and server.py based on original repository pattern
+  - [x] 2.3 Verify and fix slash-man console script entry point configuration based on original repository
+  - [x] 2.4 Test package building and installation in clean environment (docker container)
 
-- [ ] 3.0 Development Workflow Consistency
+- [x] 3.0 Development Workflow Consistency
   - Demo Criteria: "uv.lock consistent; pre-commit hooks working; CI using uv with coverage"
   - Proof Artifact(s): "File: uv.lock present; CLI: pre-commit run --all-files; CI: workflow showing uv usage"
-  - [ ] 3.1 Update CI workflow to use `astral-sh/setup-uv@v6` installation step instead of pip by copying from original repository
-  - [ ] 3.2 Restore coverage reporting with Codecov integration in CI workflow based on original repository
-  - [ ] 3.3 Add commitlint hook to pre-commit configuration by copying from original repository
-  - [ ] 3.4 Run `pre-commit autoupdate` to get latest versions
+  - [x] 3.1 Update CI workflow to use `astral-sh/setup-uv@v6` installation step instead of pip by copying from original repository
+  - [x] 3.2 Restore coverage reporting with Codecov integration in CI workflow based on original repository
+  - [x] 3.3 Add commitlint hook to pre-commit configuration by copying from original repository
+  - [x] 3.4 Run `pre-commit autoupdate` to get latest versions
 
 - [ ] 4.0 Documentation and Compliance
   - Demo Criteria: "All docs present; license Apache-2.0; references updated"

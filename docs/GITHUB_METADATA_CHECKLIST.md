@@ -5,13 +5,17 @@ This document outlines the GitHub repository metadata updates that should be com
 ## Repository Settings (via GitHub Web UI)
 
 ### Description
+
 Update the repository description to:
+
 ```
 A standalone CLI tool and MCP server for generating and managing slash commands for AI coding assistants. Extracted from SDD Workflow.
 ```
 
 ### Topics/Tags
+
 Add the following topics to the repository:
+
 - `cli`
 - `mcp-server`
 - `slash-commands`
@@ -26,9 +30,11 @@ Add the following topics to the repository:
 - `fastmcp`
 
 ### Website
+
 Set the website URL to: `https://github.com/liatrio-labs/slash-command-manager` (or primary documentation link if available)
 
 ### Social Preview
+
 Ensure the repository has an appropriate social preview image (if custom branding is desired)
 
 ## GitHub Release
@@ -50,6 +56,7 @@ Ensure the repository has an appropriate social preview image (if custom brandin
 ## README Badges (Optional Enhancements)
 
 Consider adding badges to the README:
+
 - CI status badge (if GitHub Actions workflow is public)
 - License badge
 - PyPI version badge (once published)
@@ -58,6 +65,7 @@ Consider adding badges to the README:
 ## Related Links
 
 Ensure cross-references are updated:
+
 - SDD Workflow repository links point to the correct location
 - Documentation links are valid and accessible
 - Installation instructions reference correct package names

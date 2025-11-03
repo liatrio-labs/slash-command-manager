@@ -8,6 +8,7 @@ Thank you for your interest in contributing to Slash Command Manager! This docum
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/slash-command-manager.git`
 3. Create a branch: `git checkout -b feature/your-feature-name`
 4. Set up the development environment:
+
    ```bash
    uv pip install -e ".[dev]"
    pre-commit install
@@ -51,6 +52,7 @@ refactor: simplify configuration logic
 ## Pre-commit Hooks
 
 Pre-commit hooks are installed automatically and will run on commit. They check:
+
 - Trailing whitespace
 - File endings
 - YAML/JSON/TOML syntax

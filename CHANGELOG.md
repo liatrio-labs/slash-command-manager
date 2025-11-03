@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Migration Notes
 
 - **From `sdd-commands` to `slash-man`**: Users of the old CLI entry point should switch to `slash-man`
+
   ```bash
   # Old
   sdd-commands generate
@@ -45,7 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   # New
   slash-man generate
   ```
+
 - **Installation**: The package is now available separately from the SDD workflow prompts
+
   ```bash
   # Install via uvx
   uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man generate --yes
@@ -53,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   # Or via uv (once published)
   uv add slash-command-manager
   ```
+
 - **SDD Workflow Repository**: The original repository now focuses on workflow prompts and documentation. Generator and MCP functionality are available via this package.
 
 ---

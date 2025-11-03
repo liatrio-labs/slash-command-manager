@@ -1,0 +1,22 @@
+=== pyproject.toml semantic_release section ===
+[tool.semantic_release]
+# Use annotated tags like v1.2.3
+tag_format = "v{version}"
+# Default commit parser (Angular/Conventional Commits)
+# Generate changelog and commit version bumps
+# Update the version field in pyproject.toml
+version_toml = ["pyproject.toml:project.version"]
+# Ensure uv.lock stays in sync with version changes and is committed
+# Run uv to refresh the lock file, then stage it so PSR includes it
+build_command = """
+curl -LsSf https://astral.sh/uv/install.sh | sh -s
+export PATH="$HOME/.local/bin:$PATH"
+uv lock
+git add uv.lock
+"""
+# Generate changelog and commit version bumps
+assets = ["uv.lock"]
+
+[tool.semantic_release.changelog]
+# Generate CHANGELOG.md in Markdown
+default_templates = { changelog_file = "CHANGELOG.md", output_format = "md" }

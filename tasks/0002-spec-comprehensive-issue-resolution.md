@@ -16,21 +16,25 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 ## User Stories
 
 ### As a **Release Engineer**
+
 - I want automated semantic-release to work correctly so that releases are consistent and reliable
 - I want the CI/CD pipeline to authenticate properly with GitHub so that releases can be published automatically
 - I want the package to include all necessary assets so that users can install and use the tool without issues
 
 ### As a **Developer**
+
 - I want consistent dependency management with uv.lock so that development environments are reproducible
 - I want pre-commit hooks to work consistently so that code quality is maintained
 - I want CI/CD to provide feedback and coverage reporting so that I can ensure code quality
 
 ### As an **End User**
+
 - I want the MCP server entry point to work as documented so that I can use the tool as advertised
 - I want all promised documentation to be available so that I can understand how to use the tool
 - I want the package to install correctly with all dependencies so that I can use it immediately
 
 ### As a **Project Maintainer**
+
 - I want the repository to be clean and focused so that it's easy to maintain and understand
 - I want licensing to be consistent with requirements so that legal compliance is maintained
 - I want all repository references to be correct so that the project can stand alone
@@ -38,8 +42,10 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 ## Demoable Units of Work
 
 ### Unit 1: Critical Infrastructure Restoration
+
 **Purpose:** Restore automated release workflow and authentication
 **Demo Criteria:**
+
 - Semantic release configuration present and functional
 - Release workflow matches original automated pattern (see `/home/damien/Liatrio/temp/extraction_analysis/original-spec-driven-workflow-repo-before-extraction.xml`)
 - GitHub Chainguard authentication configured and working
@@ -49,8 +55,10 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 - `.github/chainguard/main-semantic-release.sts.yaml` present
 
 ### Unit 2: Package Production Readiness
+
 **Purpose:** Ensure package builds and installs correctly with all assets
 **Demo Criteria:**
+
 - Package builds successfully with hatchling
 - Wheel includes `prompts/` directory and `server.py`
 - MCP server entry point functional after installation
@@ -60,8 +68,10 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 - Working `slash-man` command
 
 ### Unit 3: Development Workflow Consistency
+
 **Purpose:** Restore consistent development experience with original tooling
 **Demo Criteria:**
+
 - uv.lock file present and consistent with pyproject.toml
 - Pre-commit hooks working with commitlint
 - CI workflow using uv with coverage reporting
@@ -71,8 +81,10 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 - CI workflow showing uv usage and coverage upload
 
 ### Unit 4: Documentation and Compliance
+
 **Purpose:** Ensure complete documentation and legal compliance
 **Demo Criteria:**
+
 - All required documentation files present and updated
 - License matches original Apache-2.0
 - Repository references updated for standalone operation
@@ -82,6 +94,7 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 - Updated README and configuration files
 
 ### Unit 5: Repository Cleanup and Finalization
+
 **Purpose:** Clean repository with verified cross-references
 **Demo Criteria:**
 
@@ -94,24 +107,28 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 ## Functional Requirements
 
 ### Critical Infrastructure Requirements
+
 1. **Semantic Release Configuration**: The system SHALL include a complete `[tool.semantic_release]` section in `pyproject.toml` with proper version bumping, changelog generation, and build configuration
 2. **Automated Release Workflow**: The system SHALL use the original `workflow_run` trigger pattern for semantic-release automation, not manual tag-based releases
 3. **GitHub Authentication**: The system SHALL include the `.github/chainguard/main-semantic-release.sts.yaml` configuration file for octo-sts authentication
 4. **Package Asset Inclusion**: The system SHALL ensure all critical assets (`prompts/` directory, `server.py`) are included in the built wheel distribution
 
 ### High Priority Requirements
+
 5. **MCP Entry Point**: The system SHALL provide a functional `slash-man` console script as documented in the README
 6. **License Compliance**: The system SHALL use Apache-2.0 license as required by the original specification
 7. **Documentation Completeness**: The system SHALL include all required documentation files: `docs/mcp-prompt-support.md`, `docs/operations.md`, `docs/slash-command-generator.md`
 8. **Dependency Management**: The system SHALL use uv dependency management with a consistent `uv.lock` file
 
 ### Medium Priority Requirements
+
 9. **CI Workflow Consistency**: The system SHALL use uv instead of pip in CI workflows, include coverage reporting, and maintain Python version matrix testing
 10. **Pre-commit Configuration**: The system SHALL include commitlint hook and maintain consistent tool versions with the original repository
 11. **Build System Standards**: The system SHALL use hatchling build backend following modern Python packaging standards
 12. **Version Integration**: The system SHALL properly integrate `__version__.py` with semantic-release to prevent version skew
 
 ### Low Priority Requirements
+
 13. **Python Version Consistency**: The system SHALL maintain consistent `requires-python` configuration with the original repository
 15. **Reference Updates**: The system SHALL update all repository references to work correctly as a standalone project
 
@@ -126,18 +143,22 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 ## Design Considerations
 
 ### Build System Decision
+
 Based on Python packaging best practices and original repository analysis:
+
 - **Hatchling** is selected as the build backend for better package data handling and modern standards compliance
 - Package data inclusion will be configured to ensure `prompts/` and `server.py` are properly included
 - Dynamic version handling will be configured to integrate with semantic-release
 
 ### Documentation Strategy
+
 - Create new streamlined documentation specific to the standalone repository
 - Heavily reference and adapt content from original repository documentation
 - Update all repository-specific references and examples
 - Ensure all documented functionality works as advertised
 
 ### Dependency Management
+
 - Switch back to uv to match original repository exactly
 - Generate and maintain consistent uv.lock file
 - Ensure CI/CD workflows use uv for consistency
@@ -145,21 +166,25 @@ Based on Python packaging best practices and original repository analysis:
 ## Technical Considerations
 
 ### Semantic Release Integration
+
 - Configure semantic-release to read version from `__version__.py` and update it during releases
 - Set up proper changelog generation and commit message parsing
 - Configure build artifacts and PyPI publishing automation
 
 ### Package Data Inclusion
+
 - Use hatchling's `force-include` mechanism to ensure non-Python files are packaged
 - Verify all required assets are present in built distributions
 - Test installation in clean environments to validate functionality
 
 ### Authentication Configuration
+
 - Restore GitHub Chainguard configuration for automated releases
 - Ensure proper OIDC token handling for semantic-release
 - Validate authentication flow with dry-run releases
 
 ### CI/CD Pipeline Updates
+
 - Update workflows to use uv for dependency management
 - Use the specific uv installation step from original workflow: `astral-sh/setup-uv@v6`
 - Restore coverage reporting with Codecov integration
@@ -190,16 +215,17 @@ Based on Python packaging best practices and original repository analysis:
 5. **Documentation Hosting**: Should documentation be hosted separately or included in the repository?
    1. included in the repo
 
-
 ## Dependencies
 
 ### External Dependencies
+
 - GitHub Actions for CI/CD
 - PyPI for package distribution
 - Codecov for coverage reporting
 - Semantic-release for version management
 
 ### Internal Dependencies
+
 - Original repository snapshots for reference
 - Existing issue analysis reports for validation
 - Current development environment for testing
@@ -207,16 +233,19 @@ Based on Python packaging best practices and original repository analysis:
 ## Risk Assessment
 
 ### High Risk
+
 - Package distribution failures due to missing assets or incorrect configuration
 - Release automation failures due to authentication issues
 - Breaking changes for existing users due to configuration drift
 
 ### Medium Risk
+
 - Development workflow inconsistencies affecting contributor experience
 - Documentation gaps causing user confusion
 - CI/CD reliability issues affecting development velocity
 
 ### Low Risk
+
 - Repository cleanliness issues affecting maintainability
 - Minor version inconsistencies or reference updates
 - Cosmetic or formatting differences
@@ -224,24 +253,28 @@ Based on Python packaging best practices and original repository analysis:
 ## Implementation Timeline
 
 ### Phase 1: Critical Infrastructure
+
 - Semantic release configuration restoration
 - Release workflow automation fix
 - GitHub authentication configuration
 - Package build system fixes
 
 ### Phase 2: Production Readiness
+
 - MCP entry point implementation
 - License compliance restoration
 - Documentation copying and updating
 - Dependency management fixes
 
 ### Phase 3: Developer Experience
+
 - CI/CD workflow updates
 - Pre-commit configuration fixes
 - Version integration improvements
 - Testing and validation
 
 ### Phase 4: Finalization
+
 - Repository cleanup
 - Reference updates
 - Final testing and validation

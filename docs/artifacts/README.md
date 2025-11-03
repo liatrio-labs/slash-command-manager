@@ -19,6 +19,7 @@ docs/artifacts/
 ## Naming Convention
 
 Artifact files should be named descriptively:
+
 - `<task-number>-<description>.txt` - Text-based proof artifacts
 - `<task-number>-<description>.log` - Build or execution logs
 - `<task-number>-<description>.md` - Documentation or formatted outputs

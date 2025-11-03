@@ -1,0 +1,27 @@
+semantic-release --help
+Usage: semantic-release [OPTIONS] COMMAND [ARGS]...
+
+  Python Semantic Release
+
+  Automated Semantic Versioning based on version 2.0.0 of the Semantic
+  Versioning specification, which can be found at
+  https://semver.org/spec/v2.0.0.html.
+
+  Detect the next semantically correct version for a project based on the Git
+  history, create and publish a changelog to a remote VCS, build a project.
+
+  For more information, visit https://python-semantic-release.readthedocs.io/
+
+Options:
+  --version          Show the version of semantic-release and exit
+  -c, --config PATH  Specify a configuration file for semantic-release to use
+  --noop             Run semantic-release in no-op mode
+  -v, --verbose      Set logging verbosity  [default: 0; 0<=x<=3]
+  --strict           Enable strict mode
+  -h, --help         Show this message and exit.
+
+Commands:
+  changelog        Generate a changelog
+  generate-config  Generate semantic-release's default configuration
+  version          Detect and apply a new version
+  publish          Publish distributions to VCS Releases

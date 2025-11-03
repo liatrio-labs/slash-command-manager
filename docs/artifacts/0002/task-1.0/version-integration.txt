@@ -1,3 +1,4 @@
+=== __version__.py content ===
 """Centralized version management for the project.
 
 This module reads the version from pyproject.toml to ensure a single source of truth.
