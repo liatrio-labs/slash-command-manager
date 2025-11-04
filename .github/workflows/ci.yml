@@ -2,7 +2,7 @@ name: Run tests and linting
 
 on:
   # Avoid duplicate runs: run on PRs for branches, and on direct pushes to main
-  # but ignore changes to pyproject.toml, CHANGELOG.md, and uv.lock
+  # but ignore changes to pyproject.toml, CHANGELOG.md, uv.lock, and build artifacts
   # This is to avoid running tests and linting for commits that only relate to releases
   push:
     branches: ["main"]
@@ -10,6 +10,7 @@ on:
     - "pyproject.toml"
     - "CHANGELOG.md"
     - "uv.lock"
+    - "slash_commands/_git_commit.py"
   pull_request:
 
 jobs:

@@ -50,6 +50,9 @@ packages = ["slash_commands", "mcp_server"]
 "__version__.py" = "__version__.py"
 "prompts/" = "prompts/"
 
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -96,11 +99,13 @@ tag_format = "v{version}"
 version_toml = ["pyproject.toml:project.version"]
 # Ensure uv.lock stays in sync with version changes and is committed
 # Run uv to refresh the lock file, then stage it so PSR includes it
+# Also build the package to ensure build hooks run
 build_command = """
 curl -LsSf https://astral.sh/uv/install.sh | sh -s
 export PATH="$HOME/.local/bin:$PATH"
 uv lock
 git add uv.lock
+python -m build --wheel --sdist
 """
 # Generate changelog and commit version bumps
 assets = ["uv.lock"]

@@ -5,6 +5,7 @@ dist/
 *.egg
 *.whl
 *.tar.gz
+slash_commands/_git_commit.py
 
 # Python
 __pycache__/

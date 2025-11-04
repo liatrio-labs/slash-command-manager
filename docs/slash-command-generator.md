@@ -62,7 +62,7 @@ This means:
 After installation, use `uv run` to execute the command:
 
 ```bash
-uv run sdd-generate-commands [OPTIONS]
+uv run slash-man [OPTIONS]
 ```
 
 ### Basic Usage
@@ -70,7 +70,7 @@ uv run sdd-generate-commands [OPTIONS]
 Generate commands for all auto-detected agents in your home directory:
 
 ```bash
-uv run sdd-generate-commands
+uv run slash-man
 ```
 
 **Note**: By default, the generator:
@@ -86,7 +86,7 @@ uv run sdd-generate-commands
 Generate commands for specific agents:
 
 ```bash
-uv run sdd-generate-commands --agents claude-code --agents cursor
+uv run slash-man --agents claude-code --agents cursor
 ```
 
 ### Dry Run
@@ -94,7 +94,7 @@ uv run sdd-generate-commands --agents claude-code --agents cursor
 Preview changes without writing files:
 
 ```bash
-uv run sdd-generate-commands --dry-run
+uv run slash-man --dry-run
 ```
 
 ### List Supported Agents
@@ -102,7 +102,7 @@ uv run sdd-generate-commands --dry-run
 View all available agents:
 
 ```bash
-uv run sdd-generate-commands --list-agents
+uv run slash-man --list-agents
 ```
 
 ### Custom Prompts Directory
@@ -110,7 +110,7 @@ uv run sdd-generate-commands --list-agents
 Specify a custom prompts directory:
 
 ```bash
-uv run sdd-generate-commands --prompts-dir ./my-prompts
+uv run slash-man --prompts-dir ./my-prompts
 ```
 
 ### Detection Path
@@ -118,7 +118,7 @@ uv run sdd-generate-commands --prompts-dir ./my-prompts
 Specify a custom directory to search for agents:
 
 ```bash
-uv run sdd-generate-commands --detection-path /path/to/project
+uv run slash-man --detection-path /path/to/project
 ```
 
 **Note**: By default, the generator searches for agents in your home directory. Use `--detection-path` to search in a different location (e.g., current directory for project-specific detection).
@@ -135,7 +135,7 @@ When existing command files are detected, the generator will prompt you for acti
 To skip prompts and auto-overwrite:
 
 ```bash
-uv run sdd-generate-commands --yes
+uv run slash-man --yes
 ```
 
 #### Backup File Management
@@ -158,19 +158,19 @@ Remove generated command files and backups:
 
 ```bash
 # Show what would be deleted (dry run)
-uv run sdd-generate-commands cleanup --dry-run
+uv run slash-man cleanup --dry-run
 
 # Clean up all generated files
-uv run sdd-generate-commands cleanup --yes
+uv run slash-man cleanup --yes
 
 # Clean up specific agents only
-uv run sdd-generate-commands cleanup --agents claude-code --agents cursor --yes
+uv run slash-man cleanup --agents claude-code --agents cursor --yes
 
 # Clean up without including backup files
-uv run sdd-generate-commands cleanup --no-backups --yes
+uv run slash-man cleanup --no-backups --yes
 
 # Clean up with custom target path
-uv run sdd-generate-commands cleanup --target-path /path/to/project --yes
+uv run slash-man cleanup --target-path /path/to/project --yes
 ```
 
 **Options**:
@@ -324,7 +324,7 @@ The generator can be integrated into CI/CD pipelines to automatically update sla
 - name: Update slash commands
   run: |
     uv sync
-    uv run sdd-generate-commands --yes --target-path $HOME
+    uv run slash-man --yes --target-path $HOME
     git add .
     git diff --staged --quiet || git commit -m "ci: update slash commands"
 ```
@@ -343,13 +343,13 @@ The generator can be integrated into CI/CD pipelines to automatically update sla
 Enable debug logging for troubleshooting:
 
 ```bash
-uv run sdd-generate-commands --dry-run --verbose
+uv run slash-man --dry-run --verbose
 ```
 
 ### Getting Help
 
 ```bash
-uv run sdd-generate-commands --help
+uv run slash-man --help
 ```
 
 ## Contributing

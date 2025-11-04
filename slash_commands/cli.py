@@ -12,6 +12,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from __version__ import __version_with_commit__
 from slash_commands import (
     SlashCommandWriter,
     detect_agents,
@@ -22,9 +23,34 @@ from slash_commands import (
 app = typer.Typer(
     name="slash-man",
     help="Manage slash commands for the spec-driven workflow in your AI assistants",
+    rich_markup_mode="rich",
 )
 
+
+@app.callback()
+def version_callback(
+    version: Annotated[
+        bool,
+        typer.Option(
+            "--version",
+            "-v",
+            callback=version_callback_impl,
+            is_eager=True,
+            help="Show version and exit",
+        ),
+    ] = False,
+) -> None:
+    """Slash Command Manager - Generate and manage slash commands for AI code assistants."""
+
+
 console = Console()
+
+
+def version_callback_impl(value: bool) -> None:
+    """Print version and exit."""
+    if value:
+        typer.echo(f"slash-man {__version_with_commit__}")
+        raise typer.Exit()
 
 
 def _prompt_agent_selection(detected_agents: list) -> list:

@@ -41,6 +41,37 @@ cd slash-command-manager
 uv pip install -e .
 ```
 
+## Version Management
+
+Slash Command Manager includes comprehensive version management with git commit SHA tracking:
+
+### Version Format
+
+The version follows the format `VERSION+COMMIT_SHA`:
+
+- **Development**: `1.0.0+8b4e417` (includes current git commit)
+- **Production**: `1.0.0+def456` (includes release commit at build time)
+- **Fallback**: `1.0.0` (when git commit unavailable)
+
+### Version Detection Priority
+
+1. **Build-time injection** (for installed packages) - matches the release commit
+2. **Runtime git detection** (for local development) - current git commit
+3. **Fallback** - version only when git unavailable
+
+### Viewing Version
+
+```bash
+# Show version with git commit SHA
+slash-man --version
+slash-man -v
+
+# Example output:
+# slash-man 1.0.0+8b4e417
+```
+
+This ensures traceability between installed versions and their corresponding git commits, useful for debugging and deployment tracking.
+
 ## Quick Start
 
 ### CLI Usage
