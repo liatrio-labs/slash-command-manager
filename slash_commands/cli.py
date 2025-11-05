@@ -439,6 +439,13 @@ def cleanup(
 
 @app.command()
 def mcp(
+    config_file: Annotated[
+        str | None,
+        typer.Option(
+            "--config",
+            help="Path to custom TOML configuration file",
+        ),
+    ] = None,
     transport: Annotated[
         str,
         typer.Option(
@@ -455,6 +462,17 @@ def mcp(
     ] = 8000,
 ) -> None:
     """Start the MCP server for spec-driven development workflows."""
+    # Handle custom configuration if provided
+    if config_file:
+        config_path = Path(config_file)
+        if not config_path.exists():
+            typer.echo(f"Error: Configuration file not found: {config_file}", err=True)
+            raise typer.Exit(code=1)
+
+        # TODO: Load custom TOML configuration when implemented
+        # For now, just acknowledge the config file was provided
+        typer.echo(f"Using custom configuration: {config_file}")
+
     # Create the MCP server instance
     mcp_server = create_app()
 

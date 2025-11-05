@@ -1,0 +1,16 @@
+# Test configuration file for MCP server
+[server]
+name = "test-slash-command-manager"
+transport = "http"
+port = 8080
+host = "127.0.0.1"
+
+[logging]
+level = "DEBUG"
+format = "text"
+
+[prompts]
+directory = "./prompts"
+
+[workspace]
+root = "./test_workspace"
