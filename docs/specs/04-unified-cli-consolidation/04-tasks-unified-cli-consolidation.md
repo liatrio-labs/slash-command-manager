@@ -16,14 +16,14 @@
 
 ## Tasks
 
-- [ ] 1.0 MCP Server Subcommand Integration
+- [x] 1.0 MCP Server Subcommand Integration
   - Demo Criteria: "Run `slash-man mcp` starts the MCP server with stdio transport, identical to current `slash-command-manager` behavior"
   - Proof Artifact(s): "CLI output showing server startup, help documentation displaying new subcommand structure"
-  - [ ] 1.1 Add MCP server import and dependencies to CLI module
-  - [ ] 1.2 Create `mcp` subcommand function in `slash_commands/cli.py` with basic stdio transport
-  - [ ] 1.3 Integrate existing server.py logic into the new subcommand
-  - [ ] 1.4 Add help text and command description for the new `mcp` subcommand
-  - [ ] 1.5 Test basic `slash-man mcp` functionality matches current `slash-command-manager` behavior
+  - [x] 1.1 Add MCP server import and dependencies to CLI module
+  - [x] 1.2 Create `mcp` subcommand function in `slash_commands/cli.py` with basic stdio transport
+  - [x] 1.3 Integrate existing server.py logic into the new subcommand
+  - [x] 1.4 Add help text and command description for the new `mcp` subcommand
+  - [x] 1.5 Test basic `slash-man mcp` functionality matches current `slash-command-manager` behavior
 
 - [ ] 2.0 Enhanced Configuration Options
   - Demo Criteria: "`slash-man mcp --config custom.toml --transport http --port 8080` successfully starts server with custom configuration"
