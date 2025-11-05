@@ -56,20 +56,20 @@
   - [x] 2.9 Create failing end-to-end integration tests for complete download workflow
   - [x] 2.10 Implement GitHub API integration functions to make all integration tests pass
 
-- [ ] 3.0 Add CLI Option Integration and Validation
+- [x] 3.0 Add CLI Option Integration and Validation
   - **Satisfies:** U3, U6, U7, FR5, FR8, FR9
   - Demo Criteria: "Run slash-man generate --github-url https://github.com/liatrio-labs/spec-driven-workflow/tree/main/prompts and see option validation working"
   - Proof Artifact(s): "CLI: slash-man generate --help showing new --github-url option; CLI: slash-man generate --github-url invalid-url showing error; CLI: slash-man generate --prompts-dir ./local --github-url https://... showing conflict error"
-  - [ ] 3.1 Create failing CLI tests for --github-url option addition to generate command
-  - [ ] 3.2 Create failing CLI tests for option mutual exclusivity validation (--prompts-dir vs --github-url)
-  - [ ] 3.3 Create failing CLI tests for required prompt source validation (neither option specified)
-  - [ ] 3.4 Create failing CLI tests for GitHub URL format validation in CLI layer
-  - [ ] 3.5 Create failing CLI tests for help text with GitHub URL format examples
-  - [ ] 3.6 Create failing CLI tests for error messages on invalid URLs and conflicting options
-  - [ ] 3.7 Create failing CLI tests for option conflict scenarios using CliRunner
-  - [ ] 3.8 Create failing CLI tests for missing source validation scenarios
-  - [ ] 3.9 Create failing CLI tests for help text output validation
-  - [ ] 3.10 Implement CLI option integration and validation to make all CLI tests pass
+  - [x] 3.1 Create failing CLI tests for --github-url option addition to generate command
+  - [x] 3.2 Create failing CLI tests for option mutual exclusivity validation (--prompts-dir vs --github-url)
+  - [x] 3.3 Create failing CLI tests for required prompt source validation (neither option specified)
+  - [x] 3.4 Create failing CLI tests for GitHub URL format validation in CLI layer
+  - [x] 3.5 Create failing CLI tests for help text with GitHub URL format examples
+  - [x] 3.6 Create failing CLI tests for error messages on invalid URLs and conflicting options
+  - [x] 3.7 Create failing CLI tests for option conflict scenarios using CliRunner
+  - [x] 3.8 Create failing CLI tests for missing source validation scenarios
+  - [x] 3.9 Create failing CLI tests for help text output validation
+  - [x] 3.10 Implement CLI option integration and validation to make all CLI tests pass
 
 - [ ] 4.0 Extend SlashCommandWriter for GitHub Sources
   - **Satisfies:** U3, U4, FR6, FR14

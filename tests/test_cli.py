@@ -955,6 +955,91 @@ def test_unified_help_shows_mcp_subcommand():
     assert "version" in result.stdout
 
 
+def test_cli_github_url_option_addition():
+    """Test that --github-url option is added to generate command."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["generate", "--help"])
+
+    assert result.exit_code == 0
+    assert "--github-url" in result.stdout
+    assert "GitHub repository URL" in result.stdout
+
+
+def test_cli_github_url_prompts_dir_mutual_exclusivity():
+    """Test that --github-url and --prompts-dir options are mutually exclusive."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            "./local",
+            "--github-url",
+            "https://github.com/owner/repo/tree/main/prompts",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code != 0
+    output = result.stdout.lower()
+    assert (
+        "mutually exclusive" in output
+        or "conflict" in output
+        or "cannot be used together" in output
+    )
+
+
+def test_cli_required_prompt_source_validation():
+    """Test that either --prompts-dir or --github-url must be specified."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code != 0
+    output = result.stdout.lower()
+    assert "required" in output or "must specify" in output or "prompt source" in output
+
+
+def test_cli_github_url_format_validation():
+    """Test that GitHub URL format is validated in CLI layer."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-url",
+            "invalid-url",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code != 0
+    output = result.stdout.lower()
+    assert "invalid" in output or "format" in output or "github" in output
+
+
+def test_cli_help_text_github_url_examples():
+    """Test that help text includes GitHub URL format examples."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["generate", "--help"])
+
+    assert result.exit_code == 0
+    assert "github.com" in result.stdout.lower()
+    assert "owner" in result.stdout.lower()
+    assert "repo" in result.stdout.lower()
+
+
 def test_old_command_no_longer_available():
     """Test that slash-command-manager command is no longer available as console script."""
     # Check that the entry point is not in pyproject.toml

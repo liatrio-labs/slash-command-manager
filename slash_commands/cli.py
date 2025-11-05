@@ -20,6 +20,7 @@ from slash_commands import (
     get_agent_config,
     list_agent_keys,
 )
+from slash_commands.github_utils import GitHubRepoError, parse_github_url
 
 app = typer.Typer(
     name="slash-man",
@@ -93,6 +94,14 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             "--prompts-dir",
             "-p",
             help="Directory containing prompt files",
+        ),
+    ] = None,
+    github_url: Annotated[
+        str | None,
+        typer.Option(
+            "--github-url",
+            "-g",
+            help="GitHub repository URL to download prompts from (e.g., https://github.com/owner/repo/tree/main/prompts)",
         ),
     ] = None,
     agents: Annotated[
@@ -174,6 +183,37 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
 
         console.print(table)
         return
+
+    # Validate option mutual exclusivity
+    if prompts_dir is not None and github_url is not None:
+        console.print(
+            "[bold red]Error: --prompts-dir and --github-url options are mutually exclusive and cannot be used together.[/bold red]"
+        )
+        console.print(
+            "Please specify either a local prompts directory or a GitHub repository URL, but not both."
+        )
+        raise typer.Exit(code=2)
+
+    # Validate that at least one prompt source is specified
+    if prompts_dir is None and github_url is None:
+        console.print(
+            "[bold red]Error: Must specify a prompt source using either --prompts-dir or --github-url.[/bold red]"
+        )
+        console.print(
+            "Use --prompts-dir for local directories or --github-url for GitHub repositories."
+        )
+        raise typer.Exit(code=2)
+
+    # Validate GitHub URL format if provided
+    if github_url is not None:
+        try:
+            parse_github_url(github_url)
+        except GitHubRepoError as e:
+            console.print(f"[bold red]Error: Invalid GitHub URL format: {e}[/bold red]")
+            console.print(
+                "Expected format: https://github.com/owner/repo/tree/branch/path/to/prompts"
+            )
+            raise typer.Exit(code=2) from None
 
     # Detect agents if not specified
     if agents is None or len(agents) == 0:
