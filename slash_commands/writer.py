@@ -153,6 +153,15 @@ class SlashCommandWriter:
         # Get agent configs
         agent_configs = [get_agent_config(key) for key in self.agents]
 
+        # Check for existing files upfront and prompt once if any exist
+        if not self.dry_run and not self.overwrite_action:
+            existing_files = self._find_existing_files(prompts, agent_configs)
+            if existing_files:
+                action = self._prompt_for_all_existing_files(existing_files)
+                if action == "cancel":
+                    raise RuntimeError("Cancelled by user")
+                self.overwrite_action = action
+
         # Generate files
         files = []
         files_written = 0
@@ -196,6 +205,58 @@ class SlashCommandWriter:
             prompts.append(prompt)
 
         return prompts
+
+    def _find_existing_files(
+        self, prompts: list[MarkdownPrompt], agent_configs: list[AgentConfig]
+    ) -> list[Path]:
+        """Find all existing files that would be overwritten.
+
+        Args:
+            prompts: List of prompts to check
+            agent_configs: List of agent configurations
+
+        Returns:
+            List of paths to existing files
+        """
+        existing_files = []
+        for prompt in prompts:
+            if not prompt.enabled:
+                continue
+            for agent in agent_configs:
+                # Determine output path (same logic as _generate_file)
+                safe_stem = Path(prompt.name).name
+                safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "-", safe_stem).strip("-_.") or "command"
+                filename = f"{safe_stem}{agent.command_file_extension}"
+                output_path = self.base_path / agent.command_dir / filename
+
+                if output_path.exists():
+                    existing_files.append(output_path)
+        return existing_files
+
+    def _prompt_for_all_existing_files(self, existing_files: list[Path]) -> OverwriteAction:
+        """Prompt user once for all existing files.
+
+        Args:
+            existing_files: List of paths to existing files
+
+        Returns:
+            OverwriteAction to apply to all existing files
+        """
+        file_count = len(existing_files)
+        response = questionary.select(
+            f"Found {file_count} existing file{'s' if file_count != 1 else ''} that will be overwritten.\nWhat would you like to do?",
+            choices=[
+                questionary.Choice("Cancel", "cancel"),
+                questionary.Choice("Overwrite all existing files", "overwrite"),
+                questionary.Choice("Create backups and overwrite all", "backup"),
+            ],
+        ).ask()
+
+        if response is None:
+            # User pressed Ctrl+C or similar
+            return "cancel"
+
+        return response  # type: ignore[return-value]
 
     def _generate_file(self, prompt: MarkdownPrompt, agent: AgentConfig) -> dict[str, Any] | None:
         """Generate a command file for a single prompt and agent.
@@ -249,7 +310,7 @@ class SlashCommandWriter:
         }
 
     def _handle_existing_file(self, file_path: Path) -> OverwriteAction:
-        """Handle an existing file by determining what action to take.
+        """Handle an existing file by applying the global overwrite action.
 
         Args:
             file_path: Path to the existing file
@@ -257,25 +318,12 @@ class SlashCommandWriter:
         Returns:
             OverwriteAction to apply
         """
-        # If global overwrite was already set, use it
-        if self._global_overwrite:
-            return "overwrite"
-
-        # Use global action if set
-        if self.overwrite_action == "overwrite-all":
-            return "overwrite"
-        elif self.overwrite_action:
+        # Use global action if set (it should always be set after our upfront check)
+        if self.overwrite_action:
             return self.overwrite_action
 
-        # Otherwise prompt for action
-        action = prompt_overwrite_action(file_path)
-
-        # If user chose "overwrite-all", set the flag
-        if action == "overwrite-all":
-            self._global_overwrite = True
-            return "overwrite"
-
-        return action
+        # This should not happen anymore, but keep as fallback
+        return "overwrite"
 
     def find_generated_files(
         self, agents: list[str] | None = None, include_backups: bool = True

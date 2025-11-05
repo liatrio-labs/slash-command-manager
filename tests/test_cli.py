@@ -245,7 +245,9 @@ def test_cli_prompts_for_overwrite_without_yes(mock_prompts_dir, tmp_path):
 
     runner = CliRunner()
     # Don't pass --yes flag to test prompting
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         mock_prompt.return_value = "overwrite"
         result = runner.invoke(
             app,
@@ -304,7 +306,9 @@ def test_cli_reports_backup_creation(mock_prompts_dir, tmp_path):
     output_path.write_text("existing content")
 
     runner = CliRunner()
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         mock_prompt.return_value = "backup"
         result = runner.invoke(
             app,
@@ -514,7 +518,9 @@ def test_cli_exit_code_user_cancellation(mock_prompts_dir, tmp_path):
 
     runner = CliRunner()
     # Mock overwrite prompt to return "cancel"
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         mock_prompt.return_value = "cancel"
         result = runner.invoke(
             app,

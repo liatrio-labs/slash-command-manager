@@ -325,7 +325,9 @@ def test_writer_detects_existing_files(mock_prompt_load: Path, tmp_path):
     )
 
     # OverwriteAction should be queried
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         mock_prompt.return_value = "overwrite"
         writer.generate()
 
@@ -352,7 +354,9 @@ def test_writer_cancels_on_existing_files(mock_prompt_load: Path, tmp_path):
         base_path=tmp_path,
     )
 
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         mock_prompt.return_value = "cancel"
         with pytest.raises(RuntimeError, match="Cancelled"):
             writer.generate()
@@ -378,7 +382,9 @@ def test_writer_backs_up_existing_files(mock_prompt_load: Path, tmp_path):
         base_path=tmp_path,
     )
 
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         with patch("slash_commands.writer.create_backup") as mock_backup:
             mock_prompt.return_value = "backup"
             mock_backup.return_value = output_path.with_suffix(".md.bak")
@@ -427,7 +433,9 @@ This is another test prompt.
         base_path=tmp_path,
     )
 
-    with patch("slash_commands.writer.prompt_overwrite_action") as mock_prompt:
+    with patch(
+        "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+    ) as mock_prompt:
         # First call returns "overwrite-all", subsequent calls should not be made
         mock_prompt.return_value = "overwrite-all"
 
