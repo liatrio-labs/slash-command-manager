@@ -40,7 +40,6 @@ dev = [
 
 [project.scripts]
 slash-man = "slash_commands.cli:main"
-slash-command-manager = "server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["slash_commands", "mcp_server"]

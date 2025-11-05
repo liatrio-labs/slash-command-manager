@@ -99,13 +99,16 @@ Run the MCP server for programmatic access:
 
 ```bash
 # STDIO transport (for MCP clients)
-python server.py
+slash-man mcp
 
 # HTTP transport
-python server.py --transport http --port 8000
+slash-man mcp --transport http --port 8000
+
+# With custom configuration
+slash-man mcp --config custom.toml --transport http --port 8080
 
 # Or via uvx (once published)
-uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-command-manager
+uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man mcp
 ```
 
 ### Supported AI Tools

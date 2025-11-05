@@ -31,13 +31,13 @@ uv run pytest
 The STDIO transport is ideal for local development and integration with MCP clients like Claude Desktop:
 
 ```bash
-uvx fastmcp run server.py
+slash-man mcp
 ```
 
 Or using the development server with the MCP Inspector:
 
 ```bash
-uvx fastmcp dev server.py
+uvx fastmcp dev slash_commands/cli.py mcp
 ```
 
 This will start the server and open the MCP Inspector in your browser, allowing you to:
@@ -51,7 +51,7 @@ This will start the server and open the MCP Inspector in your browser, allowing 
 For remote access or integration with web-based clients:
 
 ```bash
-uvx fastmcp run server.py --transport http --port 8000
+slash-man mcp --transport http --port 8000
 ```
 
 The server will be available at `http://localhost:8000`.
@@ -86,7 +86,7 @@ The server can be configured via environment variables:
 ```bash
 export SDD_WORKSPACE_ROOT=/home/user/workspace
 export SDD_LOG_LEVEL=DEBUG
-uvx fastmcp run server.py
+slash-man mcp
 ```
 
 ## MCP Client Integration
@@ -100,7 +100,7 @@ Add the following to your Claude Desktop configuration (`~/Library/Application S
   "mcpServers": {
     "slash-command-manager": {
       "command": "uvx",
-      "args": ["fastmcp", "run", "/path/to/slash-command-manager/server.py"]
+      "args": ["fastmcp", "run", "/path/to/slash-command-manager/slash_commands/cli.py", "mcp"]
     }
   }
 }
@@ -116,7 +116,7 @@ Add the following to your Claude Desktop configuration (`~/Library/Application S
   "mcp.servers": {
     "slash-command-manager": {
       "command": "uvx",
-      "args": ["fastmcp", "run", "/path/to/slash-command-manager/server.py"]
+      "args": ["fastmcp", "run", "/path/to/slash-command-manager/slash_commands/cli.py", "mcp"]
     }
   }
 }
@@ -127,7 +127,7 @@ Add the following to your Claude Desktop configuration (`~/Library/Application S
 The FastMCP Inspector provides a web-based interface for testing and debugging:
 
 ```bash
-uvx fastmcp dev server.py
+uvx fastmcp dev slash_commands/cli.py mcp
 ```
 
 This will:
@@ -145,7 +145,7 @@ The slash command generator can create native commands for various AI tools:
 Generate commands for all auto-detected agents:
 
 ```bash
-uv run sdd-generate-commands
+slash-man generate
 ```
 
 ### Specific Agents
@@ -153,7 +153,7 @@ uv run sdd-generate-commands
 Generate commands for specific tools:
 
 ```bash
-uv run sdd-generate-commands --agents claude-code --agents cursor
+slash-man generate --agents claude-code --agents cursor
 ```
 
 ### Dry Run
@@ -161,7 +161,7 @@ uv run sdd-generate-commands --agents claude-code --agents cursor
 Preview changes without writing files:
 
 ```bash
-uv run sdd-generate-commands --dry-run
+slash-man generate --dry-run
 ```
 
 ### Cleanup
@@ -169,7 +169,7 @@ uv run sdd-generate-commands --dry-run
 Remove generated command files:
 
 ```bash
-uv run sdd-generate-commands cleanup --yes
+slash-man cleanup --yes
 ```
 
 ## Testing
@@ -256,7 +256,7 @@ Enable debug logging for troubleshooting:
 
 ```bash
 export SDD_LOG_LEVEL=DEBUG
-uvx fastmcp run server.py
+slash-man mcp
 ```
 
 ### Metrics
