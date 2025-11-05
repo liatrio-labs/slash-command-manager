@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -43,6 +44,18 @@ def parse_github_url(url: str) -> dict[str, str]:
     return {"owner": owner, "repo": repo, "branch": branch, "path": path}
 
 
+def _retry_request(func, max_retries: int = 3, base_delay: float = 1.0):
+    """Retry a function with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except (requests.RequestException, TimeoutError) as e:
+            if attempt == max_retries - 1:
+                raise e
+            delay = base_delay * (2**attempt)
+            time.sleep(delay)
+
+
 def list_github_directory_files(
     owner: str, repo: str, branch: str, path: str
 ) -> list[dict[str, str]]:
@@ -63,11 +76,15 @@ def list_github_directory_files(
     api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
     params = {"ref": branch}
 
-    try:
+    def make_request():
         response = requests.get(api_url, params=params, timeout=30)
         response.raise_for_status()
+        return response
 
+    try:
+        response = _retry_request(make_request)
         files = response.json()
+
         # Filter for markdown files only
         markdown_files = [
             file
@@ -77,6 +94,8 @@ def list_github_directory_files(
 
         return markdown_files
 
+    except requests.RequestException as e:
+        raise GitHubRepoError(f"Network timeout: {e}") from e
     except Exception as e:
         raise GitHubRepoError(f"Failed to list directory: {e}") from e
 
@@ -116,7 +135,7 @@ def download_github_prompts(owner: str, repo: str, branch: str = "main", path: s
             filename = file_info["name"]
 
             try:
-                response = requests.get(download_url, timeout=30)
+                response = _retry_request(lambda url=download_url: requests.get(url, timeout=30))
                 response.raise_for_status()
 
                 # Check file size
@@ -164,11 +183,16 @@ def get_github_repo_info(owner: str, repo: str) -> dict[str, Any]:
     """
     api_url = f"https://api.github.com/repos/{owner}/{repo}"
 
-    try:
+    def make_request():
         response = requests.get(api_url, timeout=30)
         response.raise_for_status()
+        return response
 
+    try:
+        response = _retry_request(make_request)
         return response.json()
 
+    except requests.RequestException as e:
+        raise GitHubRepoError(f"Network timeout: {e}") from e
     except Exception as e:
         raise GitHubRepoError(f"Repository not found: {e}") from e

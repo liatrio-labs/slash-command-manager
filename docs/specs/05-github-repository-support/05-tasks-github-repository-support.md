@@ -41,20 +41,20 @@
   - [x] 1.9 Implement parse_github_url() function to make URL parsing tests pass
   - [x] 1.10 Implement remaining GitHub utilities functions to make all tests pass
 
-- [ ] 2.0 Implement GitHub API Integration and File Download
+- [x] 2.0 Implement GitHub API Integration and File Download
   - **Satisfies:** U2, FR3, FR4, FR10, FR11, FR12, FR13, FR17
   - Demo Criteria: "Successfully download .md files from spec-driven-workflow repository prompts directory to temporary location"
   - Proof Artifact(s): "CLI: python -c 'from slash_commands.github_utils import download_github_prompts; print(download_github_prompts(\"liatrio-labs\", \"spec-driven-workflow\"))'; Test: integration test showing file download"
-  - [ ] 2.1 Create failing integration tests for network timeout configuration (30 seconds) scenarios
-  - [ ] 2.2 Create failing integration tests for retry logic with exponential backoff (up to 3 retries)
-  - [ ] 2.3 Create failing integration tests for temporary directory creation and cleanup using tempfile
-  - [ ] 2.4 Create failing integration tests for file size validation during download process
-  - [ ] 2.5 Create failing integration tests for progress reporting of downloaded files count
-  - [ ] 2.6 Create failing integration tests for enhanced error scenarios (empty directories, no .md files, permission errors)
-  - [ ] 2.7 Create failing integration tests for actual GitHub repository downloads
-  - [ ] 2.8 Create failing performance tests for large repository handling
-  - [ ] 2.9 Create failing end-to-end integration tests for complete download workflow
-  - [ ] 2.10 Implement GitHub API integration functions to make all integration tests pass
+  - [x] 2.1 Create failing integration tests for network timeout configuration (30 seconds) scenarios
+  - [x] 2.2 Create failing integration tests for retry logic with exponential backoff (up to 3 retries)
+  - [x] 2.3 Create failing integration tests for temporary directory creation and cleanup using tempfile
+  - [x] 2.4 Create failing integration tests for file size validation during download process
+  - [x] 2.5 Create failing integration tests for progress reporting of downloaded files count
+  - [x] 2.6 Create failing integration tests for enhanced error scenarios (empty directories, no .md files, permission errors)
+  - [x] 2.7 Create failing integration tests for actual GitHub repository downloads
+  - [x] 2.8 Create failing performance tests for large repository handling
+  - [x] 2.9 Create failing end-to-end integration tests for complete download workflow
+  - [x] 2.10 Implement GitHub API integration functions to make all integration tests pass
 
 - [ ] 3.0 Add CLI Option Integration and Validation
   - **Satisfies:** U3, U6, U7, FR5, FR8, FR9
