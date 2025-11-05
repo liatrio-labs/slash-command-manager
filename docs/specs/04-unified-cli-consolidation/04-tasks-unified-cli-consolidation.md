@@ -35,16 +35,16 @@
   - [x] 2.5 Add configuration validation with clear error messages for invalid configs
   - [x] 2.6 Test all configuration combinations (stdio, http with custom ports, custom TOML files)
 
-- [ ] 3.0 Entry Point Removal and Documentation Update
+- [x] 3.0 Entry Point Removal and Documentation Update
   - Demo Criteria: "`slash-command-manager` command no longer exists, all README examples use `slash-man` commands"
   - Proof Artifact(s): "Updated README.md, unified help output showing complete command structure"
-  - [ ] 3.1 Remove `slash-command-manager = "server:main"` entry point from `pyproject.toml`
-  - [ ] 3.2 Update README.md to use `slash-man mcp` instead of `slash-command-manager`
-  - [ ] 3.3 Update all documentation files to reflect unified command structure
-  - [ ] 3.4 Update CHANGELOG.md with breaking change notice and migration guide
-  - [ ] 3.5 Update CONTRIBUTING.md with new command examples and development setup
-  - [ ] 3.6 Update `docs/operations.md` with new unified command structure
-  - [ ] 3.7 Verify unified help output shows complete command structure with `slash-man --help`
+  - [x] 3.1 Remove `slash-command-manager = "server:main"` entry point from `pyproject.toml`
+  - [x] 3.2 Update README.md to use `slash-man mcp` instead of `slash-command-manager`
+  - [x] 3.3 Update all documentation files to reflect unified command structure
+  - [x] 3.6 Update `docs/operations.md` with new unified command structure and migration guide
+  - [x] 3.4 Update CHANGELOG.md with breaking change notice and migration guide
+  - [x] 3.5 Update CONTRIBUTING.md with new command examples and development setup
+  - [x] 3.7 Verify unified help output shows complete command structure with `slash-man --help`
 
 - [ ] 4.0 Testing and Validation
   - Demo Criteria: "All tests pass with new command structure, coverage maintained at 95%+"

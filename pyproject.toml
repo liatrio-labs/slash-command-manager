@@ -33,7 +33,6 @@ dev = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "ruff>=0.1.0", "pre-commit>=3.0.0"]
 
 [project.scripts]
 slash-man = "slash_commands.cli:main"
-slash-command-manager = "server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["slash_commands", "mcp_server"]

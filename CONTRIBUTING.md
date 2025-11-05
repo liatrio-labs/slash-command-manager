@@ -21,8 +21,27 @@ Thank you for your interest in contributing to Slash Command Manager! This docum
 3. Run linting: `ruff check .`
 4. Run formatting: `ruff format .`
 5. Run pre-commit hooks: `pre-commit run --all-files`
-6. Commit your changes with a conventional commit message
-7. Push to your fork and create a pull request
+6. Test the CLI functionality:
+   - `slash-man --help`
+   - `slash-man generate --list-agents`
+   - `slash-man mcp --help`
+7. Commit your changes with a conventional commit message
+8. Push to your fork and create a pull request
+
+## Testing the MCP Server
+
+To test the MCP server functionality during development:
+
+```bash
+# Test STDIO transport (basic functionality)
+slash-man mcp --help
+
+# Test HTTP transport with custom port
+timeout 5s slash-man mcp --transport http --port 8080 || true
+
+# Test configuration validation
+slash-man mcp --config nonexistent.toml  # Should show error
+```
 
 ## Code Style
 
