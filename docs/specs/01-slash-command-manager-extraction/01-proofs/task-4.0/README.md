@@ -1,6 +1,6 @@
 # Proof Artifacts: Task 4.0
 
-**Spec:** 0001-spec-slash-command-manager-extraction.md
+**Spec:** 01-slash-command-manager-extraction.md
 **Task:** 4.0 - Port and Adapt Test Suite
 
 This directory contains proof artifacts demonstrating completion of Task 4.0.

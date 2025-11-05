@@ -53,7 +53,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ## Demoable Units of Work
 
-> **Note:** All proof artifacts and demo files generated during implementation should be stored in `./docs/artifacts/<spec-number>/task-<task-number>/` (e.g., `./docs/artifacts/0001/task-1.0/`) for review and documentation purposes. This organization ensures artifacts are properly categorized by specification and task.
+> **Note:** All proof artifacts and demo files generated during implementation should be stored in `./docs/specs/01-slash-command-manager-extraction/01-proofs/` (e.g., `./docs/specs/01-slash-command-manager-extraction/01-proofs/task-1.0/`) for review and documentation purposes. This organization ensures artifacts are properly categorized by specification and task.
 
 ### Unit 1: Slash Command Manager Repository Prepared & Functional
 

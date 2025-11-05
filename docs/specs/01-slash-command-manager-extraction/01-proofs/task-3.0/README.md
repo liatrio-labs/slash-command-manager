@@ -1,6 +1,6 @@
 # Proof Artifacts: Task 3.0
 
-**Spec:** 0001-spec-slash-command-manager-extraction.md
+**Spec:** 01-slash-command-manager-extraction.md
 **Task:** 3.0 - Extract and Port MCP Server Code (`mcp_server/` package and `server.py`)
 
 This directory contains proof artifacts demonstrating completion of Task 3.0.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-All tasks in `tasks-0002-spec-comprehensive-issue-resolution.md` have been successfully completed. The slash-command-manager repository is now fully compliant with the original specification and ready for production use.
+All tasks in `02-task-comprehensive-issue-resolution.md` have been successfully completed. The slash-command-manager repository is now fully compliant with the original specification and ready for production use.
 
 ## Tasks Completed
 

@@ -1,6 +1,6 @@
 # Proof Artifacts: Task 2.0
 
-**Spec:** 0001-spec-slash-command-manager-extraction.md
+**Spec:** 01-slash-command-manager-extraction.md
 **Task:** 2.0 - Extract and Port Generator Code (`slash_commands/` package)
 
 This directory contains proof artifacts demonstrating completion of Task 2.0.

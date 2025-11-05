@@ -1,6 +1,6 @@
 # Task List: Slash Command Manager Extraction & SDD Workflow Refactoring
 
-Generated from: `0001-spec-slash-command-manager-extraction.md`
+Generated from: `01-slash-command-manager-extraction.md`
 
 ## Relevant Files
 
@@ -49,7 +49,7 @@ Generated from: `0001-spec-slash-command-manager-extraction.md`
 
 ### Proof Artifacts
 
-> **Artifact Storage:** All proof artifacts and demo files generated during task implementation should be stored in `./docs/artifacts/<spec-number>/task-<task-number>/` (e.g., `./docs/artifacts/0001/task-1.0/`). This organization ensures artifacts are properly categorized by specification number and task number for easy review and documentation.
+> **Artifact Storage:** All proof artifacts and demo files generated during task implementation should be stored in `./docs/specs/01-slash-command-manager-extraction/01-proofs/` (e.g., `./docs/specs/01-slash-command-manager-extraction/01-proofs/task-1.0/`). This organization ensures artifacts are properly categorized by specification number and task number for easy review and documentation.
 >
 > **Naming Convention:** Artifact files should be named descriptively (e.g., `directory-structure.txt`, `wheel-build.log`, `pyproject.toml.txt`).
 >

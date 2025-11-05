@@ -1,6 +1,6 @@
 # Proof Artifacts: Task 1.0
 
-**Spec:** 0001-spec-slash-command-manager-extraction.md
+**Spec:** 01-slash-command-manager-extraction.md
 **Task:** 1.0 - Set up Slash Command Manager Repository Structure and Configuration
 
 This directory contains proof artifacts demonstrating completion of Task 1.0.
