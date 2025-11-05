@@ -1,2 +1,0 @@
-On branch feat/demo_extract-slash-commands
-nothing to commit, working tree clean
