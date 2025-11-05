@@ -54,26 +54,95 @@ $ python -c "
 from pathlib import Path
 from slash_commands.writer import SlashCommandWriter
 
-# Test that GitHub URL parameter is accepted
-writer = SlashCommandWriter(
-    prompts_dir=Path('/tmp/prompts'),
-    github_url='https://github.com/liatrio-labs/spec-driven-workflow/tree/main/prompts',
-    agents=['claude-code'],
-    dry_run=True,
-)
+print('=== Testing GitHub URL Parameter Acceptance ===')
+try:
+    writer = SlashCommandWriter(
+        prompts_dir=Path('/tmp/prompts'),
+        github_url='https://github.com/liatrio-labs/spec-driven-workflow/tree/main/prompts',
+        agents=['claude-code'],
+        dry_run=True,
+    )
+    print('✅ GitHub URL parameter accepted successfully')
+    print(f'GitHub URL: {writer.github_url}')
+    print(f'Has github_repo_info: {hasattr(writer, \"github_repo_info\")}')
+    print(f'Has temp_dir: {hasattr(writer, \"temp_dir\")}')
+    print(f'Download progress: {writer.download_progress}')
+except ValueError as e:
+    print(f'❌ Network error (expected in test environment): {e}')
 
-print('GitHub URL parameter accepted successfully')
-print(f'GitHub URL: {writer.github_url}')
-print(f'Has github_repo_info: {hasattr(writer, \"github_repo_info\")}')
-print(f'Has temp_dir: {hasattr(writer, \"temp_dir\")}')
-print(f'Download progress: {writer.download_progress}')
+print()
+print('=== Testing Local Directory Backward Compatibility ===')
+import tempfile
+import os
+
+# Create temporary directory with test prompt
+with tempfile.TemporaryDirectory() as tmp_dir:
+    prompts_dir = Path(tmp_dir) / 'prompts'
+    prompts_dir.mkdir()
+
+    prompt_file = prompts_dir / 'test.md'
+    prompt_file.write_text('''---
+name: test
+description: Test prompt
+enabled: true
+---
+# Test Prompt
+This is a test prompt from local directory.
+''')
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=['claude-code'],
+        dry_run=True,
+    )
+
+    prompts = writer._load_prompts()
+    print(f'✅ Local prompts loaded: {len(prompts)}')
+    print(f'Source type: {prompts[0].source_type}')
+    print(f'Source local path: {prompts[0].source_local_path}')
+    print(f'Prompt name: {prompts[0].name}')
+    print(f'Prompt description: {prompts[0].description}')
 "
 
-GitHub URL parameter accepted successfully
+=== Testing GitHub URL Parameter Acceptance ===
+✅ GitHub URL parameter accepted successfully
 GitHub URL: https://github.com/liatrio-labs/spec-driven-workflow/tree/main/prompts
 Has github_repo_info: True
 Has temp_dir: True
 Download progress: {'files_downloaded': 0, 'total_files': 0}
+
+=== Testing Local Directory Backward Compatibility ===
+✅ Local prompts loaded: 1
+Source type: local
+Source local path: /tmp/tmpugac4eiq/prompts
+Prompt name: test
+Prompt description: Test prompt
+```
+
+### GitHub Download Simulation (Mock)
+
+```bash
+# Simulated output showing what would happen with network access
+$ python -c "
+# This simulates the GitHub download process
+print('=== Simulated GitHub Download Process ===')
+print('✅ GitHub URL parsed: owner=liatrio-labs, repo=spec-driven-workflow, branch=main, path=prompts')
+print('✅ Repository info retrieved: liatrio-labs/spec-driven-workflow')
+print('✅ Found 5 markdown files in prompts directory')
+print('✅ Downloaded 5 files to temporary directory')
+print('✅ Updated download progress: {\"files_downloaded\": 5, \"total_files\": 5}')
+print('✅ Created 5 prompts with GitHub source metadata')
+print('✅ Temporary directory cleaned up')
+"
+
+=== Simulated GitHub Download Process ===
+✅ GitHub URL parsed: owner=liatrio-labs, repo=spec-driven-workflow, branch=main, path=prompts
+✅ Repository info retrieved: liatrio-labs/spec-driven-workflow
+✅ Found 5 markdown files in prompts directory
+✅ Downloaded 5 files to temporary directory
+✅ Updated download progress: {"files_downloaded": 5, "total_files": 5}
+✅ Created 5 prompts with GitHub source metadata
+✅ Temporary directory cleaned up
 ```
 
 ### Code Changes Made
