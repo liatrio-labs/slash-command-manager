@@ -268,6 +268,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
     overwrite_action = "overwrite" if yes else None
     writer = SlashCommandWriter(
         prompts_dir=actual_prompts_dir,
+        github_url=github_url,
         agents=agents,
         dry_run=dry_run,
         base_path=actual_target_path,
