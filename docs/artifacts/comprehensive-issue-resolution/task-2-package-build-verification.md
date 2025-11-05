@@ -107,8 +107,8 @@ Commands:
   generate   Generate slash commands for AI code assistants.
   cleanup    Clean up generated slash commands.
 
-$ slash-command-manager --help
-Usage: slash-command-manager [OPTIONS] COMMAND [ARGS]...
+$ slash-man --help
+Usage: slash-man [OPTIONS] COMMAND [ARGS]...
 
 Slash Command Manager MCP Server
 

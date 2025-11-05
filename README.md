@@ -30,7 +30,7 @@ uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man -
 Once published to PyPI, you'll be able to use:
 
 ```bash
-uvx slash-command-manager generate --yes
+uvx slash-man generate --yes
 ```
 
 ### From Source
@@ -105,7 +105,7 @@ python server.py
 python server.py --transport http --port 8000
 
 # Or via uvx (once published)
-uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-command-manager-mcp
+uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-command-manager
 ```
 
 ### Supported AI Tools
@@ -185,7 +185,7 @@ docker build -t slash-command-manager .
 docker run -it --rm slash-command-manager bash
 
 # Or run directly with the CLI
-docker run -it --rm slash-command-manager generate --list-agents
+docker run -it --rm slash-command-manager slash-man generate --list-agents
 ```
 
 ### Running Tests
