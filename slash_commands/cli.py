@@ -13,6 +13,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from __version__ import __version_with_commit__
+from mcp_server import create_app
 from slash_commands import (
     SlashCommandWriter,
     detect_agents,
@@ -434,6 +435,34 @@ def cleanup(
             border_style="green" if not result.get("errors") else "red",
         )
     )
+
+
+@app.command()
+def mcp(
+    transport: Annotated[
+        str,
+        typer.Option(
+            "--transport",
+            help="Transport type (stdio or http)",
+        ),
+    ] = "stdio",
+    port: Annotated[
+        int,
+        typer.Option(
+            "--port",
+            help="HTTP server port (default: 8000)",
+        ),
+    ] = 8000,
+) -> None:
+    """Start the MCP server for spec-driven development workflows."""
+    # Create the MCP server instance
+    mcp_server = create_app()
+
+    # Run the server with the specified transport
+    if transport == "http":
+        mcp_server.run(transport="http", port=port)
+    else:
+        mcp_server.run()
 
 
 def main() -> None:
