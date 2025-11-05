@@ -4,6 +4,42 @@
 
 **Demo Criteria:** "Successfully download .md files from spec-driven-workflow repository prompts directory to temporary location"
 
+### Actual Download from spec-driven-workflow Repository
+
+```bash
+$ python -c "
+from slash_commands.github_utils import download_github_prompts
+import tempfile
+import os
+
+print('Testing actual download from spec-driven-workflow repository...')
+try:
+    # Test with real repository
+    temp_dir = download_github_prompts('liatrio-labs', 'spec-driven-workflow', 'main', 'prompts')
+    print(f'Successfully downloaded to: {temp_dir}')
+
+    # List downloaded files
+    if os.path.exists(temp_dir):
+        files = list(os.listdir(temp_dir))
+        print(f'Files downloaded: {files}')
+    else:
+        print('Temp directory does not exist')
+
+except Exception as e:
+    print(f'Error: {e}')
+"
+Testing actual download from spec-driven-workflow repository...
+Successfully downloaded to: /tmp/github_prompts_6uj384es
+Files downloaded: ['generate-spec.md', 'generate-task-list-from-spec.md', 'manage-tasks.md']
+```
+
+### CLI Download Function Test
+
+```bash
+$ python -c 'from slash_commands.github_utils import download_github_prompts; print("Function successfully imported and available")'
+Function successfully imported and available
+```
+
 ## Integration Test Results
 
 ### Complete Integration Test Suite
@@ -31,13 +67,6 @@ tests/test_github_integration.py::test_large_repository_performance PASSED [ 90%
 tests/test_github_integration.py::test_end_to_end_download_workflow PASSED [100%]
 
 ============================== 11 passed in 6.08s ==============================
-```
-
-### CLI Download Function Test
-
-```bash
-$ python -c 'from slash_commands.github_utils import download_github_prompts; print("Function successfully imported and available")'
-Function successfully imported and available
 ```
 
 ### Enhanced Error Handling Test
