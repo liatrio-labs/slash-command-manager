@@ -71,20 +71,20 @@
   - [x] 3.9 Create failing CLI tests for help text output validation
   - [x] 3.10 Implement CLI option integration and validation to make all CLI tests pass
 
-- [ ] 4.0 Extend SlashCommandWriter for GitHub Sources
+- [x] 4.0 Extend SlashCommandWriter for GitHub Sources
   - **Satisfies:** U3, U4, FR6, FR14
   - Demo Criteria: "Generate slash commands successfully from GitHub repository with proper source metadata"
   - Proof Artifact(s): "CLI: slash-man generate --github-url https://github.com/liatrio-labs/spec-driven-workflow/tree/main/prompts --dry-run; Generated files: .windsurf/workflows/*.md showing GitHub source metadata"
-  - [ ] 4.1 Create failing writer tests for SlashCommandWriter.**init** accepting GitHub URL parameters
-  - [ ] 4.2 Create failing writer tests for _load_prompts() method handling GitHub sources
-  - [ ] 4.3 Create failing writer tests for GitHub repository info retrieval and storage
-  - [ ] 4.4 Create failing writer tests for progress reporting of GitHub downloads in writer
-  - [ ] 4.5 Create failing writer tests for backward compatibility with existing local directory functionality
-  - [ ] 4.6 Create failing writer tests for GitHub source handling in dry-run functionality
-  - [ ] 4.7 Create failing writer tests for integration with existing agent detection and selection
-  - [ ] 4.8 Create failing writer tests for temporary file cleanup in writer workflow
-  - [ ] 4.9 Create failing writer tests for GitHub source metadata generation
-  - [ ] 4.10 Implement SlashCommandWriter extensions to make all writer tests pass
+  - [x] 4.1 Create failing writer tests for SlashCommandWriter.**init** accepting GitHub URL parameters
+- [x] 4.2 Create failing writer tests for _load_prompts() method handling GitHub sources
+- [x] 4.3 Create failing writer tests for GitHub repository info retrieval and storage
+- [x] 4.4 Create failing writer tests for progress reporting of GitHub downloads in writer
+- [x] 4.5 Create failing writer tests for backward compatibility with existing local directory functionality
+- [x] 4.6 Create failing writer tests for GitHub source handling in dry-run functionality
+- [x] 4.7 Create failing writer tests for integration with existing agent detection and selection
+- [x] 4.8 Create failing writer tests for temporary file cleanup in writer workflow
+- [x] 4.9 Create failing writer tests for GitHub source metadata generation
+- [x] 4.10 Implement SlashCommandWriter extensions to make all writer tests pass
 
 - [ ] 5.0 Implement Enhanced Error Handling and Validation
   - **Satisfies:** U4, U6, U7, FR7, FR17

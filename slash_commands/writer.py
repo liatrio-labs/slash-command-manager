@@ -14,9 +14,19 @@ import questionary
 import tomllib
 import yaml
 
-from mcp_server.prompt_utils import MarkdownPrompt, load_markdown_prompt
+from mcp_server.prompt_utils import (
+    MarkdownPrompt,
+    create_markdown_prompt_with_source,
+    load_markdown_prompt,
+)
 from slash_commands.config import AgentConfig, get_agent_config, list_agent_keys
 from slash_commands.generators import CommandGenerator
+from slash_commands.github_utils import (
+    GitHubRepoError,
+    download_github_prompts,
+    get_github_repo_info,
+    parse_github_url,
+)
 
 
 def _find_package_prompts_dir() -> Path | None:
@@ -116,17 +126,19 @@ class SlashCommandWriter:
         base_path: Path | None = None,
         overwrite_action: OverwriteAction | None = None,
         is_explicit_prompts_dir: bool = True,
+        github_url: str | None = None,
     ):
         """Initialize the writer.
 
         Args:
-            prompts_dir: Directory containing prompt files
+            prompts_dir: Directory containing prompt files (ignored if github_url is provided)
             agents: List of agent keys to generate commands for. If None, uses all supported agents.
             dry_run: If True, don't write files but report what would be written
             base_path: Base directory for output paths. If None, uses current directory.
             overwrite_action: Global overwrite action to apply. If None, will prompt per file.
             is_explicit_prompts_dir: If True, prompts_dir was explicitly provided by user.
                 If False, use bundled prompts fallback.
+            github_url: GitHub URL to download prompts from. If provided, prompts_dir is ignored.
         """
         self.prompts_dir = prompts_dir
         self.agents = agents if agents is not None else list_agent_keys()
@@ -134,8 +146,33 @@ class SlashCommandWriter:
         self.base_path = base_path or Path.cwd()
         self.overwrite_action = overwrite_action
         self.is_explicit_prompts_dir = is_explicit_prompts_dir
+        self.github_url = github_url
         self._global_overwrite = False  # Track if user chose "overwrite-all"
         self._backups_created = []  # Track backup files created
+
+        # GitHub-specific attributes
+        self.github_repo_info = None
+        self.temp_dir = None
+        self.download_progress = {"files_downloaded": 0, "total_files": 0}
+
+        # If GitHub URL is provided, parse and validate it
+        if self.github_url:
+            self._init_github_source()
+
+    def _init_github_source(self) -> None:
+        """Initialize GitHub source by parsing URL and retrieving repo info."""
+        try:
+            # Parse GitHub URL
+            parsed_url = parse_github_url(self.github_url)
+
+            # Get repository info
+            self.github_repo_info = get_github_repo_info(parsed_url["owner"], parsed_url["repo"])
+
+            # Add parsed info to repo info
+            self.github_repo_info.update(parsed_url)
+
+        except GitHubRepoError as e:
+            raise ValueError(f"Invalid GitHub repository: {e.message}") from e
 
     def generate(self) -> dict[str, Any]:
         """Generate command files for all configured agents.
@@ -183,8 +220,12 @@ class SlashCommandWriter:
         }
 
     def _load_prompts(self) -> list[MarkdownPrompt]:
-        """Load all prompts from the prompts directory."""
-        # Check if the specified prompts directory exists
+        """Load all prompts from the prompts directory or GitHub repository."""
+        # If GitHub URL is provided, download from GitHub
+        if self.github_url:
+            return self._load_prompts_from_github()
+
+        # Original local directory logic
         prompts_dir = self.prompts_dir
         if not prompts_dir.exists():
             # Only attempt fallback to bundled prompts when using default path
@@ -201,10 +242,66 @@ class SlashCommandWriter:
 
         prompts = []
         for prompt_file in sorted(prompts_dir.glob("*.md")):
-            prompt = load_markdown_prompt(prompt_file)
+            base_prompt = load_markdown_prompt(prompt_file)
+            # Add local source metadata
+            prompt = create_markdown_prompt_with_source(
+                base_prompt,
+                source_type="local",
+                source_local_path=str(prompts_dir),
+                source_timestamp=datetime.now(UTC).isoformat(),
+            )
             prompts.append(prompt)
 
         return prompts
+
+    def _load_prompts_from_github(self) -> list[MarkdownPrompt]:
+        """Load prompts from GitHub repository."""
+        try:
+            # Download prompts from GitHub
+            parsed_url = parse_github_url(self.github_url)
+            self.temp_dir = download_github_prompts(
+                parsed_url["owner"], parsed_url["repo"], parsed_url["branch"], parsed_url["path"]
+            )
+
+            # Update progress
+            files = list(self.temp_dir.glob("*.md"))
+            self.download_progress = {"files_downloaded": len(files), "total_files": len(files)}
+
+            # Load prompts from downloaded files
+            prompts = []
+            for prompt_file in sorted(self.temp_dir.glob("*.md")):
+                base_prompt = load_markdown_prompt(prompt_file)
+                # Add GitHub source metadata
+                source_metadata = {
+                    "source_type": "github",
+                    "source_github_url": self.github_url,
+                    "source_timestamp": datetime.now(UTC).isoformat(),
+                }
+                if self.github_repo_info:
+                    source_metadata.update(
+                        {
+                            "source_github_owner": self.github_repo_info.get("owner"),
+                            "source_github_repo": self.github_repo_info.get("name"),
+                            "source_github_branch": parsed_url["branch"],
+                            "source_github_path": parsed_url["path"],
+                        }
+                    )
+
+                prompt = create_markdown_prompt_with_source(base_prompt, **source_metadata)
+                prompts.append(prompt)
+
+            return prompts
+
+        except GitHubRepoError as e:
+            raise ValueError(f"Failed to load prompts from GitHub: {e.message}") from e
+        finally:
+            # Clean up temporary directory if not in dry run mode
+            if self.temp_dir and not self.dry_run:
+                try:
+                    shutil.rmtree(self.temp_dir)
+                    self.temp_dir = None
+                except Exception:
+                    pass  # Ignore cleanup errors
 
     def _find_existing_files(
         self, prompts: list[MarkdownPrompt], agent_configs: list[AgentConfig]

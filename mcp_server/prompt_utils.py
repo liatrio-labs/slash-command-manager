@@ -26,6 +26,15 @@ class MarkdownPrompt:
     arguments: list[PromptArgumentSpec]
     body: str
     agent_overrides: dict[str, Any] | None = None
+    # Source metadata fields
+    source_type: str | None = None
+    source_github_url: str | None = None
+    source_github_owner: str | None = None
+    source_github_repo: str | None = None
+    source_github_branch: str | None = None
+    source_github_path: str | None = None
+    source_local_path: str | None = None
+    source_timestamp: str | None = None
 
     def decorator_kwargs(self) -> dict[str, Any]:
         kwargs: dict[str, Any] = {"name": self.name}
@@ -82,6 +91,15 @@ def load_markdown_prompt(path: Path) -> MarkdownPrompt:
         arguments=arguments,
         body=body,
         agent_overrides=agent_overrides,
+        # Source metadata defaults (will be set by writer if needed)
+        source_type=None,
+        source_github_url=None,
+        source_github_owner=None,
+        source_github_repo=None,
+        source_github_branch=None,
+        source_github_path=None,
+        source_local_path=None,
+        source_timestamp=None,
     )
 
 
@@ -131,6 +149,24 @@ def normalize_arguments(raw: Any) -> list[PromptArgumentSpec]:
         )
 
     return normalized
+
+
+def create_markdown_prompt_with_source(
+    base_prompt: MarkdownPrompt, **source_metadata
+) -> MarkdownPrompt:
+    """Create a new MarkdownPrompt with source metadata."""
+    return MarkdownPrompt(
+        path=base_prompt.path,
+        name=base_prompt.name,
+        description=base_prompt.description,
+        tags=base_prompt.tags,
+        meta=base_prompt.meta,
+        enabled=base_prompt.enabled,
+        arguments=base_prompt.arguments,
+        body=base_prompt.body,
+        agent_overrides=base_prompt.agent_overrides,
+        **source_metadata,
+    )
 
 
 def _ensure_tag_set(raw: Any) -> set[str] | None:
