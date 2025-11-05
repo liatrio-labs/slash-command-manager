@@ -26,20 +26,20 @@
 
 ## Tasks
 
-- [ ] 1.0 Create GitHub Utilities Module
+- [x] 1.0 Create GitHub Utilities Module
   - **Satisfies:** U1, FR1, FR2
   - Demo Criteria: "Run unit tests for GitHub URL parsing and validation; test parsing of https://github.com/liatrio-labs/spec-driven-workflow/tree/main/prompts and rejection of invalid URLs"
   - Proof Artifact(s): "Test: test_github_utils.py showing URL parsing tests; CLI: python -c 'from slash_commands.github_utils import parse_github_url; print(parse_github_url(\"https://github.com/owner/repo/tree/main/prompts\"))'"
-  - [ ] 1.1 Create failing unit tests in tests/test_github_utils.py for GitHubRepoError exception class
-  - [ ] 1.2 Create failing unit tests for parse_github_url() function with valid/invalid URL scenarios
-  - [ ] 1.3 Create failing unit tests for list_github_directory_files() function with GitHub API integration
-  - [ ] 1.4 Create failing unit tests for download_github_prompts() function with network timeout scenarios
-  - [ ] 1.5 Create failing unit tests for file size validation (>1MB rejection, >100 files warning)
-  - [ ] 1.6 Create failing unit tests for get_github_repo_info() function with repository metadata
-  - [ ] 1.7 Add requests dependency to pyproject.toml
-  - [ ] 1.8 Implement slash_commands/github_utils.py with GitHubRepoError exception class to make tests pass
-  - [ ] 1.9 Implement parse_github_url() function to make URL parsing tests pass
-  - [ ] 1.10 Implement remaining GitHub utilities functions to make all tests pass
+  - [x] 1.1 Create failing unit tests in tests/test_github_utils.py for GitHubRepoError exception class
+  - [x] 1.2 Create failing unit tests for parse_github_url() function with valid/invalid URL scenarios
+  - [x] 1.3 Create failing unit tests for list_github_directory_files() function with GitHub API integration
+  - [x] 1.4 Create failing unit tests for download_github_prompts() function with network timeout scenarios
+  - [x] 1.5 Create failing unit tests for file size validation (>1MB rejection, >100 files warning)
+  - [x] 1.6 Create failing unit tests for get_github_repo_info() function with repository metadata
+  - [x] 1.7 Add requests dependency to pyproject.toml
+  - [x] 1.8 Implement slash_commands/github_utils.py with GitHubRepoError exception class to make tests pass
+  - [x] 1.9 Implement parse_github_url() function to make URL parsing tests pass
+  - [x] 1.10 Implement remaining GitHub utilities functions to make all tests pass
 
 - [ ] 2.0 Implement GitHub API Integration and File Download
   - **Satisfies:** U2, FR3, FR4, FR10, FR11, FR12, FR13, FR17
