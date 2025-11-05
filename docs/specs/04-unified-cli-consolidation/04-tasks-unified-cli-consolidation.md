@@ -25,15 +25,15 @@
   - [x] 1.4 Add help text and command description for the new `mcp` subcommand
   - [x] 1.5 Test basic `slash-man mcp` functionality matches current `slash-command-manager` behavior
 
-- [ ] 2.0 Enhanced Configuration Options
+- [x] 2.0 Enhanced Configuration Options
   - Demo Criteria: "`slash-man mcp --config custom.toml --transport http --port 8080` successfully starts server with custom configuration"
   - Proof Artifact(s): "Server logs showing custom config loading, HTTP server responding on specified port"
-  - [ ] 2.1 Add `--config` flag to `mcp` subcommand for custom TOML configuration file paths
-  - [ ] 2.2 Add `--transport` flag with "stdio" (default) and "http" options to `mcp` subcommand
-  - [ ] 2.3 Add `--port` flag for HTTP server port configuration (default: 8000)
-  - [ ] 2.4 Integrate `mcp_server.config` module for handling custom TOML files
-  - [ ] 2.5 Add configuration validation with clear error messages for invalid configs
-  - [ ] 2.6 Test all configuration combinations (stdio, http with custom ports, custom TOML files)
+  - [x] 2.1 Add `--config` flag to `mcp` subcommand for custom TOML configuration file paths
+  - [x] 2.2 Add `--transport` flag with "stdio" (default) and "http" options to `mcp` subcommand
+  - [x] 2.3 Add `--port` flag for HTTP server port configuration (default: 8000)
+  - [x] 2.4 Integrate `mcp_server.config` module for handling custom TOML files
+  - [x] 2.5 Add configuration validation with clear error messages for invalid configs
+  - [x] 2.6 Test all configuration combinations (stdio, http with custom ports, custom TOML files)
 
 - [ ] 3.0 Entry Point Removal and Documentation Update
   - Demo Criteria: "`slash-command-manager` command no longer exists, all README examples use `slash-man` commands"
