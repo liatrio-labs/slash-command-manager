@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import questionary
+import requests
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -306,11 +307,30 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         base_path=actual_target_path,
         overwrite_action=overwrite_action,
         is_explicit_prompts_dir=is_explicit_prompts_dir,
+        github_repo=github_repo,
+        github_branch=github_branch,
+        github_path=github_path,
     )
 
     # Generate commands
     try:
         result = writer.generate()
+    except requests.exceptions.HTTPError as e:
+        print(f"Error: GitHub API error: {e}", file=sys.stderr)
+        print("\nTo fix this:", file=sys.stderr)
+        if github_repo:
+            print(f"  - Verify the repository exists: {github_repo}", file=sys.stderr)
+            print(f"  - Check that the branch exists: {github_branch}", file=sys.stderr)
+            print(f"  - Ensure the path is valid: {github_path}", file=sys.stderr)
+            print("  - Only public repositories are supported", file=sys.stderr)
+        raise typer.Exit(code=3) from None  # I/O error (GitHub API error)
+    except requests.exceptions.RequestException as e:
+        print(f"Error: Network error while accessing GitHub: {e}", file=sys.stderr)
+        print("\nTo fix this:", file=sys.stderr)
+        print("  - Check your internet connection", file=sys.stderr)
+        print("  - Verify GitHub API is accessible", file=sys.stderr)
+        print("  - Try again later if GitHub is experiencing issues", file=sys.stderr)
+        raise typer.Exit(code=3) from None  # I/O error (network error)
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         print("\nTo fix this:", file=sys.stderr)
@@ -322,6 +342,12 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
                 file=sys.stderr,
             )
             print(f"    (current: {prompts_dir})", file=sys.stderr)
+        elif github_repo:
+            # GitHub-related ValueError (e.g., invalid file format)
+            print(
+                f"  - Verify the GitHub path points to markdown files: {github_path}",
+                file=sys.stderr,
+            )
         else:
             # Default path, tried to fall back to bundled prompts
             print("  - Bundled prompts were not found in the installed package", file=sys.stderr)

@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 
 from slash_commands.config import CommandFormat
 from slash_commands.writer import SlashCommandWriter, _find_package_prompts_dir
@@ -658,3 +659,218 @@ def test_writer_cleanup_excludes_backups_when_requested(tmp_path):
 
     assert result["files_deleted"] == 0
     assert backup_file.exists()  # Backup should still exist
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_loads_prompts_from_github(mock_download, tmp_path):
+    """Test that writer loads prompts from GitHub repository."""
+
+    # Mock the download function to write files to temp directory
+    def mock_download_side_effect(owner, repo, branch, path, temp_dir):
+        # Simulate downloading files
+        (temp_dir / "prompt1.md").write_text(
+            """---
+name: prompt1
+description: Test prompt 1
+tags:
+  - testing
+arguments: []
+enabled: true
+---
+# Prompt 1
+
+Content 1
+"""
+        )
+        (temp_dir / "prompt2.md").write_text(
+            """---
+name: prompt2
+description: Test prompt 2
+tags:
+  - testing
+arguments: []
+enabled: true
+---
+# Prompt 2
+
+Content 2
+"""
+        )
+
+    mock_download.side_effect = mock_download_side_effect
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",  # Not used when GitHub params provided
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="liatrio-labs/spec-driven-workflow",
+        github_branch="main",
+        github_path="prompts",
+    )
+
+    result = writer.generate()
+
+    # Verify prompts were loaded
+    assert result["prompts_loaded"] == 2
+    assert len(result["prompts"]) == 2
+    assert result["prompts"][0]["name"] == "prompt1"
+    assert result["prompts"][1]["name"] == "prompt2"
+
+    # Verify download was called correctly
+    mock_download.assert_called_once()
+    call_args = mock_download.call_args[0]
+    assert call_args[0] == "liatrio-labs"
+    assert call_args[1] == "spec-driven-workflow"
+    assert call_args[2] == "main"
+    assert call_args[3] == "prompts"
+
+    # Verify files were generated
+    expected_path1 = tmp_path / ".claude" / "commands" / "prompt1.md"
+    expected_path2 = tmp_path / ".claude" / "commands" / "prompt2.md"
+    assert expected_path1.exists()
+    assert expected_path2.exists()
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_loads_prompts_from_github_refactor_branch(mock_download, tmp_path):
+    """Test that writer loads prompts from GitHub repository on refactor branch."""
+
+    def mock_download_side_effect(owner, repo, branch, path, temp_dir):
+        (temp_dir / "prompt-refactor.md").write_text(
+            """---
+name: prompt-refactor
+description: Refactor prompt
+tags:
+  - testing
+arguments: []
+enabled: true
+---
+# Refactor Prompt
+
+Content
+"""
+        )
+
+    mock_download.side_effect = mock_download_side_effect
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="liatrio-labs/spec-driven-workflow",
+        github_branch="refactor/improve-workflow",
+        github_path="prompts",
+    )
+
+    result = writer.generate()
+
+    assert result["prompts_loaded"] == 1
+    assert result["prompts"][0]["name"] == "prompt-refactor"
+
+    # Verify download was called with correct branch
+    call_args = mock_download.call_args[0]
+    assert call_args[2] == "refactor/improve-workflow"
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_loads_single_file_from_github(mock_download, tmp_path):
+    """Test that writer loads a single file from GitHub repository."""
+
+    def mock_download_side_effect(owner, repo, branch, path, temp_dir):
+        (temp_dir / "generate-spec.md").write_text(
+            """---
+name: generate-spec
+description: Generate spec
+tags:
+  - testing
+arguments: []
+enabled: true
+---
+# Generate Spec
+
+Content
+"""
+        )
+
+    mock_download.side_effect = mock_download_side_effect
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="liatrio-labs/spec-driven-workflow",
+        github_branch="refactor/improve-workflow",
+        github_path="prompts/generate-spec.md",
+    )
+
+    result = writer.generate()
+
+    assert result["prompts_loaded"] == 1
+    assert result["prompts"][0]["name"] == "generate-spec"
+
+    # Verify download was called with single file path
+    call_args = mock_download.call_args[0]
+    assert call_args[3] == "prompts/generate-spec.md"
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_handles_github_api_404_error(mock_download, tmp_path):
+    """Test that writer handles GitHub API 404 errors."""
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404 Not Found")
+    mock_download.side_effect = requests.exceptions.HTTPError("404 Not Found")
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="owner/nonexistent",
+        github_branch="main",
+        github_path="prompts",
+    )
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        writer.generate()
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_handles_github_api_403_error(mock_download, tmp_path):
+    """Test that writer handles GitHub API 403 errors."""
+    mock_download.side_effect = requests.exceptions.HTTPError("403 Forbidden")
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="owner/repo",
+        github_branch="main",
+        github_path="prompts",
+    )
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        writer.generate()
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_handles_github_network_error(mock_download, tmp_path):
+    """Test that writer handles GitHub network errors."""
+    mock_download.side_effect = requests.exceptions.RequestException("Network error")
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="owner/repo",
+        github_branch="main",
+        github_path="prompts",
+    )
+
+    with pytest.raises(requests.exceptions.RequestException):
+        writer.generate()
