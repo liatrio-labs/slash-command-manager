@@ -110,20 +110,21 @@ class TestGitCommit:
 
     def test_git_commit_uses_correct_directory(self):
         """Test that git command runs from the correct directory."""
+        expected_dir = Path(__file__).parent.parent
+
         with patch("__version__.subprocess.run") as mock_run:
-            mock_run.return_value = MagicMock(stdout="abc1234", returncode=0)
+            # Mock Path(__file__) to point to source location so _find_git_repo_root finds the repo
+            with patch("__version__.__file__", str(expected_dir / "__version__.py")):
+                mock_run.return_value = MagicMock(stdout="abc1234", returncode=0)
 
-            # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
-                _get_git_commit()
+                # Mock build-time commit to None to force runtime detection
+                with patch("__version__._get_build_time_commit", return_value=None):
+                    _get_git_commit()
 
-                # Verify that cwd was set to the directory containing __version__.py
-                call_args = mock_run.call_args
-                assert "cwd" in call_args.kwargs
-                # The cwd should be the parent directory of __version__.py
-                # __version__.py is in the root, so tests/ should go up one level
-                expected_dir = Path(__file__).parent.parent
-                assert call_args.kwargs["cwd"] == expected_dir
+                    # Verify that cwd was set to the git repository root
+                    call_args = mock_run.call_args
+                    assert "cwd" in call_args.kwargs
+                    assert call_args.kwargs["cwd"] == expected_dir
 
 
 class TestVersionDetection:
@@ -223,22 +224,25 @@ class TestVersionIntegration:
             ).stdout.strip()
 
             # Mock build-time commit to None to force runtime detection
+            expected_dir = Path(__file__).parent.parent
             with patch("__version__._get_build_time_commit", return_value=None):
                 with patch("__version__.subprocess.run") as mock_run:
-                    # Mock git to return the slash-command-manager commit (not temp repo)
-                    slash_command_commit = "slash123"
-                    mock_run.return_value = MagicMock(stdout=slash_command_commit, returncode=0)
+                    # Mock Path(__file__) to point to source location so _find_git_repo_root finds the repo
+                    with patch("__version__.__file__", str(expected_dir / "__version__.py")):
+                        # Mock git to return the slash-command-manager commit (not temp repo)
+                        slash_command_commit = "slash123"
+                        mock_run.return_value = MagicMock(stdout=slash_command_commit, returncode=0)
 
-                    # Get the commit - should be from slash-command-manager, not temp repo
-                    result = _get_git_commit()
+                        # Get the commit - should be from slash-command-manager, not temp repo
+                        result = _get_git_commit()
 
-                    # The result should be the slash-command-manager commit
-                    assert result == slash_command_commit
-                    assert result != temp_commit
+                        # The result should be the slash-command-manager commit
+                        assert result == slash_command_commit
+                        assert result != temp_commit
 
-                    # Verify that git was called with the correct directory (slash-command-manager root)
-                    call_args = mock_run.call_args
-                    assert call_args.kwargs["cwd"] == Path(__file__).parent.parent
+                        # Verify that git was called with the correct directory (slash-command-manager root)
+                        call_args = mock_run.call_args
+                        assert call_args.kwargs["cwd"] == expected_dir
 
     def test_version_consistency(self):
         """Test that version is consistent across multiple calls."""

@@ -41,6 +41,28 @@ def _get_build_time_commit() -> str | None:
         return None
 
 
+def _find_git_repo_root(start_path: Path) -> Path | None:
+    """Find the git repository root by traversing up from start_path.
+
+    Args:
+        start_path: Starting directory to search from
+
+    Returns:
+        Path to git repository root (directory containing .git), or None if not found
+    """
+    current = start_path.resolve()
+    while current != current.parent:
+        # Prioritize finding .git directory (actual git repo)
+        if (current / ".git").exists():
+            return current
+        # Only use pyproject.toml as indicator if we're likely in source (not installed)
+        # Check if current directory looks like a project root (has both pyproject.toml and is likely source)
+        if (current / "pyproject.toml").exists() and (current / ".git").exists():
+            return current
+        current = current.parent
+    return None
+
+
 def _get_git_commit() -> str | None:
     """Get the short git commit SHA from the local repository."""
     # First try build-time commit
@@ -50,15 +72,32 @@ def _get_git_commit() -> str | None:
 
     # Fall back to runtime detection
     try:
-        # Get the directory where this __version__.py file is located
-        # This ensures we always detect git from the slash-command-manager repo
+        # Find the git repository root by traversing up from __version__.py location
+        # This works whether __version__.py is in source or installed location
         version_file_path = Path(__file__).parent
+        git_repo_root = _find_git_repo_root(version_file_path)
+
+        if git_repo_root is None:
+            # If we can't find the repo root, try using git rev-parse --show-toplevel
+            try:
+                result = subprocess.run(
+                    ["git", "rev-parse", "--show-toplevel"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    cwd=version_file_path,
+                )
+                git_repo_root = Path(result.stdout.strip())
+            except subprocess.CalledProcessError:
+                return None
+
+        # Run git rev-parse from the repository root
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True,
             text=True,
             check=True,
-            cwd=version_file_path,  # Always run from slash-command-manager directory
+            cwd=git_repo_root,
         )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
