@@ -25,7 +25,14 @@ from slash_commands.config import AgentConfig, CommandFormat
 
 class CommandGeneratorProtocol(Protocol):
     def generate(
-        self, prompt: MarkdownPrompt, agent: AgentConfig
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_type: str | None = None,
+        source_dir: str | None = None,
+        source_repo: str | None = None,
+        source_branch: str | None = None,
+        source_path: str | None = None,
     ) -> str:  # pragma: no cover - stub
         ...
 
@@ -152,7 +159,16 @@ def _replace_placeholders(
 class MarkdownCommandGenerator:
     """Generator for Markdown-format slash commands."""
 
-    def generate(self, prompt: MarkdownPrompt, agent: AgentConfig) -> str:
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_type: str | None = None,
+        source_dir: str | None = None,
+        source_repo: str | None = None,
+        source_branch: str | None = None,
+        source_path: str | None = None,
+    ) -> str:
         """Generate a Markdown-formatted command file.
 
         Args:
@@ -178,7 +194,15 @@ class MarkdownCommandGenerator:
                 }
                 for arg in arguments
             ],
-            "meta": self._build_meta(prompt, agent),
+            "meta": self._build_meta(
+                prompt,
+                agent,
+                source_type=source_type,
+                source_dir=source_dir,
+                source_repo=source_repo,
+                source_branch=source_branch,
+                source_path=source_path,
+            ),
         }
 
         # Replace placeholders in body
@@ -194,7 +218,16 @@ class MarkdownCommandGenerator:
         prefix = prompt.meta.get("command_prefix", "") if prompt.meta else ""
         return f"{prefix}{prompt.name}"
 
-    def _build_meta(self, prompt: MarkdownPrompt, agent: AgentConfig) -> dict:
+    def _build_meta(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_type: str | None = None,
+        source_dir: str | None = None,
+        source_repo: str | None = None,
+        source_branch: str | None = None,
+        source_path: str | None = None,
+    ) -> dict:
         """Build metadata section for the command."""
         meta = prompt.meta.copy() if prompt.meta else {}
         meta.update(
@@ -211,13 +244,39 @@ class MarkdownCommandGenerator:
                 "updated_at": datetime.now(UTC).isoformat(),
             }
         )
+
+        # Add source tracking metadata
+        if source_type:
+            meta["source_type"] = source_type
+            if source_type == "local" and source_dir:
+                meta["source_dir"] = source_dir
+            elif source_type == "github":
+                if source_repo:
+                    meta["source_repo"] = source_repo
+                if source_branch:
+                    meta["source_branch"] = source_branch
+                if source_path:
+                    # For GitHub, source_path is the GitHub path, not the local file path
+                    meta["source_path"] = source_path
+                    # Keep the prompt file basename in a separate field if needed
+                    # But for GitHub, source_path represents the GitHub path
+
         return meta
 
 
 class TomlCommandGenerator:
     """Generator for TOML-format slash commands (Gemini CLI spec)."""
 
-    def generate(self, prompt: MarkdownPrompt, agent: AgentConfig) -> str:
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_type: str | None = None,
+        source_dir: str | None = None,
+        source_repo: str | None = None,
+        source_branch: str | None = None,
+        source_path: str | None = None,
+    ) -> str:
         """Generate a TOML-formatted command file following Gemini CLI spec.
 
         According to https://geminicli.com/docs/cli/custom-commands/:
@@ -246,12 +305,27 @@ class TomlCommandGenerator:
 
         # Add metadata fields (version tracking for our tooling)
         # These are ignored by Gemini CLI but preserved for bookkeeping
-        toml_data["meta"] = {
+        meta = {
             "version": __version__,
             "updated_at": datetime.now(UTC).isoformat(),
             "source_prompt": prompt.name,
             "agent": agent.key,
         }
+
+        # Add source tracking metadata
+        if source_type:
+            meta["source_type"] = source_type
+            if source_type == "local" and source_dir:
+                meta["source_dir"] = source_dir
+            elif source_type == "github":
+                if source_repo:
+                    meta["source_repo"] = source_repo
+                if source_branch:
+                    meta["source_branch"] = source_branch
+                if source_path:
+                    meta["source_path"] = source_path
+
+        toml_data["meta"] = meta
 
         # Convert to TOML format
         output = self._dict_to_toml(toml_data)

@@ -196,3 +196,110 @@ def test_toml_generator_snapshot_regression(sample_prompt):
     assert isinstance(data["prompt"], str)
     assert "meta" in data
     assert isinstance(data["meta"], dict)
+
+
+def test_prompt_metadata_github_source(sample_prompt):
+    """Test that GitHub source metadata is correctly included in generated files."""
+    agent_md = get_agent_config("claude-code")
+    agent_toml = get_agent_config("gemini-cli")
+    generator_md = MarkdownCommandGenerator()
+    generator_toml = TomlCommandGenerator()
+
+    # Generate with GitHub source metadata
+    generated_md = generator_md.generate(
+        sample_prompt,
+        agent_md,
+        source_type="github",
+        source_repo="liatrio-labs/spec-driven-workflow",
+        source_branch="refactor/improve-workflow",
+        source_path="prompts",
+    )
+    generated_toml = generator_toml.generate(
+        sample_prompt,
+        agent_toml,
+        source_type="github",
+        source_repo="liatrio-labs/spec-driven-workflow",
+        source_branch="refactor/improve-workflow",
+        source_path="prompts",
+    )
+
+    # Verify markdown metadata
+    frontmatter, _ = _extract_frontmatter_and_body(generated_md)
+    meta_md = frontmatter["meta"]
+    assert meta_md["source_type"] == "github"
+    assert meta_md["source_repo"] == "liatrio-labs/spec-driven-workflow"
+    assert meta_md["source_branch"] == "refactor/improve-workflow"
+    assert meta_md["source_path"] == "prompts"
+
+    # Verify TOML metadata
+    data_toml = _parse_toml(generated_toml)
+    meta_toml = data_toml["meta"]
+    assert meta_toml["source_type"] == "github"
+    assert meta_toml["source_repo"] == "liatrio-labs/spec-driven-workflow"
+    assert meta_toml["source_branch"] == "refactor/improve-workflow"
+    assert meta_toml["source_path"] == "prompts"
+
+
+def test_prompt_metadata_github_source_single_file(sample_prompt):
+    """Test that GitHub source metadata for single file is correctly included."""
+    agent_md = get_agent_config("claude-code")
+    generator_md = MarkdownCommandGenerator()
+
+    # Generate with GitHub source metadata for single file
+    generated_md = generator_md.generate(
+        sample_prompt,
+        agent_md,
+        source_type="github",
+        source_repo="liatrio-labs/spec-driven-workflow",
+        source_branch="refactor/improve-workflow",
+        source_path="prompts/generate-spec.md",
+    )
+
+    # Verify markdown metadata
+    frontmatter, _ = _extract_frontmatter_and_body(generated_md)
+    meta_md = frontmatter["meta"]
+    assert meta_md["source_type"] == "github"
+    assert meta_md["source_repo"] == "liatrio-labs/spec-driven-workflow"
+    assert meta_md["source_branch"] == "refactor/improve-workflow"
+    assert meta_md["source_path"] == "prompts/generate-spec.md"
+
+
+def test_prompt_metadata_local_source(sample_prompt):
+    """Test that local source metadata is correctly included in generated files."""
+    agent_md = get_agent_config("claude-code")
+    agent_toml = get_agent_config("gemini-cli")
+    generator_md = MarkdownCommandGenerator()
+    generator_toml = TomlCommandGenerator()
+
+    # Generate with local source metadata
+    source_dir = "/path/to/prompts"
+    generated_md = generator_md.generate(
+        sample_prompt,
+        agent_md,
+        source_type="local",
+        source_dir=source_dir,
+    )
+    generated_toml = generator_toml.generate(
+        sample_prompt,
+        agent_toml,
+        source_type="local",
+        source_dir=source_dir,
+    )
+
+    # Verify markdown metadata
+    frontmatter, _ = _extract_frontmatter_and_body(generated_md)
+    meta_md = frontmatter["meta"]
+    assert meta_md["source_type"] == "local"
+    assert meta_md["source_dir"] == source_dir
+    # Verify GitHub fields are not present
+    assert "source_repo" not in meta_md
+    assert "source_branch" not in meta_md
+
+    # Verify TOML metadata
+    data_toml = _parse_toml(generated_toml)
+    meta_toml = data_toml["meta"]
+    assert meta_toml["source_type"] == "local"
+    assert meta_toml["source_dir"] == source_dir
+    # Verify GitHub fields are not present
+    assert "source_repo" not in meta_toml
+    assert "source_branch" not in meta_toml

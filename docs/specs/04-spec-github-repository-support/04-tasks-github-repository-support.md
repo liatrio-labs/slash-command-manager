@@ -79,21 +79,21 @@
   - [x] 3.14 Write test `test_github_single_file_non_markdown()` in `tests/test_github_utils.py` that verifies when path points to a single non-`.md` file, it raises ValueError with clear error message
   - [x] 3.15 Write test `test_writer_loads_single_file_from_github()` in `tests/test_writer.py` that mocks GitHub API to return a single file response and verifies it is loaded and processed correctly. Test should cover `liatrio-labs/spec-driven-workflow` repository with path `prompts/generate-spec.md` on `refactor/improve-workflow` branch (and `main` branch if file exists)
 
-- [ ] 4.0 Prompt Metadata Source Tracking
+- [x] 4.0 Prompt Metadata Source Tracking
   - Demo Criteria:
     - GitHub directory: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts"`
     - GitHub single file: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts/generate-spec.md"`
     - Local directory: Running with `uv run slash-man generate --prompts-dir ./prompts --target-path /tmp/test-output` generates metadata containing `source_type: "local"` and `source_dir: "./prompts"` (or absolute path)
   - Proof Artifact(s): Generated command file metadata inspection showing source tracking fields, test: `test_prompt_metadata_github_source()`, test: `test_prompt_metadata_local_source()`
-  - [ ] 4.1 Extend `SlashCommandWriter.__init__()` to store source information (source_type, source_dir for local, or source_repo/source_branch/source_path for GitHub) as instance attributes
-  - [ ] 4.2 Update `SlashCommandWriter._generate_file()` to pass source information to generator via new parameter or extend `CommandGeneratorProtocol` to accept source metadata
-  - [ ] 4.3 Modify `MarkdownCommandGenerator._build_meta()` in `slash_commands/generators.py` to accept source metadata parameters and add `source_type`, `source_dir` (for local), or `source_repo`, `source_branch`, `source_path` (for GitHub) to metadata dict
-  - [ ] 4.4 Modify `TomlCommandGenerator.generate()` in `slash_commands/generators.py` to accept source metadata parameters and add same source tracking fields to `meta` dict in TOML output
-  - [ ] 4.5 Update `CommandGeneratorProtocol` type hint if needed to include source metadata parameters
-  - [ ] 4.6 Update `SlashCommandWriter._generate_file()` to pass source metadata to generator when calling `generator.generate()`
-  - [ ] 4.7 Update CLI `generate()` function to determine source type and pass appropriate source metadata to `SlashCommandWriter` constructor
-  - [ ] 4.8 Write test `test_prompt_metadata_github_source()` in `tests/test_generators.py` that verifies generated markdown and TOML files contain correct GitHub source metadata fields
-  - [ ] 4.9 Write test `test_prompt_metadata_local_source()` in `tests/test_generators.py` that verifies generated markdown and TOML files contain correct local source metadata fields (`source_type: "local"`, `source_dir`)
+  - [x] 4.1 Extend `SlashCommandWriter.__init__()` to store source information (source_type, source_dir for local, or source_repo/source_branch/source_path for GitHub) as instance attributes
+  - [x] 4.2 Update `SlashCommandWriter._generate_file()` to pass source information to generator via new parameter or extend `CommandGeneratorProtocol` to accept source metadata
+  - [x] 4.3 Modify `MarkdownCommandGenerator._build_meta()` in `slash_commands/generators.py` to accept source metadata parameters and add `source_type`, `source_dir` (for local), or `source_repo`, `source_branch`, `source_path` (for GitHub) to metadata dict
+  - [x] 4.4 Modify `TomlCommandGenerator.generate()` in `slash_commands/generators.py` to accept source metadata parameters and add same source tracking fields to `meta` dict in TOML output
+  - [x] 4.5 Update `CommandGeneratorProtocol` type hint if needed to include source metadata parameters
+  - [x] 4.6 Update `SlashCommandWriter._generate_file()` to pass source metadata to generator when calling `generator.generate()`
+  - [x] 4.7 Update CLI `generate()` function to determine source type and pass appropriate source metadata to `SlashCommandWriter` constructor
+  - [x] 4.8 Write test `test_prompt_metadata_github_source()` in `tests/test_generators.py` that verifies generated markdown and TOML files contain correct GitHub source metadata fields
+  - [x] 4.9 Write test `test_prompt_metadata_local_source()` in `tests/test_generators.py` that verifies generated markdown and TOML files contain correct local source metadata fields (`source_type: "local"`, `source_dir`)
 
 - [ ] 5.0 Documentation and CI Updates
   - Demo Criteria: README.md includes examples of GitHub flag usage with `--target-path` flag, CI workflows include `--help` flag tests for `uv run slash-man --help`, `uv run slash-man generate --help`, and `uv run slash-man cleanup --help`, and existing CI workflows continue to pass with the new changes
