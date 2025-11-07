@@ -804,3 +804,36 @@ def test_cli_github_flags_missing_required():
     except (ValueError, AttributeError):
         output = result.stdout.lower()
     assert "all three github flags" in output or "must be provided together" in output
+
+
+def test_cli_github_and_local_mutually_exclusive(mock_prompts_dir, tmp_path):
+    """Test that mutual exclusivity error is raised with clear message when both are provided."""
+    runner = CliRunner()
+
+    # Test with all three GitHub flags and --prompts-dir
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--github-repo",
+            "owner/repo",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--target-path",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    # Error messages are printed to stderr, but may be mixed in stdout by default
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "cannot specify both" in output
+    assert "--prompts-dir" in output.lower()
+    assert "github repository flags" in output.lower() or "github-repo" in output.lower()

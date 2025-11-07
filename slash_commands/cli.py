@@ -231,6 +231,23 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             print(f"Error: {e}", file=sys.stderr)
             raise typer.Exit(code=2) from None  # Validation error
 
+    # Check mutual exclusivity between --prompts-dir and GitHub flags
+    if prompts_dir is not None and any(
+        [github_repo is not None, github_branch is not None, github_path is not None]
+    ):
+        print(
+            "Error: Cannot specify both --prompts-dir and GitHub repository flags "
+            "(--github-repo, --github-branch, --github-path) simultaneously.",
+            file=sys.stderr,
+        )
+        print("\nTo fix this:", file=sys.stderr)
+        print("  - Use either --prompts-dir for local prompts, or", file=sys.stderr)
+        print(
+            "  - Use --github-repo, --github-branch, and --github-path for GitHub prompts",
+            file=sys.stderr,
+        )
+        raise typer.Exit(code=2) from None  # Validation error
+
     # Detect agents if not specified
     if agents is None or len(agents) == 0:
         # Use detection_path if specified, otherwise target_path, otherwise home directory
