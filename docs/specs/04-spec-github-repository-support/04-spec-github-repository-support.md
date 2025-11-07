@@ -39,8 +39,13 @@ This specification adds GitHub repository support to the slash command manager, 
 ### [Unit 3]: GitHub Prompt Download and Loading
 
 **Purpose:** Download markdown files from GitHub repository and load them as prompts
-**Demo Criteria:** Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts and generates command files
-**Proof Artifacts:** Generated command files in agent directories, CLI output showing prompts loaded, test: `test_writer_loads_prompts_from_github()`
+**Demo Criteria:**
+
+- Directory path on `main` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts from directory and generates command files
+- Directory path on `refactor/improve-workflow` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts from directory and generates command files
+- Single file path on `refactor/improve-workflow` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` downloads single file and generates command files
+- Single file path on `main` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` downloads single file and generates command files (if file exists on main branch)
+**Proof Artifacts:** Generated command files in agent directories, CLI output showing prompts loaded, test: `test_writer_loads_prompts_from_github()`, test: `test_writer_loads_single_file_from_github()`
 
 ### [Unit 4]: GitHub and Local Directory Mutual Exclusivity
 
@@ -51,7 +56,11 @@ This specification adds GitHub repository support to the slash command manager, 
 ### [Unit 5]: Prompt Metadata Source Tracking
 
 **Purpose:** Update prompt metadata to include source information (local directory or GitHub repository details)
-**Demo Criteria:** Running `slash-man generate --github-repo owner/repo --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "owner/repo"`, `source_branch: "main"`, and `source_path: "prompts"`. Running with `--prompts-dir ./prompts --target-path /tmp/test-output` generates metadata containing `source_type: "local"` and `source_dir: "./prompts"` (or absolute path)
+**Demo Criteria:**
+
+- GitHub directory: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts"`
+- GitHub single file: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts/generate-spec.md"`
+- Local directory: Running with `--prompts-dir ./prompts --target-path /tmp/test-output` generates metadata containing `source_type: "local"` and `source_dir: "./prompts"` (or absolute path)
 **Proof Artifacts:** Generated command file metadata inspection showing source tracking fields, test: `test_prompt_metadata_github_source()`, test: `test_prompt_metadata_local_source()`
 
 ### [Unit 6]: Documentation and CI Updates
@@ -65,7 +74,7 @@ This specification adds GitHub repository support to the slash command manager, 
 1. **The system shall provide three CLI flags for GitHub repository access:**
    - `--github-repo` (required): Repository in format `owner/repo`
    - `--github-branch` (required): Branch name (e.g., `main`, `release/v1.0`)
-   - `--github-path` (required): Path to prompts directory within repository
+   - `--github-path` (required): Path to prompts directory or single prompt file within repository (e.g., `prompts` for a directory, `prompts/my-prompt.md` for a single file)
 
 2. **The system shall require all three GitHub flags to be provided together** when using GitHub as a prompt source
 
@@ -73,7 +82,9 @@ This specification adds GitHub repository support to the slash command manager, 
 
 4. **The system shall validate that `--github-repo`, `--github-branch`, and `--github-path` are mutually exclusive with `--prompts-dir`** and provide clear error messages when both are specified
 
-5. **The system shall download markdown files (`.md`) from the specified GitHub repository path** using the GitHub Contents API
+5. **The system shall download markdown files (`.md`) from the specified GitHub repository path** using the GitHub Contents API. The `--github-path` may point to either:
+   - A directory: The system shall download all `.md` files from the immediate directory (not recursively processing subdirectories)
+   - A single file: The system shall download the single `.md` file if the path points directly to a markdown file
 
 6. **The system shall load downloaded GitHub prompts** using the same `MarkdownPrompt` loading mechanism as local prompts
 
@@ -88,17 +99,19 @@ This specification adds GitHub repository support to the slash command manager, 
 
 10. **The system shall support paths with nested directories** (e.g., `docs/prompts/commands`) without any parsing ambiguity since paths are provided explicitly
 
-11. **The system shall provide helpful error messages with examples** when validation fails, including format requirements and usage examples
+11. **The system shall support paths pointing to single files** (e.g., `prompts/my-prompt.md`) in addition to directories. When a single file path is provided, only that file shall be downloaded and processed. The file must have a `.md` extension or an error shall be raised with a clear message.
 
-12. **The system shall update README.md documentation** to include examples of GitHub repository flag usage alongside existing local directory examples
+12. **The system shall provide helpful error messages with examples** when validation fails, including format requirements and usage examples
 
-13. **The system shall add CI tests that verify `--help` flag functionality** for the main command (`slash-man --help`) and all subcommands (`slash-man generate --help`, `slash-man cleanup --help`) to ensure help output is properly generated and formatted
+13. **The system shall update README.md documentation** to include examples of GitHub repository flag usage alongside existing local directory examples, including examples for both directory paths and single file paths
 
-14. **The system shall audit existing CI workflows** to ensure they remain compatible with the new GitHub repository functionality without requiring specific updates
+14. **The system shall add CI tests that verify `--help` flag functionality** for the main command (`slash-man --help`) and all subcommands (`slash-man generate --help`, `slash-man cleanup --help`) to ensure help output is properly generated and formatted
 
-15. **The system shall ensure documentation builds successfully** with all new GitHub-related examples and references properly formatted and validated
+15. **The system shall audit existing CI workflows** to ensure they remain compatible with the new GitHub repository functionality without requiring specific updates
 
-16. **The system shall verify existing test coverage** adequately covers the new GitHub functionality through the existing test framework
+16. **The system shall ensure documentation builds successfully** with all new GitHub-related examples and references properly formatted and validated
+
+17. **The system shall verify existing test coverage** adequately covers the new GitHub functionality through the existing test framework
 
 ## Non-Goals (Out of Scope)
 
@@ -142,7 +155,7 @@ No specific UI/UX design requirements for this feature. The functionality is int
 
 6. **Temporary Directory Management**: Downloaded GitHub prompts shall be stored in a temporary directory that is cleaned up after processing, similar to existing temporary file handling patterns.
 
-7. **File Filtering**: Only markdown files (`.md` extension) shall be downloaded and processed from the GitHub repository path, consistent with local prompt loading behavior.
+7. **File Filtering**: Only markdown files (`.md` extension) shall be downloaded and processed from the GitHub repository path, consistent with local prompt loading behavior. When `--github-path` points to a single file, the file must have a `.md` extension or an error shall be raised. When `--github-path` points to a directory, only `.md` files in the immediate directory shall be processed (subdirectories are not recursively processed).
 
 8. **Retry Logic**: GitHub API calls shall use existing retry logic patterns (if any) or implement basic retry with exponential backoff for transient network failures.
 
@@ -162,9 +175,10 @@ No specific UI/UX design requirements for this feature. The functionality is int
     - Source metadata shall be included in all generated command files regardless of format (markdown or TOML)
 
 13. **Documentation Updates**: README.md shall be updated with GitHub usage examples in the "Usage" section, including:
-    - Basic GitHub repository example
-    - Branch with slash notation example
-    - Nested path example
+    - Basic GitHub repository example (directory path): `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output`
+    - Single file path example: `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output`
+    - Branch with slash notation example: `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output`
+    - Nested path example (if applicable)
     - Error handling examples
     - All examples shall include `--target-path` flag to avoid polluting user configs
 
@@ -191,7 +205,7 @@ No specific UI/UX design requirements for this feature. The functionality is int
 
 4. **Test coverage**: Comprehensive test coverage for all GitHub functionality including flag validation, GitHub API integration, error handling, mutual exclusivity scenarios, prompt metadata source tracking, and documentation examples
 
-5. **User experience**: CLI help output clearly documents the three required flags and their format requirements
+5. **User experience**: CLI help output clearly documents the three required flags and their format requirements, including that `--github-path` can point to either a directory or a single file
 
 6. **Code maintainability**: Implementation adds less than 300 lines of code and follows existing codebase patterns
 
