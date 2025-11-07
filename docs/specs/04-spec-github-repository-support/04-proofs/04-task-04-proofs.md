@@ -113,28 +113,109 @@ Verifies that local source metadata is correctly included:
 
 ### GitHub Directory Path
 
-✅ Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` will generate command files with metadata containing:
+**Command:**
 
-- `source_type: "github"`
-- `source_repo: "liatrio-labs/spec-driven-workflow"`
-- `source_branch: "refactor/improve-workflow"`
-- `source_path: "prompts"`
+```bash
+uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output-task4 --yes
+```
+
+**Output:**
+
+```text
+Selected agents: claude-code
+
+Generation complete:
+  Prompts loaded: 4
+  Files  written: 4
+
+Files:
+  - /tmp/test-output-task4/.claude/commands/generate-spec.md
+    Agent: Claude Code (claude-code)
+  - /tmp/test-output-task4/.claude/commands/generate-task-list-from-spec.md
+    Agent: Claude Code (claude-code)
+  - /tmp/test-output-task4/.claude/commands/manage-tasks.md
+    Agent: Claude Code (claude-code)
+  - /tmp/test-output-task4/.claude/commands/validate-spec-implementation.md
+    Agent: Claude Code (claude-code)
+```
+
+**Generated File Metadata (generate-spec.md):**
+
+```yaml
+meta:
+  source_type: github
+  source_repo: liatrio-labs/spec-driven-workflow
+  source_branch: refactor/improve-workflow
+  source_path: prompts
+```
+
+✅ **Verified:** Command files contain correct GitHub source metadata for directory path.
 
 ### GitHub Single File Path
 
-✅ Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` will generate command files with metadata containing:
+**Command:**
 
-- `source_type: "github"`
-- `source_repo: "liatrio-labs/spec-driven-workflow"`
-- `source_branch: "refactor/improve-workflow"`
-- `source_path: "prompts/generate-spec.md"`
+```bash
+uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output-task4-single --yes
+```
+
+**Output:**
+
+```text
+Selected agents: claude-code
+
+Generation complete:
+  Prompts loaded: 1
+  Files  written: 1
+
+Files:
+  - /tmp/test-output-task4-single/.claude/commands/generate-spec.md
+    Agent: Claude Code (claude-code)
+```
+
+**Generated File Metadata (generate-spec.md):**
+
+```yaml
+meta:
+  source_type: github
+  source_repo: liatrio-labs/spec-driven-workflow
+  source_branch: refactor/improve-workflow
+  source_path: prompts/generate-spec.md
+```
+
+✅ **Verified:** Command files contain correct GitHub source metadata for single file path.
 
 ### Local Directory Path
 
-✅ Running `uv run slash-man generate --prompts-dir ./prompts --target-path /tmp/test-output` will generate metadata containing:
+**Command:**
 
-- `source_type: "local"`
-- `source_dir: "./prompts"` (or absolute path)
+```bash
+uv run slash-man generate --prompts-dir ./prompts --agent claude-code --target-path /tmp/test-output-task4-local --yes
+```
+
+**Output:**
+
+```text
+Selected agents: claude-code
+
+Generation complete:
+  Prompts loaded: 1
+  Files  written: 1
+
+Files:
+  - /tmp/test-output-task4-local/.claude/commands/placeholder.md
+    Agent: Claude Code (claude-code)
+```
+
+**Generated File Metadata (placeholder.md):**
+
+```yaml
+meta:
+  source_type: local
+  source_dir: /home/damien/Liatrio/repos/slash-command-manager/prompts
+```
+
+✅ **Verified:** Command files contain correct local source metadata with absolute path.
 
 ## Verification
 
