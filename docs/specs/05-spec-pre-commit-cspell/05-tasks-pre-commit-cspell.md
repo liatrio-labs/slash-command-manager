@@ -58,14 +58,14 @@
   - [x] 3.7 Remove test file after verification: `git rm test-spell-check.md && git commit -m "test: remove spell check test file"`
   - [x] 3.8 Document the failure behavior verification process (can be included in CONTRIBUTING.md update)
 
-- [ ] 4.0 Update Documentation for Spell Checker
+- [x] 4.0 Update Documentation for Spell Checker
   - Demo Criteria: `CONTRIBUTING.md` includes new "Spell Checking" section explaining the cspell hook, how to add new terms to the dictionary, and how to verify spell checking works. Documentation follows existing CONTRIBUTING.md structure and style. Running `pre-commit run cspell --all-files` confirms all existing markdown files pass spell checking after dictionary configuration
   - Proof Artifact(s): Updated `CONTRIBUTING.md` with spell checking section, all existing markdown files pass spell checking (no false positives)
-  - [ ] 4.1 Add new "Spell Checking" subsection under "Pre-commit Hooks" section in `CONTRIBUTING.md` (after existing hook descriptions)
-  - [ ] 4.2 Document that cspell checks markdown files for spelling errors and fails commits on errors
-  - [ ] 4.3 Explain how to add new project-specific terms to `.cspell.json` dictionary: edit the `words` array and add the term
-  - [ ] 4.4 Document how to verify spell checking works: run `pre-commit run cspell --all-files` or let it run automatically on commit
-  - [ ] 4.5 Mention that `CHANGELOG.md` is excluded from spell checking
-  - [ ] 4.6 Update the "Pre-commit Hooks" section summary to include spell checking in the list of checks
-  - [ ] 4.7 Verify all existing markdown files pass spell checking by running `pre-commit run cspell --all-files` and addressing any false positives by adding terms to dictionary
-  - [ ] 4.8 Ensure documentation follows existing CONTRIBUTING.md style and formatting conventions
+  - [x] 4.1 Add new "Spell Checking" subsection under "Pre-commit Hooks" section in `CONTRIBUTING.md` (after existing hook descriptions)
+  - [x] 4.2 Document that cspell checks markdown files for spelling errors and fails commits on errors
+  - [x] 4.3 Explain how to add new project-specific terms to `.cspell.json` dictionary: edit the `words` array and add the term
+  - [x] 4.4 Document how to verify spell checking works: run `pre-commit run cspell --all-files` or let it run automatically on commit
+  - [x] 4.5 Mention that `CHANGELOG.md` is excluded from spell checking
+  - [x] 4.6 Update the "Pre-commit Hooks" section summary to include spell checking in the list of checks
+  - [x] 4.7 Verify all existing markdown files pass spell checking by running `pre-commit run cspell --all-files` and addressing any false positives by adding terms to dictionary
+  - [x] 4.8 Ensure documentation follows existing CONTRIBUTING.md style and formatting conventions

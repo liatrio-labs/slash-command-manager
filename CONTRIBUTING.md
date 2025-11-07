@@ -58,6 +58,37 @@ Pre-commit hooks are installed automatically and will run on commit. They check:
 - YAML/JSON/TOML syntax
 - Code formatting (ruff)
 - Code linting (ruff)
+- Spell checking (cspell)
+
+### Spell Checking
+
+The repository uses [cspell](https://cspell.org/) to check spelling in markdown files. The spell checker runs automatically as a pre-commit hook and will fail commits if spelling errors are detected.
+
+**How it works:**
+
+- Checks all markdown files (`.md`) during commits
+- Uses the `.cspell.json` configuration file at the repository root
+- Fails commits when spelling errors are found
+- Provides suggestions for misspelled words in error messages
+
+**Adding new terms to the dictionary:**
+
+If you encounter a false positive (a valid word that cspell flags as misspelled), you can add it to the dictionary by editing `.cspell.json` and adding the term to the `words` array:
+
+```json
+{
+  "words": [
+    "existing-terms",
+    "your-new-term"
+  ]
+}
+```
+
+**Verifying spell checking:**
+
+- Run manually: `pre-commit run cspell --all-files`
+- Runs automatically: The hook runs automatically on every commit
+- Note: `CHANGELOG.md` is excluded from spell checking
 
 ## Pull Request Process
 
