@@ -700,3 +700,107 @@ def test_cli_cleanup_excludes_backups_when_requested(tmp_path):
 
     assert result.exit_code == 0
     assert "No generated files found" in result.stdout
+
+
+def test_cli_github_flags_validation():
+    """Test that CLI help shows new GitHub flags and validates successful flag parsing."""
+    runner = CliRunner()
+    # Test that help shows the new flags
+    result = runner.invoke(app, ["generate", "--help"])
+    assert result.exit_code == 0
+    assert "--github-repo" in result.stdout
+    assert "--github-branch" in result.stdout
+    assert "--github-path" in result.stdout
+
+
+def test_validate_github_repo_invalid_format():
+    """Test that invalid repository format produces clear error message."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-repo",
+            "invalid-format",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--target-path",
+            "/tmp/test-output",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    # Error messages are printed to stderr, but may be mixed in stdout by default
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "repository must be in format owner/repo" in output
+    assert "liatrio-labs/spec-driven-workflow" in output.lower()
+
+
+def test_cli_github_flags_missing_required():
+    """Test that missing required GitHub flags produce clear error message."""
+    runner = CliRunner()
+
+    # Test missing --github-branch
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-repo",
+            "owner/repo",
+            "--github-path",
+            "prompts",
+            "--target-path",
+            "/tmp/test-output",
+        ],
+    )
+    assert result.exit_code == 2  # Validation error
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "all three github flags" in output or "must be provided together" in output
+
+    # Test missing --github-path
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-repo",
+            "owner/repo",
+            "--github-branch",
+            "main",
+            "--target-path",
+            "/tmp/test-output",
+        ],
+    )
+    assert result.exit_code == 2  # Validation error
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "all three github flags" in output or "must be provided together" in output
+
+    # Test missing --github-repo
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--target-path",
+            "/tmp/test-output",
+        ],
+    )
+    assert result.exit_code == 2  # Validation error
+    try:
+        output = (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        output = result.stdout.lower()
+    assert "all three github flags" in output or "must be provided together" in output

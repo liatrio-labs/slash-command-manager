@@ -24,6 +24,7 @@ classifiers = [
 dependencies = [
     "fastmcp",
     "questionary>=1.10.0",
+    "requests>=2.31.0",
     "tomli-w>=1.0.0",
     "rich>=13.0.0",
     "typer>=0.9.0",
