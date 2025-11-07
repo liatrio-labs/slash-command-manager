@@ -42,7 +42,15 @@
     "CI",
     "CD",
     "API",
-    "REST"
+    "htmlcov",
+    "frontmatter",
+    "pyproject",
+    "Demoable",
+    "demoable",
+    "Chainguard",
+    "scriptable",
+    "octo",
+    "docstrings"
   ],
   "flagWords": [],
   "ignoreRegExpList": [

@@ -15,6 +15,16 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
       - id: mixed-line-ending
+  - repo: local
+    hooks:
+      - id: cspell
+        name: cspell
+        entry: cspell
+        language: system
+        types: [text]
+        files: \.md$
+        exclude: CHANGELOG\.md
+        args: [--config, .cspell.json]
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.3
     hooks:
