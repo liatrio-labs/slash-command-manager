@@ -93,6 +93,92 @@ slash-man --help
 slash-man cleanup
 ```
 
+### GitHub Repository Support
+
+Slash Command Manager can download prompts directly from public GitHub repositories, enabling easy sharing and distribution of prompt collections.
+
+#### Basic Usage
+
+Download prompts from a GitHub repository directory:
+
+```bash
+# Download prompts from a directory path on main branch
+uv run slash-man generate \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch main \
+  --github-path prompts \
+  --agent claude-code \
+  --target-path /tmp/test-output
+```
+
+#### Single File Path
+
+Download a single prompt file from a GitHub repository:
+
+```bash
+# Download a single prompt file from a specific branch
+uv run slash-man generate \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch refactor/improve-workflow \
+  --github-path prompts/generate-spec.md \
+  --agent claude-code \
+  --target-path /tmp/test-output
+```
+
+#### Branch with Slashes
+
+GitHub branch names with slashes are fully supported:
+
+```bash
+# Use a branch name with slashes (e.g., refactor/improve-workflow)
+uv run slash-man generate \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch refactor/improve-workflow \
+  --github-path prompts \
+  --agent claude-code \
+  --target-path /tmp/test-output
+```
+
+#### Nested Paths
+
+Access prompts in nested directory structures:
+
+```bash
+# Download prompts from a nested path
+uv run slash-man generate \
+  --github-repo owner/repo \
+  --github-branch main \
+  --github-path docs/prompts/commands \
+  --agent claude-code \
+  --target-path /tmp/test-output
+```
+
+#### Error Handling
+
+The CLI provides clear error messages for common issues:
+
+```bash
+# Invalid repository format
+uv run slash-man generate --github-repo invalid-format --target-path /tmp/test-output
+# Error: Repository must be in format owner/repo, got: invalid-format.
+# Example: liatrio-labs/spec-driven-workflow
+
+# Missing required flags
+uv run slash-man generate --github-repo owner/repo --target-path /tmp/test-output
+# Error: All GitHub flags (--github-repo, --github-branch, --github-path) must be provided together
+
+# Mutual exclusivity with local directory
+uv run slash-man generate \
+  --prompts-dir ./prompts \
+  --github-repo owner/repo \
+  --github-branch main \
+  --github-path prompts \
+  --target-path /tmp/test-output
+# Error: Cannot specify both --prompts-dir and GitHub repository flags simultaneously
+```
+
+**Note:** All three GitHub flags (`--github-repo`, `--github-branch`, `--github-path`) must be provided together when using GitHub as a prompt source. GitHub repository flags are mutually exclusive with `--prompts-dir`.
+
 ### MCP Server Usage
 
 Run the MCP server for programmatic access:
