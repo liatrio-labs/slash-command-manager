@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import base64
+import binascii
+from datetime import datetime
 from pathlib import Path
 
 import requests
@@ -72,17 +74,35 @@ def download_prompts_from_github(
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         # Check status code from the response if available
-        if hasattr(e.response, "status_code"):
+        if hasattr(e, "response") and hasattr(e.response, "status_code"):
             if e.response.status_code == 404:
                 raise requests.exceptions.HTTPError(
                     f"Repository, branch, or path not found: {owner}/{repo}@{branch}/{path}. "
                     "Please verify the repository exists, the branch name is correct, and the path is valid."
                 ) from e
             elif e.response.status_code == 403:
+                # Extract rate limit information if available
+                rate_limit_msg = ""
+                if hasattr(e.response, "headers"):
+                    remaining = e.response.headers.get("X-RateLimit-Remaining", "")
+                    reset = e.response.headers.get("X-RateLimit-Reset", "")
+                    if remaining or reset:
+                        rate_limit_info = []
+                        if remaining:
+                            rate_limit_info.append(f"remaining: {remaining}")
+                        if reset:
+                            # Convert Unix timestamp to readable format
+                            try:
+                                reset_time = datetime.fromtimestamp(int(reset))
+                                rate_limit_info.append(f"resets at: {reset_time.isoformat()}")
+                            except (ValueError, OSError):
+                                rate_limit_info.append(f"resets at: {reset}")
+                        if rate_limit_info:
+                            rate_limit_msg = f" Rate limit info ({', '.join(rate_limit_info)})."
                 raise requests.exceptions.HTTPError(
                     f"Access forbidden (403) for {owner}/{repo}. "
                     "This may be due to rate limiting or the repository may be private. "
-                    "Only public repositories are supported."
+                    "Only public repositories are supported." + rate_limit_msg
                 ) from e
         raise
     except requests.exceptions.RequestException as e:
@@ -108,7 +128,10 @@ def download_prompts_from_github(
                 raise ValueError(
                     f"File at path '{path}' must be a markdown file (.md), got: {filename}"
                 )
-            content = base64.b64decode(data["content"]).decode("utf-8")
+            try:
+                content = base64.b64decode(data["content"]).decode("utf-8")
+            except (binascii.Error, UnicodeDecodeError) as decode_error:
+                raise ValueError(f"Invalid file content encoding: {decode_error}") from decode_error
             return [(filename, content)]
         # If it's a dict but not a file, treat as error
         return []
@@ -123,7 +146,12 @@ def download_prompts_from_github(
                 # Use download_url to get raw file content, or fetch via API if needed
                 if "content" in item:
                     # Content is included (rare, but handle it)
-                    content = base64.b64decode(item["content"]).decode("utf-8")
+                    try:
+                        content = base64.b64decode(item["content"]).decode("utf-8")
+                    except (binascii.Error, UnicodeDecodeError) as decode_error:
+                        raise ValueError(
+                            f"Invalid file content encoding for {item['name']}: {decode_error}"
+                        ) from decode_error
                 elif "download_url" in item:
                     # Use download_url for raw file content (most efficient)
                     file_response = requests.get(item["download_url"], timeout=30)
@@ -131,7 +159,13 @@ def download_prompts_from_github(
                     content = file_response.text
                 else:
                     # Fallback: fetch file via API endpoint
-                    file_path = f"{path}/{item['name']}" if path else item["name"]
+                    # Normalize path to prevent path traversal issues
+                    if path:
+                        file_path_obj = Path(path) / item["name"]
+                        # Resolve to normalize, but keep as relative path string
+                        file_path = str(file_path_obj).replace("\\", "/")
+                    else:
+                        file_path = item["name"]
                     file_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
                     file_response = requests.get(
                         file_url, headers=headers, params=params, timeout=30
@@ -140,7 +174,12 @@ def download_prompts_from_github(
                     file_data = file_response.json()
                     if "content" not in file_data:
                         continue  # Skip if we can't get content
-                    content = base64.b64decode(file_data["content"]).decode("utf-8")
+                    try:
+                        content = base64.b64decode(file_data["content"]).decode("utf-8")
+                    except (binascii.Error, UnicodeDecodeError) as decode_error:
+                        raise ValueError(
+                            f"Invalid file content encoding for {item['name']}: {decode_error}"
+                        ) from decode_error
                 prompts.append((filename, content))
         return prompts
 
