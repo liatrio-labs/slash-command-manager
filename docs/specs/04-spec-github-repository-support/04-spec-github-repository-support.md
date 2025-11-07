@@ -27,13 +27,13 @@ This specification adds GitHub repository support to the slash command manager, 
 ### [Unit 1]: GitHub Repository Flag Integration
 
 **Purpose:** Add GitHub repository support to the CLI with explicit flags for repository, branch, and path
-**Demo Criteria:** Running `slash-man generate --github-repo owner/repo --github-branch main --github-path prompts --agent claude-code --dry-run --target-path /tmp/test-output` successfully validates flags and shows prompts that would be downloaded
+**Demo Criteria:** Running `uv run slash-man generate --github-repo owner/repo --github-branch main --github-path prompts --agent claude-code --dry-run --target-path /tmp/test-output` successfully validates flags and shows prompts that would be downloaded
 **Proof Artifacts:** CLI help output showing new flags, successful command execution with dry-run output, test: `test_cli_github_flags_validation()`
 
 ### [Unit 2]: GitHub Repository Validation
 
 **Purpose:** Validate repository format and provide clear error messages when flags are invalid or missing
-**Demo Criteria:** Running `slash-man generate --github-repo invalid-format --target-path /tmp/test-output` shows clear error: "Repository must be in format owner/repo, got: invalid-format. Example: liatrio-labs/spec-driven-workflow"
+**Demo Criteria:** Running `uv run slash-man generate --github-repo invalid-format --target-path /tmp/test-output` shows clear error: "Repository must be in format owner/repo, got: invalid-format. Example: liatrio-labs/spec-driven-workflow"
 **Proof Artifacts:** CLI error output showing validation messages, test: `test_validate_github_repo_invalid_format()`, test: `test_cli_github_flags_missing_required()`
 
 ### [Unit 3]: GitHub Prompt Download and Loading
@@ -41,16 +41,16 @@ This specification adds GitHub repository support to the slash command manager, 
 **Purpose:** Download markdown files from GitHub repository and load them as prompts
 **Demo Criteria:**
 
-- Directory path on `main` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts from directory and generates command files
-- Directory path on `refactor/improve-workflow` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts from directory and generates command files
-- Single file path on `refactor/improve-workflow` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` downloads single file and generates command files
-- Single file path on `main` branch: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` downloads single file and generates command files (if file exists on main branch)
+- Directory path on `main` branch: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts from directory and generates command files
+- Directory path on `refactor/improve-workflow` branch: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` downloads prompts from directory and generates command files
+- Single file path on `refactor/improve-workflow` branch: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` downloads single file and generates command files
+- Single file path on `main` branch: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` downloads single file and generates command files (if file exists on main branch)
 **Proof Artifacts:** Generated command files in agent directories, CLI output showing prompts loaded, test: `test_writer_loads_prompts_from_github()`, test: `test_writer_loads_single_file_from_github()`
 
 ### [Unit 4]: GitHub and Local Directory Mutual Exclusivity
 
 **Purpose:** Ensure users cannot specify both local directory and GitHub repository simultaneously
-**Demo Criteria:** Running `slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output` shows error explaining mutual exclusivity
+**Demo Criteria:** Running `uv run slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output` shows error explaining mutual exclusivity
 **Proof Artifacts:** CLI error message, test: `test_cli_github_and_local_mutually_exclusive()`
 
 ### [Unit 5]: Prompt Metadata Source Tracking
@@ -58,16 +58,16 @@ This specification adds GitHub repository support to the slash command manager, 
 **Purpose:** Update prompt metadata to include source information (local directory or GitHub repository details)
 **Demo Criteria:**
 
-- GitHub directory: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts"`
-- GitHub single file: Running `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts/generate-spec.md"`
-- Local directory: Running with `--prompts-dir ./prompts --target-path /tmp/test-output` generates metadata containing `source_type: "local"` and `source_dir: "./prompts"` (or absolute path)
+- GitHub directory: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts"`
+- GitHub single file: Running `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output` generates command files with metadata containing `source_type: "github"`, `source_repo: "liatrio-labs/spec-driven-workflow"`, `source_branch: "refactor/improve-workflow"`, and `source_path: "prompts/generate-spec.md"`
+- Local directory: Running with `uv run slash-man generate --prompts-dir ./prompts --target-path /tmp/test-output` generates metadata containing `source_type: "local"` and `source_dir: "./prompts"` (or absolute path)
 **Proof Artifacts:** Generated command file metadata inspection showing source tracking fields, test: `test_prompt_metadata_github_source()`, test: `test_prompt_metadata_local_source()`
 
 ### [Unit 6]: Documentation and CI Updates
 
 **Purpose:** Update documentation and audit CI workflows to ensure compatibility with GitHub repository support functionality
 **Demo Criteria:** README.md includes examples of GitHub flag usage, CI workflows include `--help` flag tests for main command and subcommands, and existing CI workflows continue to pass with the new changes
-**Proof Artifacts:** Updated README.md with GitHub examples, CI workflow with `--help` flag tests for `slash-man --help`, `slash-man generate --help`, and `slash-man cleanup --help`, CI workflow audit report showing compatibility, documentation build passes, test: `test_documentation_github_examples()`
+**Proof Artifacts:** Updated README.md with GitHub examples, CI workflow with `--help` flag tests for `uv run slash-man --help`, `uv run slash-man generate --help`, and `uv run slash-man cleanup --help`, CI workflow audit report showing compatibility, documentation build passes, test: `test_documentation_github_examples()`
 
 ## Functional Requirements
 
@@ -175,17 +175,17 @@ No specific UI/UX design requirements for this feature. The functionality is int
     - Source metadata shall be included in all generated command files regardless of format (markdown or TOML)
 
 13. **Documentation Updates**: README.md shall be updated with GitHub usage examples in the "Usage" section, including:
-    - Basic GitHub repository example (directory path): `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output`
-    - Single file path example: `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output`
-    - Branch with slash notation example: `slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output`
+    - Basic GitHub repository example (directory path): `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output`
+    - Single file path example: `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output`
+    - Branch with slash notation example: `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output`
     - Nested path example (if applicable)
     - Error handling examples
     - All examples shall include `--target-path` flag to avoid polluting user configs
 
 14. **CI Help Flag Testing**: CI workflows shall include tests that verify `--help` flag functionality:
-    - Test `slash-man --help` exits successfully and shows main command help
-    - Test `slash-man generate --help` exits successfully and shows generate subcommand help
-    - Test `slash-man cleanup --help` exits successfully and shows cleanup subcommand help
+    - Test `uv run slash-man --help` exits successfully and shows main command help
+    - Test `uv run slash-man generate --help` exits successfully and shows generate subcommand help
+    - Test `uv run slash-man cleanup --help` exits successfully and shows cleanup subcommand help
     - These tests ensure CLI help output is properly generated and formatted
 
 15. **CI Compatibility Audit**: Existing CI workflows (.github/workflows/*.yml) shall be audited to ensure:
