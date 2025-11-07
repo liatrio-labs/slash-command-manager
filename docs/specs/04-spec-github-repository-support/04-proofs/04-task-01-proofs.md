@@ -9,7 +9,7 @@ This document contains proof artifacts demonstrating the implementation of GitHu
 The CLI help now shows the three new GitHub flags:
 
 ```bash
-slash-man generate --help
+uv run slash-man generate --help
 ```
 
 Output includes:
@@ -28,7 +28,7 @@ Output includes:
 ### Invalid Repository Format
 
 ```bash
-slash-man generate --github-repo invalid-format --github-branch main --github-path prompts --target-path /tmp/test-output
+uv run slash-man generate --github-repo invalid-format --github-branch main --github-path prompts --target-path /tmp/test-output
 ```
 
 **Output:**
@@ -42,7 +42,7 @@ Error: Repository must be in format owner/repo, got: invalid-format. Example: li
 ### Missing Required Flags
 
 ```bash
-slash-man generate --github-repo owner/repo --github-path prompts --target-path /tmp/test-output
+uv run slash-man generate --github-repo owner/repo --github-path prompts --target-path /tmp/test-output
 ```
 
 **Output:**
@@ -125,11 +125,11 @@ All checks passed!
 
 ## Demo Criteria Verification
 
-✅ **Demo Criteria 1:** Running `slash-man generate --github-repo owner/repo --github-branch main --github-path prompts --agent claude-code --dry-run --target-path /tmp/test-output` successfully validates flags
+✅ **Demo Criteria 1:** Running `uv run slash-man generate --github-repo owner/repo --github-branch main --github-path prompts --agent claude-code --dry-run --target-path /tmp/test-output` successfully validates flags
 
 - Note: Full implementation requires Task 3.0 (GitHub prompt download), but flag validation works correctly
 
-✅ **Demo Criteria 2:** Running `slash-man generate --github-repo invalid-format --target-path /tmp/test-output` shows clear error
+✅ **Demo Criteria 2:** Running `uv run slash-man generate --github-repo invalid-format --target-path /tmp/test-output` shows clear error
 
 - Verified: Error message includes format requirement and example
 

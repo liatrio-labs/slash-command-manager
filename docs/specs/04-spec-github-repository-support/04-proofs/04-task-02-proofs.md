@@ -9,7 +9,7 @@ This document contains proof artifacts demonstrating the implementation of mutua
 The CLI correctly detects when both `--prompts-dir` and GitHub flags are provided simultaneously and shows a clear error message:
 
 ```bash
-slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output
+uv run slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output
 ```
 
 **Output:**
@@ -86,7 +86,7 @@ All checks passed!
 
 ## Demo Criteria Verification
 
-✅ **Demo Criteria:** Running `slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output` shows error explaining mutual exclusivity with clear message
+✅ **Demo Criteria:** Running `uv run slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output` shows error explaining mutual exclusivity with clear message
 
 - Verified: Error message clearly states "Cannot specify both --prompts-dir and GitHub repository flags"
 - Verified: Error message includes helpful guidance on how to fix the issue
