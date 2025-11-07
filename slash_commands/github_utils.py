@@ -119,7 +119,28 @@ def download_prompts_from_github(
         for item in data:
             if item.get("type") == "file" and item["name"].endswith(".md"):
                 filename = Path(item["name"]).name
-                content = base64.b64decode(item["content"]).decode("utf-8")
+                # Directory listings don't include 'content' by default
+                # Use download_url to get raw file content, or fetch via API if needed
+                if "content" in item:
+                    # Content is included (rare, but handle it)
+                    content = base64.b64decode(item["content"]).decode("utf-8")
+                elif "download_url" in item:
+                    # Use download_url for raw file content (most efficient)
+                    file_response = requests.get(item["download_url"], timeout=30)
+                    file_response.raise_for_status()
+                    content = file_response.text
+                else:
+                    # Fallback: fetch file via API endpoint
+                    file_path = f"{path}/{item['name']}" if path else item["name"]
+                    file_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+                    file_response = requests.get(
+                        file_url, headers=headers, params=params, timeout=30
+                    )
+                    file_response.raise_for_status()
+                    file_data = file_response.json()
+                    if "content" not in file_data:
+                        continue  # Skip if we can't get content
+                    content = base64.b64decode(file_data["content"]).decode("utf-8")
                 prompts.append((filename, content))
         return prompts
 
