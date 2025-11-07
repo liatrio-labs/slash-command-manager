@@ -27,6 +27,8 @@ Output includes:
 
 ### Invalid Repository Format
 
+When all three GitHub flags are provided but the repository format is invalid:
+
 ```bash
 uv run slash-man generate --github-repo invalid-format --github-branch main --github-path prompts --target-path /tmp/test-output
 ```
