@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import pytest
 import tomllib
+
+import pytest
 
 from mcp_server.prompt_utils import parse_frontmatter
 from slash_commands.config import get_agent_config

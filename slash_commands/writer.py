@@ -6,12 +6,12 @@ import importlib.resources
 import os
 import re
 import shutil
+import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
 import questionary
-import tomllib
 import yaml
 
 from mcp_server.prompt_utils import MarkdownPrompt, load_markdown_prompt

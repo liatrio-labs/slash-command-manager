@@ -23,10 +23,9 @@ This approach follows Python best practices by:
 from __future__ import annotations
 
 import subprocess
+import tomllib
 from importlib.metadata import version as get_package_version
 from pathlib import Path
-
-import tomllib
 
 
 def _get_build_time_commit() -> str | None:

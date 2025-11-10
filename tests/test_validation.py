@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
 import tomllib
+
+import pytest
 import yaml
 
 from mcp_server.prompt_utils import load_markdown_prompt, parse_frontmatter

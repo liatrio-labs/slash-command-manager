@@ -1,5 +1,6 @@
 """Tests for CLI version functionality."""
 
+import re
 from unittest.mock import patch
 
 import pytest
@@ -8,6 +9,12 @@ from typer.testing import CliRunner
 
 from __version__ import __version__
 from slash_commands.cli import app, version_callback_impl
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape sequences from text."""
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    return ansi_escape.sub("", text)
 
 
 # Helper to get current version for tests
@@ -56,9 +63,11 @@ class TestCLIVersion:
         result = runner.invoke(app, ["--help"])
 
         assert result.exit_code == 0
-        assert "--version" in result.stdout
-        assert "-v" in result.stdout
-        assert "Show version and exit" in result.stdout
+        # Strip ANSI codes to check for text content
+        output = strip_ansi(result.stdout)
+        assert "--version" in output
+        assert "-v" in output
+        assert "Show version and exit" in output
 
     def test_version_not_available_in_subcommands(self):
         """Test that version flag is not available in subcommands."""
