@@ -32,7 +32,7 @@ __git_commit__ = "{commit_sha}"
             # Ensure the build directory exists
             build_dir.mkdir(exist_ok=True)
 
-            with open(commit_file, "w") as f:
+            with open(commit_file, "w", encoding="utf-8") as f:
                 f.write(content)
 
             # Ensure the file gets included in the build

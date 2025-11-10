@@ -47,7 +47,7 @@ This specification addresses all 15 identified issues in the Slash Command Manag
 **Demo Criteria:**
 
 - Semantic release configuration present and functional
-- Release workflow matches original automated pattern (see `/home/damien/Liatrio/temp/extraction_analysis/original-spec-driven-workflow-repo-before-extraction.xml`)
+- Release workflow matches original automated pattern (see `docs/reference/original-spec-driven-workflow-repo-before-extraction.xml`)
 - GitHub Chainguard authentication configured and working
 **Proof Artifacts:**
 - `pyproject.toml` with `[tool.semantic_release]` section
@@ -210,7 +210,7 @@ Based on Python packaging best practices and original repository analysis:
    1. 80%
 
 4. **Python Version Support**: Which Python versions should be actively supported in the standalone repository?
-   1. 11 and 12
+   1. Python 3.11 and 3.12
 
 5. **Documentation Hosting**: Should documentation be hosted separately or included in the repository?
    1. included in the repo

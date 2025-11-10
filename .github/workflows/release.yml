@@ -52,6 +52,11 @@ jobs:
           # sanity check
           git ls-remote --heads origin >/dev/null
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
       - name: Semantic Release
         uses: python-semantic-release/python-semantic-release@v10
         with:

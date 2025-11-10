@@ -2,7 +2,7 @@
 
 **Release Date:** October 29, 2025
 
-## ?? Initial Release
+## 🎉 Initial Release
 
 This is the initial release of Slash Command Manager, extracted from the [SDD Workflow](https://github.com/liatrio-labs/spec-driven-workflow) repository to enable independent versioning and release cycles.
 

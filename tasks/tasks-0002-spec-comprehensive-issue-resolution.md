@@ -1,6 +1,6 @@
 ## Relevant Files
 
-**Reference**: All file configurations and patterns should be copied/adapted from `/home/damien/Liatrio/temp/extraction_analysis/original-spec-driven-workflow-repo-before-extraction.xml`
+**Reference**: All file configurations and patterns should be copied/adapted from `docs/reference/original-spec-driven-workflow-repo-before-extraction.xml` (see CONTRIBUTING.md for reference file location guidelines)
 
 - `pyproject.toml` - Core configuration file that needs semantic-release section, build system change to hatchling, license update to Apache-2.0, and dependency management updates
 - `.github/workflows/release.yml` - Release workflow that needs to be restored to automated semantic-release pattern instead of manual tag-based releases

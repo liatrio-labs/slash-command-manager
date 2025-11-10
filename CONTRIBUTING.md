@@ -69,6 +69,16 @@ Pre-commit hooks are installed automatically and will run on commit. They check:
    - Reference to related issues
    - Example usage if applicable
 
+## Reference Files
+
+Reference files and archived documentation from the original repository extraction should be placed in the `docs/reference/` directory. This includes:
+
+- Original workflow configurations (e.g., `original-spec-driven-workflow-repo-before-extraction.xml`)
+- Historical snapshots or analysis files
+- Other reference materials needed for documentation
+
+When referencing these files in documentation or specifications, use repository-relative paths (e.g., `docs/reference/filename.xml`) rather than absolute paths to ensure the documentation works across all contributor environments.
+
 ## Questions?
 
 If you have questions, please open an issue or contact the maintainers.

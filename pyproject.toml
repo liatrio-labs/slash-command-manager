@@ -66,7 +66,7 @@ addopts = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
@@ -101,11 +101,48 @@ version_toml = ["pyproject.toml:project.version"]
 # Run uv to refresh the lock file, then stage it so PSR includes it
 # Also build the package to ensure build hooks run
 build_command = """
-curl -LsSf https://astral.sh/uv/install.sh | sh -s
-export PATH="$HOME/.local/bin:$PATH"
-uv lock
-git add uv.lock
-python -m build --wheel --sdist
+set -euo pipefail
+# Update PATH idempotently to include common uv installation location
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+# Check if uv is already installed
+if command -v uv >/dev/null 2>&1; then
+  echo "uv is already installed: $(uv --version)"
+else
+  # Download installer to temporary file
+  INSTALLER=$(mktemp)
+  trap "rm -f $INSTALLER" EXIT
+  curl -fL https://astral.sh/uv/install.sh -o "$INSTALLER" || { echo "Failed to download uv installer"; exit 1; }
+  # Basic verification: ensure file is not empty and contains expected content
+  if [ ! -s "$INSTALLER" ] || ! grep -q "uv" "$INSTALLER"; then
+    echo "Downloaded installer appears invalid"; exit 1
+  fi
+  # Run installer with explicit error handling
+  sh -s < "$INSTALLER" || { echo "uv installation failed"; exit 1; }
+  # Update PATH again after installation (idempotent)
+  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+  # Verify uv was installed
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "uv installation verification failed"; exit 1
+  fi
+fi
+# Confirm uv is available before proceeding
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv is not available after installation"; exit 1
+fi
+# Run uv lock
+uv lock || { echo "uv lock failed"; exit 1; }
+# Conditionally stage uv.lock only if it changed
+if git diff --quiet uv.lock; then
+  echo "uv.lock unchanged, skipping git add"
+else
+  git add uv.lock || { echo "git add uv.lock failed"; exit 1; }
+fi
+# Build package only after confirming uv is installed
+python -m build --wheel --sdist || { echo "build failed"; exit 1; }
 """
 # Generate changelog and commit version bumps
 assets = ["uv.lock"]

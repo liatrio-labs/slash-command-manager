@@ -81,7 +81,20 @@ def test_single_prompt_for_all_existing_files(mock_prompts_dir, tmp_path):
                 "--target-path",
                 str(tmp_path),
             ],
-            input="backup\n",  # This should only be asked once
+            result=runner.invoke(
+                app,
+                [
+                    "generate",
+                    "--prompts-dir",
+                    str(mock_prompts_dir),
+                    "--agent",
+                    "claude-code",
+                    "--agent",
+                    "gemini-cli",
+                    "--target-path",
+                    str(tmp_path),
+                ],
+            ),
         )
 
         # Should succeed
@@ -128,7 +141,6 @@ def test_single_prompt_cancel_cancels_all(mock_prompts_dir, tmp_path):
                 "--target-path",
                 str(tmp_path),
             ],
-            input="cancel\n",
         )
 
         # Should exit with code 1 (user cancellation)
@@ -171,7 +183,6 @@ def test_single_prompt_overwrite_all_applies_to_all(mock_prompts_dir, tmp_path):
                 "--target-path",
                 str(tmp_path),
             ],
-            input="overwrite\n",
         )
 
         # Should succeed
