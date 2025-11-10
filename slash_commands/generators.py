@@ -9,7 +9,7 @@ import tomli_w
 import yaml
 
 try:
-    from __version__ import __version__
+    from slash_commands.__version__ import __version__
 except ImportError:
     # Fallback when installed as a package
     from importlib.metadata import PackageNotFoundError, version

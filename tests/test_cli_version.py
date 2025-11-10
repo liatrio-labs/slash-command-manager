@@ -7,7 +7,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from __version__ import __version__
+from slash_commands.__version__ import __version__
 from slash_commands.cli import app, version_callback_impl
 
 

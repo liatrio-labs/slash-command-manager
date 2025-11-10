@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
 try:
-    from __version__ import __version__
+    from slash_commands.__version__ import __version__
 except ImportError:
     # Fallback for when installed as a package
     from importlib.metadata import version

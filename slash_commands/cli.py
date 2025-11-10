@@ -12,13 +12,13 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from __version__ import __version_with_commit__
 from slash_commands import (
     SlashCommandWriter,
     detect_agents,
     get_agent_config,
     list_agent_keys,
 )
+from slash_commands.__version__ import __version_with_commit__
 
 app = typer.Typer(
     name="slash-man",

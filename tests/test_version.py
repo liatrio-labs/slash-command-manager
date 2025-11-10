@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from __version__ import (
+from slash_commands.__version__ import (
     __version__,
     __version_with_commit__,
     _get_build_time_commit,
@@ -53,7 +53,7 @@ class TestBuildTimeCommit:
         """Test when build-time commit file doesn't exist."""
         # Ensure the file doesn't exist
         with patch.dict("sys.modules", **{"slash_commands._git_commit": None}):
-            with patch("builtins.__import__", side_effect=ImportError):
+            with patch("builtins.__import__", side_effect=ImportError("No module named")):
                 result = _get_build_time_commit()
                 assert result is None
 
@@ -79,42 +79,42 @@ class TestGitCommit:
         """Test successful git commit detection."""
         mock_commit = "def5678"
 
-        with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(stdout=mock_commit, returncode=0)
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
                 result = _get_git_commit()
                 assert result == mock_commit
                 mock_run.assert_called_once()
 
     def test_git_commit_failure(self):
         """Test git commit detection failure."""
-        with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__.subprocess.run") as mock_run:
             mock_run.side_effect = subprocess.CalledProcessError(1, "git")
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
                 result = _get_git_commit()
                 assert result is None
 
     def test_git_not_found(self):
         """Test when git command is not found."""
-        with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__.subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
                 result = _get_git_commit()
                 assert result is None
 
     def test_git_commit_uses_correct_directory(self):
         """Test that git command runs from the correct directory."""
-        with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(stdout="abc1234", returncode=0)
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
                 _get_git_commit()
 
                 # Verify that cwd was set to the directory containing __version__.py
@@ -122,9 +122,9 @@ class TestGitCommit:
                 assert "cwd" in call_args.kwargs
                 # The cwd should be the directory where __version__.py is located
                 # This works for both development (project root) and installed (site-packages) scenarios
-                import __version__
+                from slash_commands import __version__
 
-                expected_dir = Path(__version__.__file__).parent
+                expected_dir = Path(__version__.__file__).parent.parent
                 assert call_args.kwargs["cwd"] == expected_dir
 
 
@@ -141,8 +141,8 @@ class TestVersionDetection:
 
     def test_get_version_fallback_to_metadata(self):
         """Test fallback to importlib.metadata."""
-        with patch("__version__.Path.exists", return_value=False):
-            with patch("__version__.get_package_version") as mock_version:
+        with patch("slash_commands.__version__.Path.exists", return_value=False):
+            with patch("slash_commands.__version__.get_package_version") as mock_version:
                 mock_version.return_value = "2.0.0"
 
                 version = _get_version()
@@ -155,8 +155,10 @@ class TestVersionDetection:
         mock_build_commit = "build123"
         mock_runtime_commit = "runtime456"
 
-        with patch("__version__._get_build_time_commit", return_value=mock_build_commit):
-            with patch("__version__.subprocess.run") as mock_run:
+        with patch(
+            "slash_commands.__version__._get_build_time_commit", return_value=mock_build_commit
+        ):
+            with patch("slash_commands.__version__.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(stdout=mock_runtime_commit, returncode=0)
 
                 result = _get_version_with_commit()
@@ -169,8 +171,8 @@ class TestVersionDetection:
         current_version = get_current_version()
         mock_runtime_commit = "runtime789"
 
-        with patch("__version__._get_build_time_commit", return_value=None):
-            with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(stdout=mock_runtime_commit, returncode=0)
 
                 result = _get_version_with_commit()
@@ -180,8 +182,8 @@ class TestVersionDetection:
         """Test version when no git commit is available."""
         current_version = get_current_version()
 
-        with patch("__version__._get_build_time_commit", return_value=None):
-            with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__.subprocess.run") as mock_run:
                 mock_run.side_effect = subprocess.CalledProcessError(1, "git")
 
                 result = _get_version_with_commit()
@@ -225,8 +227,8 @@ class TestVersionIntegration:
             ).stdout.strip()
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
-                with patch("__version__.subprocess.run") as mock_run:
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
+                with patch("slash_commands.__version__.subprocess.run") as mock_run:
                     # Mock git to return the slash-command-manager commit (not temp repo)
                     slash_command_commit = "slash123"
                     mock_run.return_value = MagicMock(stdout=slash_command_commit, returncode=0)
@@ -239,18 +241,18 @@ class TestVersionIntegration:
                     assert result != temp_commit
 
                     # Verify that git was called with the correct directory
-                    # This should be the directory where __version__.py is located
+                    # This should be the repository root (parent of slash_commands/)
                     # (works for both development and installed scenarios)
                     call_args = mock_run.call_args
-                    import __version__
+                    from slash_commands import __version__
 
-                    expected_dir = Path(__version__.__file__).parent
+                    expected_dir = Path(__version__.__file__).parent.parent
                     assert call_args.kwargs["cwd"] == expected_dir
 
     def test_version_consistency(self):
         """Test that version is consistent across multiple calls."""
         # Clear any build-time commit to ensure consistent testing
-        with patch("__version__._get_build_time_commit", return_value=None):
+        with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
             version1 = _get_version_with_commit()
             version2 = _get_version_with_commit()
 
@@ -262,11 +264,11 @@ class TestEdgeCases:
 
     def test_empty_git_output(self):
         """Test handling of empty git output."""
-        with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(stdout="", returncode=0)
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
                 result = _get_git_commit()
                 assert result == ""
 
@@ -274,11 +276,11 @@ class TestEdgeCases:
         """Test handling of git output with trailing newline."""
         mock_commit = "abc1234\n"
 
-        with patch("__version__.subprocess.run") as mock_run:
+        with patch("slash_commands.__version__.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(stdout=mock_commit, returncode=0)
 
             # Mock build-time commit to None to force runtime detection
-            with patch("__version__._get_build_time_commit", return_value=None):
+            with patch("slash_commands.__version__._get_build_time_commit", return_value=None):
                 result = _get_git_commit()
                 assert result == "abc1234"  # Newline should be stripped
 

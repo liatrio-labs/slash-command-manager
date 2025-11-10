@@ -50,14 +50,16 @@ def _get_git_commit() -> str | None:
     # Fall back to runtime detection
     try:
         # Get the directory where this __version__.py file is located
-        # This ensures we always detect git from the slash-command-manager repo
+        # Navigate up to find the repository root (where pyproject.toml is)
         version_file_path = Path(__file__).parent
+        # Go up from slash_commands/ to the repo root
+        repo_root = version_file_path.parent
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True,
             text=True,
             check=True,
-            cwd=version_file_path,  # Always run from slash-command-manager directory
+            cwd=repo_root,  # Always run from slash-command-manager directory
         )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
@@ -67,7 +69,10 @@ def _get_git_commit() -> str | None:
 
 def _get_version() -> str:
     """Get the version from pyproject.toml."""
-    pyproject_path = Path(__file__).parent / "pyproject.toml"
+    # Navigate up from slash_commands/__version__.py to find pyproject.toml
+    version_file_path = Path(__file__).parent
+    repo_root = version_file_path.parent
+    pyproject_path = repo_root / "pyproject.toml"
     if pyproject_path.exists():
         # Local development mode
         with pyproject_path.open("rb") as f:
