@@ -37,7 +37,7 @@ jobs:
         run: uv python install ${{ matrix.python }}
 
       - name: Sync dependencies (frozen)
-        run: uv sync --all-groups --frozen
+        run: uv sync --all-groups --extra dev --frozen
 
       - name: Run tests with coverage
         run: uv run pytest -vv --cov=mcp_server --cov=slash_commands --cov-report=term-missing:skip-covered --cov-report=xml
@@ -75,7 +75,7 @@ jobs:
         run: uv python install 3.12
 
       - name: Sync dependencies (frozen)
-        run: uv sync --all-groups --frozen
+        run: uv sync --all-groups --extra dev --frozen
 
       - name: Run ruff lint
         run: uv run ruff check .
