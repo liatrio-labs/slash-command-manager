@@ -120,9 +120,11 @@ class TestGitCommit:
                 # Verify that cwd was set to the directory containing __version__.py
                 call_args = mock_run.call_args
                 assert "cwd" in call_args.kwargs
-                # The cwd should be the parent directory of __version__.py
-                # __version__.py is in the root, so tests/ should go up one level
-                expected_dir = Path(__file__).parent.parent
+                # The cwd should be the directory where __version__.py is located
+                # This works for both development (project root) and installed (site-packages) scenarios
+                import __version__
+
+                expected_dir = Path(__version__.__file__).parent
                 assert call_args.kwargs["cwd"] == expected_dir
 
 
@@ -236,9 +238,14 @@ class TestVersionIntegration:
                     assert result == slash_command_commit
                     assert result != temp_commit
 
-                    # Verify that git was called with the correct directory (slash-command-manager root)
+                    # Verify that git was called with the correct directory
+                    # This should be the directory where __version__.py is located
+                    # (works for both development and installed scenarios)
                     call_args = mock_run.call_args
-                    assert call_args.kwargs["cwd"] == Path(__file__).parent.parent
+                    import __version__
+
+                    expected_dir = Path(__version__.__file__).parent
+                    assert call_args.kwargs["cwd"] == expected_dir
 
     def test_version_consistency(self):
         """Test that version is consistent across multiple calls."""

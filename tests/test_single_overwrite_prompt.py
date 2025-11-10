@@ -81,20 +81,6 @@ def test_single_prompt_for_all_existing_files(mock_prompts_dir, tmp_path):
                 "--target-path",
                 str(tmp_path),
             ],
-            result=runner.invoke(
-                app,
-                [
-                    "generate",
-                    "--prompts-dir",
-                    str(mock_prompts_dir),
-                    "--agent",
-                    "claude-code",
-                    "--agent",
-                    "gemini-cli",
-                    "--target-path",
-                    str(tmp_path),
-                ],
-            ),
         )
 
         # Should succeed
