@@ -238,8 +238,8 @@ def test_find_package_prompts_dir_importlib(tmp_path: Path):
 
         # Mock the anchor package traversable
         mock_anchor = MagicMock()
-        # Mock the parent traversal and joining with "prompts"
-        mock_anchor.parent.__truediv__.return_value = mock_prompts_resource
+        # Mock the traversal to mcp_server/prompts (not parent/prompts)
+        mock_anchor.__truediv__.return_value = mock_prompts_resource
 
         mock_files.return_value = mock_anchor
 
@@ -247,7 +247,7 @@ def test_find_package_prompts_dir_importlib(tmp_path: Path):
         result = _find_package_prompts_dir()
 
         # Verify that importlib.resources.files was called correctly
-        mock_files.assert_called_once_with("slash_commands")
+        mock_files.assert_called_once_with("mcp_server")
 
         # Verify that the correct path was returned
         assert result == tmp_path

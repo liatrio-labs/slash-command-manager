@@ -121,7 +121,7 @@ class TestGitCommit:
                 call_args = mock_run.call_args
                 assert "cwd" in call_args.kwargs
                 # The cwd should be the directory where __version__.py is located
-                # This works for both development (project root) and installed (site-packages) scenarios
+                # Works for both development (project root) and installed scenarios
                 from slash_commands import __version__
 
                 expected_dir = Path(__version__.__file__).parent.parent

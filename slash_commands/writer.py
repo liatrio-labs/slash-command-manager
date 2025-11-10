@@ -28,10 +28,9 @@ def _find_package_prompts_dir() -> Path | None:
     # Try to use importlib.resources to locate bundled prompts
     # This works for installed packages (including wheel distributions)
     try:
-        # Get a traversable for a known package in our distribution
-        package_anchor = importlib.resources.files("slash_commands")
-        # Navigate from the package anchor to the included "prompts" directory
-        prompts_resource = package_anchor.parent / "prompts"
+        # Prompts are now in mcp_server/prompts/
+        package_anchor = importlib.resources.files("mcp_server")
+        prompts_resource = package_anchor / "prompts"
         # Check if the prompts directory exists in the resource
         if prompts_resource.is_dir():
             return Path(str(prompts_resource))
@@ -40,17 +39,17 @@ def _find_package_prompts_dir() -> Path | None:
         pass
 
     # Fallback strategy: use file path resolution
-    # The prompts directory is force-included at the package root level
+    # Prompts are now in mcp_server/prompts/
     # When installed, the structure is:
     #   package_root/
-    #     __version__.py
-    #     prompts/
+    #     mcp_server/
+    #       prompts/
     #     slash_commands/
     #       writer.py
     #
-    # So we need to go up from writer.py to the package root
+    # So we need to go up from writer.py to the package root, then to mcp_server/prompts
     package_root = Path(__file__).parent.parent
-    prompts_dir = package_root / "prompts"
+    prompts_dir = package_root / "mcp_server" / "prompts"
 
     if prompts_dir.exists():
         return prompts_dir
@@ -244,7 +243,8 @@ class SlashCommandWriter:
         """
         file_count = len(existing_files)
         response = questionary.select(
-            f"Found {file_count} existing file{'s' if file_count != 1 else ''} that will be overwritten.\nWhat would you like to do?",
+            f"Found {file_count} existing file{'s' if file_count != 1 else ''} "
+            f"that will be overwritten.\nWhat would you like to do?",
             choices=[
                 questionary.Choice("Cancel", "cancel"),
                 questionary.Choice("Overwrite all existing files", "overwrite"),
