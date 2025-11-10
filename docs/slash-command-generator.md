@@ -77,7 +77,7 @@ uv run slash-man
 
 - Detects agents in your home directory (`~`)
 - Generates command files in your home directory
-- Without `--yes`, prompts you to select which detected agents to generate commands for (all detected agents are pre-selected)
+- Without `--yes`, prompts you to confirm which detected agents to generate commands for. All detected agents are pre-selected by default. You can deselect any agents you do not want
 - Use `--detection-path` to search in a different directory
 - Use `--target-path` to generate files in a different location
 
@@ -224,6 +224,8 @@ Command body content.
 $ARGUMENTS
 ```
 
+**Note**: The `$ARGUMENTS` placeholder (see [Placeholder Syntax](#placeholder-syntax)) will be replaced with a formatted list of all arguments defined in the frontmatter.
+
 ### TOML Format
 
 TOML-based agents (Gemini CLI) use TOML syntax:
@@ -256,6 +258,93 @@ command_dir = ".gemini/commands"
 command_format = "toml"
 command_file_extension = ".toml"
 ```
+
+**Note**: The `{{args}}` placeholder (see [Placeholder Syntax](#placeholder-syntax)) is preserved as-is in TOML outputs for Gemini CLI's context-aware injection. In Markdown outputs, it would be replaced with comma-separated argument names.
+
+### Placeholder Syntax
+
+The generator supports different placeholder syntaxes for different purposes. Understanding these placeholders is essential for creating effective prompts.
+
+#### Supported Placeholders
+
+| Placeholder | Format | Location | Expansion Behavior |
+|-------------|--------|----------|-------------------|
+| `$ARGUMENTS` | Prompt markdown | Prompt body | Replaced with markdown-formatted argument documentation in **both** Markdown and TOML outputs |
+| `{{args}}` | Prompt markdown | Prompt body | **Markdown outputs**: Replaced with comma-separated argument names (e.g., `arg1, arg2`)<br>**TOML outputs**: Preserved as-is for Gemini CLI's context-aware injection |
+| `{{argname}}` | Custom | Prompt body | **Not expanded by generator** - These are custom placeholders that AI assistants handle at runtime |
+
+#### How Placeholders Are Expanded
+
+**Expansion Engine**: The `_replace_placeholders()` function in `slash_commands/generators.py` performs placeholder substitution during command file generation.
+
+**Expansion Process**:
+
+1. **`$ARGUMENTS` Replacement**:
+   - Replaced with a markdown-formatted list of all arguments defined in the `arguments` field
+   - Format: `- \`<argname>\` (required): description` or `- \`[argname]\` (optional): description`
+   - Works identically in both Markdown and TOML command files
+   - Example: If arguments are `[{name: "query", required: true}, {name: "format", required: false}]`, `$ARGUMENTS` becomes:
+
+     ```markdown
+     - `<query>` (required): Search query
+     - `[format]` (optional): Output format
+     ```
+
+2. **`{{args}}` Replacement**:
+   - **In Markdown outputs**: Replaced with comma-separated argument names (e.g., `query, format`)
+   - **In TOML outputs**: Preserved as-is because Gemini CLI uses `{{args}}` for context-aware argument injection at runtime
+   - This distinction ensures compatibility with Gemini CLI's expected behavior
+
+3. **Custom Placeholders (e.g., `{{idea}}`, `{{input}}`)**:
+   - **Not expanded by the generator** - These remain as literal text in the generated command files
+   - AI assistants interpret these placeholders at runtime when executing commands
+   - You can use any `{{name}}` syntax for custom placeholders, matching argument names or using descriptive names
+
+#### Placeholder Equivalence
+
+- **`$ARGUMENTS` and `{{args}}` are distinct**: They serve different purposes
+  - `$ARGUMENTS` → Formatted documentation list
+  - `{{args}}` → Comma-separated names (Markdown) or preserved placeholder (TOML)
+- **Custom `{{argname}}` placeholders**: These are independent of the generator's expansion and are handled by AI assistants
+
+#### Defining Custom Placeholders
+
+Custom placeholders are defined implicitly through the `arguments` field in your prompt's frontmatter. The argument `name` field determines what placeholder names are available, but you can use any `{{name}}` syntax in your prompt body.
+
+**Example**: Mapping arguments to placeholder usage
+
+```markdown
+---
+name: process-content
+description: Process user content with custom formatting
+arguments:
+  - name: content
+    description: The content to process
+    required: true
+  - name: style
+    description: Processing style (formal, casual, technical)
+    required: false
+enabled: true
+---
+
+# Process Content
+
+Process the following content:
+
+{{content}}
+
+Apply the {{style}} style when processing.
+
+$ARGUMENTS
+```
+
+**In the generated command file**:
+
+- `{{content}}` and `{{style}}` remain as-is (handled by AI assistant at runtime)
+- `$ARGUMENTS` is replaced with the formatted argument list
+- The AI assistant will substitute `{{content}}` and `{{style}}` with actual values when the command is executed
+
+**Note**: While you can use `{{content}}` to reference the `content` argument, the placeholder name doesn't need to match the argument name exactly. However, matching names improves clarity and may help AI assistants correctly map placeholders to arguments.
 
 ## Prompt Structure
 
@@ -303,6 +392,11 @@ Please create a detailed specification that includes:
 
 $ARGUMENTS
 ```
+
+**Placeholder usage**:
+
+- `{{idea}}`: Custom placeholder that will be handled by the AI assistant at runtime (not expanded by the generator)
+- `$ARGUMENTS`: Will be replaced with formatted argument documentation (see [Placeholder Syntax](#placeholder-syntax))
 
 ## Advanced Usage
 

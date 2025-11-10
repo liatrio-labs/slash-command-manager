@@ -233,7 +233,7 @@ def test_cli_respects_prompts_dir_option(mock_prompts_dir, tmp_path):
 
     assert result.exit_code == 0
     # Should have found the test prompt
-    assert "test-prompt" in result.stdout.lower() or result.exit_code == 0
+    assert "test-prompt" in result.stdout.lower()
 
 
 def test_cli_prompts_for_overwrite_without_yes(mock_prompts_dir, tmp_path):
