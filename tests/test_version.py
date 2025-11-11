@@ -286,11 +286,13 @@ class TestEdgeCases:
 
     def test_corrupted_build_time_file(self):
         """Test handling of corrupted build-time file."""
+        from types import SimpleNamespace
+
         with patch.dict("sys.modules"):
             with patch("builtins.__import__") as mock_import:
                 # Mock a module without __git_commit__ attribute
-                mock_module = MagicMock()
-                del mock_module.__git_commit__
+                # Use SimpleNamespace to create an object that truly lacks the attribute
+                mock_module = SimpleNamespace()
                 mock_import.return_value = mock_module
 
                 result = _get_build_time_commit()

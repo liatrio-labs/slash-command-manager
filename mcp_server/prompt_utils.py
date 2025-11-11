@@ -44,7 +44,7 @@ def load_markdown_prompt(path: Path) -> MarkdownPrompt:
     if not path.exists():
         raise FileNotFoundError(f"Prompt file does not exist: {path}")
 
-    content = path.read_text()
+    content = path.read_text(encoding="utf-8")
     frontmatter, body = parse_frontmatter(content)
 
     name = frontmatter.get("name") or path.stem

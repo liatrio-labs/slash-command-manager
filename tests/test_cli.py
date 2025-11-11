@@ -260,7 +260,6 @@ def test_cli_prompts_for_overwrite_without_yes(mock_prompts_dir, tmp_path):
                 "--target-path",
                 str(tmp_path),
             ],
-            input="overwrite\n",
         )
 
         # Should prompt for overwrite action
@@ -321,7 +320,6 @@ def test_cli_reports_backup_creation(mock_prompts_dir, tmp_path):
                 "--target-path",
                 str(tmp_path),
             ],
-            input="backup\n",
         )
 
         # Should report backup creation

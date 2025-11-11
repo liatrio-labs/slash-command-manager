@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: write
+      issues: write
+      pull-requests: write
     concurrency:
       group: semantic-release-${{ github.ref }}
       cancel-in-progress: false
