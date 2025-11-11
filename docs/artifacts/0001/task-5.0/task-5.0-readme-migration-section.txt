@@ -1,0 +1,21 @@
+## ⚠️ Migration Notice: Generator and MCP Functionality Moved
+
+**Important:** The slash command generator and MCP server functionality have been extracted into a separate repository: **[Slash Command Manager](https://github.com/liatrio-labs/slash-command-manager)**.
+
+### Quick Migration Guide
+
+- **Old command:** `sdd-commands` (from `spec-driven-workflow`)
+- **New command:** `slash-man` (from `slash-command-manager`)
+
+### Installation
+
+Install Slash Command Manager:
+
+```bash
+# Via uvx (recommended)
+uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man generate --yes
+
+# Or install locally
+git clone https://github.com/liatrio-labs/slash-command-manager.git
+cd slash-command-manager
+uv pip install -e .

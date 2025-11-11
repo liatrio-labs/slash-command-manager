@@ -1,0 +1,30 @@
+dc0a57a51bbd8cb67b622fe161f1570f07e4e5a2
+Damien Storm <damien.r.storm@gmail.com>
+Wed Oct 29 18:43:25 2025 -0400
+refactor: extract generator and MCP server to slash-command-manager
+
+Remove extracted components:
+
+- Remove slash_commands/ directory (generator CLI)
+
+- Remove mcp_server/ directory (MCP server)
+
+- Remove server.py entry point
+
+- Remove generator and MCP test files
+
+- Remove vhs_demos/ directory
+
+Update configuration:
+
+- Simplify pyproject.toml: remove generator/MCP dependencies, CLI entry points, and build config
+
+- Simplify CI workflow: remove test runs and packaging steps, keep linting only
+
+- Update README.md: add migration notice and update installation instructions
+
+This repository now focuses on SDD workflow prompts and documentation.
+
+Generator CLI and MCP server are available via:
+
+https://github.com/liatrio-labs/slash-command-manager

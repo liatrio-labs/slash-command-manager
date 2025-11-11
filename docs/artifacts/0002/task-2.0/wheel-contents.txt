@@ -1,0 +1,26 @@
+=== Wheel contents ===
+Archive:  dist/slash_command_manager-1.0.0-py3-none-any.whl
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     1517  02-02-2020 00:00   mcp_server/__init__.py
+     2539  02-02-2020 00:00   mcp_server/config.py
+     3860  02-02-2020 00:00   mcp_server/prompt_utils.py
+     1137  02-02-2020 00:00   mcp_server/prompts_loader.py
+      447  02-02-2020 00:00   slash_commands/__init__.py
+    14374  02-02-2020 00:00   slash_commands/cli.py
+     2924  02-02-2020 00:00   slash_commands/config.py
+     1485  02-02-2020 00:00   slash_commands/detection.py
+     9877  02-02-2020 00:00   slash_commands/generators.py
+    16292  02-02-2020 00:00   slash_commands/writer.py
+      745  02-02-2020 00:00   __version__.py
+     5115  02-02-2020 00:00   prompts/generate-spec.md
+     5697  02-02-2020 00:00   prompts/generate-task-list-from-spec.md
+     3786  02-02-2020 00:00   prompts/manage-tasks.md
+     1256  02-02-2020 00:00   server.py
+     5251  02-02-2020 00:00   slash_command_manager-1.0.0.dist-info/METADATA
+       87  02-02-2020 00:00   slash_command_manager-1.0.0.dist-info/WHEEL
+       90  02-02-2020 00:00   slash_command_manager-1.0.0.dist-info/entry_points.txt
+     1064  02-02-2020 00:00   slash_command_manager-1.0.0.dist-info/licenses/LICENSE
+     1678  02-02-2020 00:00   slash_command_manager-1.0.0.dist-info/RECORD
+---------                     -------
+    79221                     20 files

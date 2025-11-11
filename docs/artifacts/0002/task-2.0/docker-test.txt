@@ -1,0 +1,29 @@
+=== Docker installation test ===
+slash-man --help:
+
+ Usage: slash-man [OPTIONS] COMMAND [ARGS]...
+
+ Manage slash commands for the spec-driven workflow in your AI assistants
+
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.      │
+│ --show-completion             Show completion for the current shell, to copy │
+│                               it or customize the installation.              │
+│ --help                        Show this message and exit.                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ generate   Generate slash commands for AI code assistants.                   │
+│ cleanup    Clean up generated slash commands.                                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+---
+slash-command-manager --help:
+usage: slash-command-manager [-h] [--transport {stdio,http}] [--port PORT]
+
+Run the MCP server
+
+options:
+  -h, --help            show this help message and exit
+  --transport {stdio,http}
+                        Transport type (default: stdio)
+  --port PORT           HTTP server port (default: 8000)

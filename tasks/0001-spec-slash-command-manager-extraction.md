@@ -53,11 +53,14 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ## Demoable Units of Work
 
+> **Note:** All proof artifacts and demo files generated during implementation should be stored in `./docs/artifacts/<spec-number>/task-<task-number>/` (e.g., `./docs/artifacts/0001/task-1.0/`) for review and documentation purposes. This organization ensures artifacts are properly categorized by specification and task.
+
 ### Unit 1: Slash Command Manager Repository Prepared & Functional
 
 **Purpose:** Demonstrate that Slash Command Manager is a self-contained, working repository with all generator code, MCP server code, tests, and packaging in place.
 
 **Demo Criteria:**
+
 - [ ] Repository created at `/home/damien/Liatrio/repos/slash-command-manager`
 - [ ] `slash_commands/` package ported with all modules (CLI, config, writer, detection)
 - [ ] `mcp_server/` package ported with all MCP functionality
@@ -70,6 +73,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 - [ ] Package installable via `uvx --from ./dist slash-man generate --help`
 
 **Proof Artifacts:**
+
 - CLI invocation output: `$ slash-man --help` (screenshot or log)
 - Test run output: `pytest` summary showing all tests passing
 - Wheel build log showing successful build
@@ -82,6 +86,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 **Purpose:** Demonstrate that the original repository is now focused solely on workflow prompts and documentation (details will be polished in a follow-up task).
 
 **Demo Criteria:**
+
 - [ ] `slash_commands/` directory removed
 - [ ] `mcp_server/` directory removed
 - [ ] `server.py` removed
@@ -94,6 +99,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 - [ ] Pre-commit passes: `pre-commit run --all-files`
 
 **Proof Artifacts:**
+
 - Git diff showing removed files and dependencies
 - Updated README snippet with Slash Command Manager link
 
@@ -104,6 +110,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 **Purpose:** Demonstrate that users have clear guidance for migration and Slash Command Manager is published.
 
 **Demo Criteria:**
+
 - [ ] Slash Command Manager tagged with initial semantic version (e.g., `v1.0.0`)
 - [ ] CHANGELOG entry in Slash Command Manager documenting the project launch
 - [ ] Migration guide published in SDD workflow README/docs
@@ -115,6 +122,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 - [ ] GitHub project metadata updated (topics, links, documentation)
 
 **Proof Artifacts:**
+
 - Git tag and release notes
 - CHANGELOG entry
 - Migration guide document
@@ -128,6 +136,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 **Purpose:** Ensure all users, maintainers, and automation consumers are aware of the change.
 
 **Demo Criteria:**
+
 - [ ] Internal team notified (Slack, email, or documented meeting notes)
 - [ ] GitHub topics/project board updated
 - [ ] External documentation (if any) points to new repos
@@ -135,6 +144,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 - [ ] Post-cutover support plan established (e.g., monitoring for early adopter issues)
 
 **Proof Artifacts:**
+
 - Slack messages or meeting notes
 - Updated GitHub project board
 - Issue tracker entries for post-migration tasks
@@ -161,20 +171,19 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ### SDD Workflow Repository (Refocused)
 
-14. **Removed Code:** Must not contain `slash_commands/`, `mcp_server/`, `server.py`, or any code package.
-15. **Core Components:** Must retain `prompts/` directory for reference and workflow documentation.
-16. **Updated Docs:** Must update README and docs to link to Slash Command Manager for generator and MCP functionality.
-17. **No Package:** Must not be packaged/published as a Python package (prompts/docs only).
-18. **Dependencies:** Must have all code-related dependencies removed from `pyproject.toml`.
-19. **CI/CD:** Must have simplified GitHub Actions (if any CI is retained).
-20. **Cleanup:** Repository cleanup and polish to be handled in follow-up task.
+1. **Removed Code:** Must not contain `slash_commands/`, `mcp_server/`, `server.py`, or any code package.
+2. **Core Components:** Must retain `prompts/` directory for reference and workflow documentation.
+3. **Updated Docs:** Must update README and docs to link to Slash Command Manager for generator and MCP functionality.
+4. **No Package:** Must not be packaged/published as a Python package (prompts/docs only).
+5. **Dependencies:** Must have all code-related dependencies removed from `pyproject.toml`.
+6. **CI/CD:** Must have simplified GitHub Actions (if any CI is retained).
 
 ### Release & Migration
 
-21. **CHANGELOG:** Slash Command Manager must document initial project launch and extracted components.
-22. **Migration Guide:** SDD workflow repo must include instructions for installing Slash Command Manager.
-23. **Backward Compatibility Notes:** Must provide guidance for scripts/CI using old `sdd-commands` entry point.
-24. **PyPI Distribution:** Slash Command Manager package published to PyPI with clear, distinct name and purpose.
+1. **CHANGELOG:** Slash Command Manager must document initial project launch and extracted components.
+2. **Migration Guide:** SDD workflow repo must include instructions for installing Slash Command Manager.
+3. **Backward Compatibility Notes:** Must provide guidance for scripts/CI using old `sdd-commands` entry point.
+4. **PyPI Distribution:** Slash Command Manager package published to PyPI with clear, distinct name and purpose.
 
 ---
 
@@ -195,7 +204,7 @@ Currently, the Slash Command Generator, MCP server, and SDD workflow components 
 
 ### Repository Structure – Slash Command Manager
 
-```
+```text
 slash-command-manager/
 ├── slash_commands/
 │   ├── __init__.py
@@ -236,7 +245,7 @@ slash-command-manager/
 
 ### Repository Structure – SDD Workflow (Refocused)
 
-```
+```text
 sdd-workflow/
 ├── prompts/
 │   └── ... (SDD workflow prompts - reference only)
@@ -264,6 +273,7 @@ sdd-workflow/
 ### Dependency Audit
 
 **Generator & MCP dependencies (move to SCM):**
+
 - `fastmcp` (MCP server framework)
 - `questionary` (interactive CLI prompts)
 - `tomli-w` (TOML writing)
@@ -272,12 +282,14 @@ sdd-workflow/
 - `pyyaml` (YAML parsing for MCP config)
 
 **Shared dependencies (keep in both):**
+
 - `pytest` (testing)
 - `ruff` (linting)
 - `pre-commit` (pre-commit hooks)
 - Others TBD after full audit
 
 **SDD Workflow (removed):**
+
 - All of the above; SDD workflow repo will have no code dependencies after extraction
 
 ### Import Path Updates
@@ -346,4 +358,3 @@ sdd-workflow/
 - **Communication:** Coordinate with team before cutover; announce changes on completion
 - **Key Dates:** No hard deadline; coordination required to minimize disruption to users
 - **Future Work:** MCP subcommand integration (`slash-man mcp serve`) and SDD workflow repository cleanup are separate follow-up tasks
-

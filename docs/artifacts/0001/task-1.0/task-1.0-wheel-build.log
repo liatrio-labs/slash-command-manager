@@ -1,0 +1,133 @@
+[93mWARNING[0m Both NO_COLOR and FORCE_COLOR environment variables are set, disabling color
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=61.0
+  - wheel
+* Getting build dependencies for wheel...
+/tmp/build-env-gqe8ishc/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2026-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  corresp(dist, value, root_dir)
+/tmp/build-env-gqe8ishc/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+!!
+
+        ********************************************************************************
+        Please consider removing the following classifiers in favor of a SPDX license expression:
+
+        License :: OSI Approved :: MIT License
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  dist._finalize_license_expression()
+/tmp/build-env-gqe8ishc/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+!!
+
+        ********************************************************************************
+        Please consider removing the following classifiers in favor of a SPDX license expression:
+
+        License :: OSI Approved :: MIT License
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  self._finalize_license_expression()
+running egg_info
+writing slash_command_manager.egg-info/PKG-INFO
+writing dependency_links to slash_command_manager.egg-info/dependency_links.txt
+writing entry points to slash_command_manager.egg-info/entry_points.txt
+writing requirements to slash_command_manager.egg-info/requires.txt
+writing top-level names to slash_command_manager.egg-info/top_level.txt
+reading manifest file 'slash_command_manager.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'slash_command_manager.egg-info/SOURCES.txt'
+* Building wheel...
+/tmp/build-env-gqe8ishc/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2026-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  corresp(dist, value, root_dir)
+/tmp/build-env-gqe8ishc/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+!!
+
+        ********************************************************************************
+        Please consider removing the following classifiers in favor of a SPDX license expression:
+
+        License :: OSI Approved :: MIT License
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  dist._finalize_license_expression()
+/tmp/build-env-gqe8ishc/lib/python3.12/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+!!
+
+        ********************************************************************************
+        Please consider removing the following classifiers in favor of a SPDX license expression:
+
+        License :: OSI Approved :: MIT License
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  self._finalize_license_expression()
+running bdist_wheel
+running build
+running build_py
+copying slash_commands/__init__.py -> build/lib/slash_commands
+copying mcp_server/__init__.py -> build/lib/mcp_server
+running egg_info
+writing slash_command_manager.egg-info/PKG-INFO
+writing dependency_links to slash_command_manager.egg-info/dependency_links.txt
+writing entry points to slash_command_manager.egg-info/entry_points.txt
+writing requirements to slash_command_manager.egg-info/requires.txt
+writing top-level names to slash_command_manager.egg-info/top_level.txt
+reading manifest file 'slash_command_manager.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'slash_command_manager.egg-info/SOURCES.txt'
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/slash_commands
+copying build/lib/slash_commands/__init__.py -> build/bdist.linux-x86_64/wheel/./slash_commands
+creating build/bdist.linux-x86_64/wheel/mcp_server
+copying build/lib/mcp_server/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_server
+running install_egg_info
+Copying slash_command_manager.egg-info to build/bdist.linux-x86_64/wheel/./slash_command_manager-1.0.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/slash_command_manager-1.0.0.dist-info/WHEEL
+creating '/home/damien/Liatrio/repos/slash-command-manager/dist/.tmp-_4_2seue/slash_command_manager-1.0.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'mcp_server/__init__.py'
+adding 'slash_command_manager-1.0.0.dist-info/licenses/LICENSE'
+adding 'slash_commands/__init__.py'
+adding 'slash_command_manager-1.0.0.dist-info/METADATA'
+adding 'slash_command_manager-1.0.0.dist-info/WHEEL'
+adding 'slash_command_manager-1.0.0.dist-info/entry_points.txt'
+adding 'slash_command_manager-1.0.0.dist-info/top_level.txt'
+adding 'slash_command_manager-1.0.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built slash_command_manager-1.0.0-py3-none-any.whl
