@@ -205,6 +205,21 @@ class SlashCommandWriter:
 
         return prompts
 
+    def _sanitize_filename(self, name: str, extension: str) -> str:
+        """Sanitize a filename by removing path components and unsafe characters.
+
+        Args:
+            name: Original name (may contain path components)
+            extension: File extension (including leading dot if needed)
+
+        Returns:
+            Sanitized filename with extension
+        """
+        # Remove any path components and restrict to safe characters
+        safe_stem = Path(name).name
+        safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "-", safe_stem).strip("-_.") or "command"
+        return f"{safe_stem}{extension}"
+
     def _find_existing_files(
         self, prompts: list[MarkdownPrompt], agent_configs: list[AgentConfig]
     ) -> list[Path]:
@@ -223,9 +238,7 @@ class SlashCommandWriter:
                 continue
             for agent in agent_configs:
                 # Determine output path (same logic as _generate_file)
-                safe_stem = Path(prompt.name).name
-                safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "-", safe_stem).strip("-_.") or "command"
-                filename = f"{safe_stem}{agent.command_file_extension}"
+                filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
                 output_path = self.base_path / agent.command_dir / filename
 
                 if output_path.exists():
@@ -280,9 +293,7 @@ class SlashCommandWriter:
 
         # Determine output path (resolve relative to base_path)
         # Sanitize file stem: drop any path components and restrict to safe chars
-        safe_stem = Path(prompt.name).name  # remove any directories
-        safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "-", safe_stem).strip("-_.") or "command"
-        filename = f"{safe_stem}{agent.command_file_extension}"
+        filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
         output_path = self.base_path / agent.command_dir / filename
 
         # Handle existing files

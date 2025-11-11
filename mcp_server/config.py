@@ -6,11 +6,36 @@ Provides testable defaults with environment variable overrides for:
 - Logging configuration
 """
 
+import importlib.resources
 import os
 from pathlib import Path
 from typing import Literal
 
 TransportType = Literal["stdio", "http"]
+
+
+def _get_default_prompts_dir() -> Path:
+    """Get the default prompts directory path.
+
+    When running from source, uses project root prompts directory.
+    When installed as a package, falls back to mcp_server/prompts.
+    """
+    # First try project root prompts directory (for development)
+    project_root_prompts = Path(__file__).resolve().parents[1] / "prompts"
+    if project_root_prompts.exists():
+        return project_root_prompts
+
+    # Fallback to mcp_server/prompts (for installed packages)
+    try:
+        package_anchor = importlib.resources.files("mcp_server")
+        prompts_resource = package_anchor / "prompts"
+        if prompts_resource.is_dir():
+            return Path(str(prompts_resource))
+    except (ModuleNotFoundError, AttributeError, ValueError):
+        pass
+
+    # Final fallback: mcp_server/prompts relative to this file
+    return Path(__file__).parent / "prompts"
 
 
 class Config:
@@ -21,7 +46,7 @@ class Config:
         # Workspace paths
         self.workspace_root = Path(os.getenv("SDD_WORKSPACE_ROOT", "/workspace")).resolve()
         self.prompts_dir = Path(
-            os.getenv("SDD_PROMPTS_DIR", str(Path(__file__).parent / "prompts"))
+            os.getenv("SDD_PROMPTS_DIR", str(_get_default_prompts_dir()))
         ).resolve()
 
         # Transport configuration
