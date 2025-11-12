@@ -56,11 +56,34 @@ jobs:
           git ls-remote --heads origin >/dev/null
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Update uv.lock and build package
+        run: |
+          # Update lock file to ensure it's in sync with current dependencies
+          uv lock
+          # Stage uv.lock so semantic-release can commit it as an asset
+          git add uv.lock
+          # Build package to verify build works before releasing
+          uv run python -m build --wheel --sdist
+
+      - name: Install python-semantic-release
+        run: pip install "python-semantic-release>=10.0.0,<11.0.0"
 
       - name: Semantic Release
-        uses: python-semantic-release/python-semantic-release@v10
-        with:
-          github_token: ${{ steps.octo-sts.outputs.token }}
+        run: semantic-release -c .releaserc.toml version
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}

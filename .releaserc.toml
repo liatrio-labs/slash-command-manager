@@ -1,0 +1,23 @@
+[semantic_release]
+# Use annotated tags like v1.2.3
+tag_format = "v{version}"
+# Allow 0.x.x versions (required for pre-1.0.0 releases)
+allow_zero_version = true
+# Update the version field in pyproject.toml
+version_variables = ["pyproject.toml:project.version"]
+# Generate changelog and commit version bumps
+# Ensure uv.lock stays in sync with version changes and is committed
+assets = ["uv.lock"]
+# Note: build_command removed - handle build steps in workflow if needed
+
+[semantic_release.changelog]
+# Generate CHANGELOG.md in Markdown
+default_templates = { changelog_file = "CHANGELOG.md", output_format = "md" }
+
+[semantic_release.branches]
+# Release from the main branch
+main = { match = "main" }
+
+[semantic_release.remote]
+# Use GitHub token from environment variable
+token = { env = "GH_TOKEN" }
