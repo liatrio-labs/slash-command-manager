@@ -462,15 +462,6 @@ def mcp(
     ] = 8000,
 ) -> None:
     """Start the MCP server for spec-driven development workflows."""
-    # Validate transport
-    valid_transports = ["stdio", "http"]
-    if transport not in valid_transports:
-        typer.echo(
-            f"Error: Invalid transport '{transport}'. Must be one of: {', '.join(valid_transports)}",
-            err=True,
-        )
-        raise typer.Exit(code=2)
-
     # Validate port
     if not (1 <= port <= 65535):
         typer.echo(f"Error: Invalid port {port}. Must be between 1 and 65535", err=True)
