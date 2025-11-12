@@ -140,7 +140,7 @@ jobs:
               files = sorted(z.namelist())
               print(f'✅ Wheel contains {len(files)} files')
               # Verify key files/directories are present
-              # Directories use startswith, files use exact match
+              # Directories use startswith, files check root or nested paths
               required_dirs = ['slash_commands/', 'mcp_server/']
               required_files = ['server.py']
               for req in required_dirs:
@@ -149,7 +149,8 @@ jobs:
                   else:
                       raise Exception(f'Missing required directory: {req}')
               for req in required_files:
-                  if req in files:
+                  # Check for exact match at root OR nested path (e.g., path/server.py)
+                  if any(f == req or f.endswith(f'/{req}') for f in files):
                       print(f'✅ Contains {req}')
                   else:
                       raise Exception(f'Missing required file: {req}')
