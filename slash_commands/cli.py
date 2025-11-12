@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import questionary
 import typer
@@ -447,7 +447,7 @@ def mcp(
         ),
     ] = None,
     transport: Annotated[
-        str,
+        Literal["stdio", "http"],
         typer.Option(
             "--transport",
             help="Transport type (stdio or http)",
@@ -462,6 +462,20 @@ def mcp(
     ] = 8000,
 ) -> None:
     """Start the MCP server for spec-driven development workflows."""
+    # Validate transport
+    valid_transports = ["stdio", "http"]
+    if transport not in valid_transports:
+        typer.echo(
+            f"Error: Invalid transport '{transport}'. Must be one of: {', '.join(valid_transports)}",
+            err=True,
+        )
+        raise typer.Exit(code=2)
+
+    # Validate port
+    if not (1 <= port <= 65535):
+        typer.echo(f"Error: Invalid port {port}. Must be between 1 and 65535", err=True)
+        raise typer.Exit(code=2)
+
     # Handle custom configuration if provided
     if config_file:
         config_path = Path(config_file)
@@ -474,13 +488,21 @@ def mcp(
         typer.echo(f"Using custom configuration: {config_file}")
 
     # Create the MCP server instance
-    mcp_server = create_app()
+    try:
+        mcp_server = create_app()
+    except Exception as e:
+        typer.echo(f"Error: Failed to create MCP server: {e}", err=True)
+        raise typer.Exit(code=3) from None
 
     # Run the server with the specified transport
-    if transport == "http":
-        mcp_server.run(transport="http", port=port)
-    else:
-        mcp_server.run()
+    try:
+        if transport == "http":
+            mcp_server.run(transport="http", port=port)
+        else:
+            mcp_server.run()
+    except Exception as e:
+        typer.echo(f"Error: Failed to start MCP server: {e}", err=True)
+        raise typer.Exit(code=3) from None
 
 
 def main() -> None:

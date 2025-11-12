@@ -858,10 +858,14 @@ def test_mcp_invalid_transport_option(mock_create_app):
     runner = CliRunner()
     result = runner.invoke(app, ["mcp", "--transport", "invalid"])
 
-    # Should still work because any non-http transport defaults to stdio
-    assert result.exit_code == 0
-    mock_create_app.assert_called_once()
-    mock_server.run.assert_called_once()
+    # Should fail with validation error (Typer validates Literal types)
+    assert result.exit_code == 2
+    output = result.stdout + result.stderr
+    # Typer's validation message for Literal types
+    assert ("invalid" in output.lower() or "Invalid" in output) and (
+        "stdio" in output or "http" in output
+    )
+    mock_create_app.assert_not_called()
 
 
 @patch("slash_commands.cli.create_app")
@@ -887,10 +891,12 @@ def test_mcp_port_out_of_range(mock_create_app):
     runner = CliRunner()
     result = runner.invoke(app, ["mcp", "--transport", "http", "--port", "99999"])
 
-    # Should still work - port validation is done by the server, not CLI
-    assert result.exit_code == 0
-    mock_create_app.assert_called_once()
-    mock_server.run.assert_called_once_with(transport="http", port=99999)
+    # Should fail with validation error
+    assert result.exit_code == 2
+    output = result.stdout + result.stderr
+    assert "Invalid port" in output
+    assert "1 and 65535" in output
+    mock_create_app.assert_not_called()
 
 
 @patch("slash_commands.cli.create_app")
@@ -955,17 +961,24 @@ def test_unified_help_shows_mcp_subcommand():
 
 def test_old_command_no_longer_available():
     """Test that slash-command-manager command is no longer available as console script."""
-    # Check that the entry point is not in pyproject.toml
-    import subprocess
+    import importlib.metadata
 
-    # The old command should not be available as a console script
-    # This test verifies the entry point was removed from pyproject.toml
+    # Get all entry points for the package
     try:
-        result = subprocess.run(
-            ["slash-command-manager", "--help"], capture_output=True, text=True, timeout=5
+        entry_points = importlib.metadata.entry_points()
+        console_scripts = entry_points.select(group="console_scripts")
+
+        # Verify the old command is not in console scripts
+        old_command_names = [
+            ep.name for ep in console_scripts if ep.name == "slash-command-manager"
+        ]
+        assert len(old_command_names) == 0, (
+            "Old entry point 'slash-command-manager' should be removed"
         )
-        # If command exists, it should fail
-        assert result.returncode != 0
-    except FileNotFoundError:
-        # This is the expected outcome - command doesn't exist
-        pass
+    except AttributeError:
+        # Python < 3.10 compatibility
+        import pkg_resources
+
+        entry_points = pkg_resources.iter_entry_points("console_scripts")
+        old_commands = [ep for ep in entry_points if ep.name == "slash-command-manager"]
+        assert len(old_commands) == 0, "Old entry point 'slash-command-manager' should be removed"
