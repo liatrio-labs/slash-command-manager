@@ -134,7 +134,7 @@ jobs:
       - name: Verify built package
         run: |
           # Verify the wheel can be inspected and contains expected files
-          uv run python -c "
+          uv run python - <<'PY'
           import zipfile
           import glob
           wheels = glob.glob('dist/*.whl')
@@ -160,4 +160,4 @@ jobs:
                       print(f'✅ Contains {req}')
                   else:
                       raise Exception(f'Missing required file: {req}')
-          "
+          PY
