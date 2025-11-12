@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "slash-command-manager"
-version = "1.0.0"
+version = "0.1.0"
 description = "Slash Command Generator and MCP Server for SDD Workflow"
 readme = "README.md"
 requires-python = ">=3.12"

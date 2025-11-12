@@ -102,7 +102,7 @@ jobs:
           fi
 
       - name: Install python-semantic-release
-        run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
+        run: uv pip install --system "python-semantic-release>=10.0.0,<11.0.0"
 
       - name: Semantic Release
         run: semantic-release -c .releaserc.toml version
