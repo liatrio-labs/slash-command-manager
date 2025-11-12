@@ -17,6 +17,8 @@ jobs:
   test:
     name: Test (uv + pytest)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -59,6 +61,8 @@ jobs:
   lint:
     name: Lint (uv + ruff)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -89,6 +93,8 @@ jobs:
   build:
     name: Build (verify package builds)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
