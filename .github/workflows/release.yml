@@ -70,12 +70,30 @@ jobs:
 
       - name: Update uv.lock and build package
         run: |
+          set -euo pipefail
           # Update lock file to ensure it's in sync with current dependencies
           uv lock
           # Stage uv.lock so semantic-release can commit it as an asset
+          # Note: semantic-release will automatically commit:
+          #   - pyproject.toml (version update via version_variables)
+          #   - CHANGELOG.md (generated via changelog.default_templates)
+          #   - uv.lock (listed in assets, so we stage it here)
           git add uv.lock
           # Build package to verify build works before releasing
-          uv run python -m build --wheel --sdist
+          # This ensures the package builds correctly before semantic-release updates the version
+          if ! uv run python -m build --wheel --sdist; then
+            echo "❌ Package build failed!"
+            echo ""
+            echo "The build step failed, which means semantic-release cannot proceed."
+            echo "Common causes:"
+            echo "  - Missing dependencies in pyproject.toml"
+            echo "  - Build hooks failing (check hatch_build.py)"
+            echo "  - Missing required files (e.g., server.py)"
+            echo ""
+            echo "Check the build output above for specific errors."
+            exit 1
+          fi
+          echo "✅ Package built successfully"
 
       - name: Install python-semantic-release
         run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
