@@ -79,21 +79,27 @@ jobs:
           #   - CHANGELOG.md (generated via changelog.default_templates)
           #   - uv.lock (listed in assets, so we stage it here)
           git add uv.lock
-          # Build package to verify build works before releasing
-          # This ensures the package builds correctly before semantic-release updates the version
-          if ! uv run python -m build --wheel --sdist; then
-            echo "❌ Package build failed!"
-            echo ""
-            echo "The build step failed, which means semantic-release cannot proceed."
-            echo "Common causes:"
-            echo "  - Missing dependencies in pyproject.toml"
-            echo "  - Build hooks failing (check hatch_build.py)"
-            echo "  - Missing required files (e.g., server.py)"
-            echo ""
-            echo "Check the build output above for specific errors."
-            exit 1
+          # Only rebuild if uv.lock changed (CI already verified build works)
+          if ! git diff --cached --quiet uv.lock; then
+            echo "⚠️  uv.lock was updated, verifying build still works..."
+            if ! uv run python -m build --wheel --sdist; then
+              echo "❌ Package build failed after uv.lock update!"
+              echo ""
+              echo "The build step failed after updating uv.lock, which means"
+              echo "semantic-release cannot proceed."
+              echo ""
+              echo "Common causes:"
+              echo "  - Dependency version conflicts in updated lock file"
+              echo "  - Build hooks failing (check hatch_build.py)"
+              echo "  - Missing required files (e.g., server.py)"
+              echo ""
+              echo "Check the build output above for specific errors."
+              exit 1
+            fi
+            echo "✅ Package built successfully with updated uv.lock"
+          else
+            echo "✅ uv.lock unchanged, skipping build (already verified in CI)"
           fi
-          echo "✅ Package built successfully"
 
       - name: Install python-semantic-release
         run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
