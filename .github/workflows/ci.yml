@@ -17,6 +17,8 @@ jobs:
   test:
     name: Test (uv + pytest)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -59,6 +61,8 @@ jobs:
   lint:
     name: Lint (uv + ruff)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,3 +89,75 @@ jobs:
 
       - name: Pre-commit (meta checks)
         run: uv run pre-commit run --all-files --show-diff-on-failure
+
+  build:
+    name: Build (verify package builds)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies (frozen)
+        run: uv sync --all-groups --extra dev --frozen
+
+      - name: Verify uv.lock is up to date
+        run: |
+          # Check if lock file needs updating (without actually updating it)
+          uv lock --check || {
+            echo "❌ uv.lock is out of sync with pyproject.toml"
+            echo "Run 'uv lock' locally and commit the updated uv.lock file"
+            exit 1
+          }
+          echo "✅ uv.lock is up to date"
+
+      - name: Build package
+        run: |
+          # Build wheel and source distribution to verify package builds correctly
+          uv run python -m build --wheel --sdist
+          echo "✅ Package built successfully"
+          # List built artifacts
+          ls -lh dist/
+
+      - name: Verify built package
+        run: |
+          # Verify the wheel can be inspected and contains expected files
+          uv run python - <<'PY'
+          import zipfile
+          import glob
+          wheels = glob.glob('dist/*.whl')
+          if not wheels:
+              raise Exception('No wheel file found')
+          wheel = wheels[0]
+          print(f'✅ Found wheel: {wheel}')
+          with zipfile.ZipFile(wheel) as z:
+              files = sorted(z.namelist())
+              print(f'✅ Wheel contains {len(files)} files')
+              # Verify key files/directories are present
+              # Directories use startswith, files check root or nested paths
+              required_dirs = ['slash_commands/', 'mcp_server/']
+              required_files = ['server.py']
+              for req in required_dirs:
+                  if any(f.startswith(req) for f in files):
+                      print(f'✅ Contains {req}')
+                  else:
+                      raise Exception(f'Missing required directory: {req}')
+              for req in required_files:
+                  # Check for exact match at root OR nested path (e.g., path/server.py)
+                  if any(f == req or f.endswith(f'/{req}') for f in files):
+                      print(f'✅ Contains {req}')
+                  else:
+                      raise Exception(f'Missing required file: {req}')
+          PY

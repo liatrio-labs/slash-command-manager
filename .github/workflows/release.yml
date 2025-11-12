@@ -56,11 +56,55 @@ jobs:
           git ls-remote --heads origin >/dev/null
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Update uv.lock and build package
+        run: |
+          set -euo pipefail
+          # Update lock file to ensure it's in sync with current dependencies
+          uv lock
+          # Stage uv.lock so semantic-release can commit it as an asset
+          # Note: semantic-release will automatically commit:
+          #   - pyproject.toml (version update via version_variables)
+          #   - CHANGELOG.md (generated via changelog.default_templates)
+          #   - uv.lock (listed in assets, so we stage it here)
+          git add uv.lock
+          # Only rebuild if uv.lock changed (CI already verified build works)
+          if ! git diff --cached --quiet uv.lock; then
+            echo "⚠️  uv.lock was updated, verifying build still works..."
+            if ! uv run python -m build --wheel --sdist; then
+              echo "❌ Package build failed after uv.lock update!"
+              echo ""
+              echo "The build step failed after updating uv.lock, which means"
+              echo "semantic-release cannot proceed."
+              echo ""
+              echo "Common causes:"
+              echo "  - Dependency version conflicts in updated lock file"
+              echo "  - Build hooks failing (check hatch_build.py)"
+              echo "  - Missing required files (e.g., server.py)"
+              echo ""
+              echo "Check the build output above for specific errors."
+              exit 1
+            fi
+            echo "✅ Package built successfully with updated uv.lock"
+          else
+            echo "✅ uv.lock unchanged, skipping build (already verified in CI)"
+          fi
+
+      - name: Install python-semantic-release
+        run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
 
       - name: Semantic Release
-        uses: python-semantic-release/python-semantic-release@v10
-        with:
-          github_token: ${{ steps.octo-sts.outputs.token }}
+        run: semantic-release -c .releaserc.toml version
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
