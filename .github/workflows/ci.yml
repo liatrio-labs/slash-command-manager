@@ -139,11 +139,18 @@ jobs:
           with zipfile.ZipFile(wheel) as z:
               files = sorted(z.namelist())
               print(f'✅ Wheel contains {len(files)} files')
-              # Verify key files are present
-              required = ['slash_commands/', 'mcp_server/', 'server.py']
-              for req in required:
+              # Verify key files/directories are present
+              # Directories use startswith, files use exact match
+              required_dirs = ['slash_commands/', 'mcp_server/']
+              required_files = ['server.py']
+              for req in required_dirs:
                   if any(f.startswith(req) for f in files):
                       print(f'✅ Contains {req}')
                   else:
-                      raise Exception(f'Missing required file/directory: {req}')
+                      raise Exception(f'Missing required directory: {req}')
+              for req in required_files:
+                  if req in files:
+                      print(f'✅ Contains {req}')
+                  else:
+                      raise Exception(f'Missing required file: {req}')
           "

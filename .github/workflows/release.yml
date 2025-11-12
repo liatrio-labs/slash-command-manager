@@ -68,9 +68,6 @@ jobs:
             **/pyproject.toml
             **/uv.lock
 
-      - name: Install Python
-        run: uv python install 3.12
-
       - name: Update uv.lock and build package
         run: |
           # Update lock file to ensure it's in sync with current dependencies
@@ -81,7 +78,7 @@ jobs:
           uv run python -m build --wheel --sdist
 
       - name: Install python-semantic-release
-        run: pip install "python-semantic-release>=10.0.0,<11.0.0"
+        run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
 
       - name: Semantic Release
         run: semantic-release -c .releaserc.toml version
