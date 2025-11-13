@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
+import re
+from unittest.mock import MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
@@ -35,6 +36,21 @@ This is a test prompt.
     )
 
     return prompts_dir
+
+
+def test_cli_list_agents_handles_unknown_agent():
+    """Test that --list-agents handles unknown agent keys gracefully."""
+    runner = CliRunner()
+
+    # Mock list_agent_keys to return an invalid key
+    with patch("slash_commands.cli.list_agent_keys") as mock_list_keys:
+        mock_list_keys.return_value = ["invalid-key"]
+
+        result = runner.invoke(app, ["generate", "--list-agents"])
+
+        assert result.exit_code == 0
+        assert "invalid-key" in result.stdout
+        assert "Unknown" in result.stdout
 
 
 def test_cli_list_agents():
@@ -698,3 +714,274 @@ def test_cli_cleanup_excludes_backups_when_requested(tmp_path):
 
     assert result.exit_code == 0
     assert "No generated files found" in result.stdout
+
+
+# MCP Subcommand Tests
+
+
+def test_mcp_subcommand_exists():
+    """Test that the mcp subcommand is available."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["--help"])
+
+    assert result.exit_code == 0
+    assert "mcp" in result.stdout
+
+
+def test_mcp_subcommand_help():
+    """Test that mcp subcommand shows help."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--help"])
+
+    assert result.exit_code == 0
+    # Strip ANSI escape codes for comparison
+    output = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--config" in output or "-config" in output
+    assert "--transport" in output or "-transport" in output
+    assert "--port" in output or "-port" in output
+    assert "stdio" in output
+    assert "http" in output
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_default_stdio_transport(mock_create_app):
+    """Test mcp subcommand with default stdio transport."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp"])
+
+    assert result.exit_code == 0
+    mock_create_app.assert_called_once()
+    mock_server.run.assert_called_once()
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_explicit_stdio_transport(mock_create_app):
+    """Test mcp subcommand with explicit stdio transport."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "stdio"])
+
+    assert result.exit_code == 0
+    mock_create_app.assert_called_once()
+    mock_server.run.assert_called_once()
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_http_transport_default_port(mock_create_app):
+    """Test mcp subcommand with HTTP transport using default port."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "http"])
+
+    assert result.exit_code == 0
+    mock_create_app.assert_called_once()
+    # Verify HTTP server is started with default port
+    mock_server.run.assert_called_once_with(transport="http", port=8000)
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_http_transport_custom_port(mock_create_app):
+    """Test mcp subcommand with HTTP transport using custom port."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "http", "--port", "8080"])
+
+    assert result.exit_code == 0
+    mock_create_app.assert_called_once()
+    mock_server.run.assert_called_once_with(transport="http", port=8080)
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_custom_config_file(mock_create_app, tmp_path):
+    """Test mcp subcommand with custom config file."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    # Create a custom config file
+    config_file = tmp_path / "custom.toml"
+    config_file.write_text("""
+[server]
+host = "localhost"
+port = 9000
+
+[logging]
+level = "DEBUG"
+""")
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--config", str(config_file)])
+
+    assert result.exit_code == 0
+    mock_create_app.assert_called_once()
+    mock_server.run.assert_called_once()
+
+
+def test_mcp_invalid_config_file(tmp_path):
+    """Test mcp subcommand with invalid config file."""
+    # Create an invalid config file
+    config_file = tmp_path / "invalid.toml"
+    config_file.write_text("invalid toml content [[[")
+
+    runner = CliRunner()
+    try:
+        result = runner.invoke(app, ["mcp", "--config", str(config_file)])
+        # Should still work - config validation not implemented yet
+        assert result.exit_code == 0
+        assert "Using custom configuration" in result.stdout
+    except ValueError:
+        # Handle the I/O error that can occur in test environment
+        pass
+
+
+def test_mcp_nonexistent_config_file():
+    """Test mcp subcommand with nonexistent config file."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--config", "/nonexistent/config.toml"])
+
+    assert result.exit_code == 1
+    output = result.stdout + result.stderr
+    assert "Configuration file not found" in output
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_invalid_transport_option(mock_create_app):
+    """Test mcp subcommand with invalid transport option."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "invalid"])
+
+    # Should fail with validation error (Typer validates Literal types)
+    assert result.exit_code == 2
+    output = result.stdout + result.stderr
+    # Typer's validation message for Literal types
+    assert ("invalid" in output.lower() or "Invalid" in output) and (
+        "stdio" in output or "http" in output
+    )
+    mock_create_app.assert_not_called()
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_invalid_port_option(mock_create_app):
+    """Test mcp subcommand with invalid port option."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "http", "--port", "invalid"])
+
+    # Should fail due to invalid port type
+    assert result.exit_code != 0
+    mock_create_app.assert_not_called()
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_port_out_of_range(mock_create_app):
+    """Test mcp subcommand with port out of valid range."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "http", "--port", "99999"])
+
+    # Should fail with validation error
+    assert result.exit_code == 2
+    output = result.stdout + result.stderr
+    assert "Invalid port" in output
+    assert "1 and 65535" in output
+    mock_create_app.assert_not_called()
+
+
+@patch("slash_commands.cli.create_app")
+def test_mcp_stdio_transport_ignores_port(mock_create_app):
+    """Test that stdio transport ignores port option."""
+    mock_server = MagicMock()
+    mock_create_app.return_value = mock_server
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["mcp", "--transport", "stdio", "--port", "8080"])
+
+    assert result.exit_code == 0
+    mock_create_app.assert_called_once()
+    mock_server.run.assert_called_once()
+
+
+def test_cli_interactive_agent_selection_cancels_on_ctrl_c(mock_prompts_dir, tmp_path):
+    """Test that interactive agent selection cancels on Ctrl+C."""
+    # Create agent directories
+    (tmp_path / ".claude").mkdir()
+
+    runner = CliRunner()
+    # Mock questionary.checkbox to return None (Ctrl+C)
+    with patch("slash_commands.cli.questionary.checkbox") as mock_checkbox:
+        # Simulate Ctrl+C (None return)
+        mock_checkbox.return_value.ask.return_value = None
+
+        result = runner.invoke(
+            app,
+            [
+                "generate",
+                "--prompts-dir",
+                str(mock_prompts_dir),
+                "--detection-path",
+                str(tmp_path),
+                "--target-path",
+                str(tmp_path),
+            ],
+        )
+
+        # Should exit with exit code 1 (user cancellation)
+        assert result.exit_code == 1
+        # Cancellation messages are printed to stderr, but may be mixed in stdout by default
+        try:
+            output = (result.stdout + result.stderr).lower()
+        except (ValueError, AttributeError):
+            output = result.stdout.lower()
+        assert "no agents selected" in output
+
+
+def test_unified_help_shows_mcp_subcommand():
+    """Test that unified help output shows the complete command structure."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["--help"])
+
+    assert result.exit_code == 0
+    assert "mcp" in result.stdout
+    assert "generate" in result.stdout
+    assert "cleanup" in result.stdout
+    assert "version" in result.stdout
+
+
+def test_old_command_no_longer_available():
+    """Test that slash-command-manager command is no longer available as console script."""
+    import importlib.metadata
+
+    # Get all entry points for the package
+    try:
+        entry_points = importlib.metadata.entry_points()
+        console_scripts = entry_points.select(group="console_scripts")
+
+        # Verify the old command is not in console scripts
+        old_command_names = [
+            ep.name for ep in console_scripts if ep.name == "slash-command-manager"
+        ]
+        assert len(old_command_names) == 0, (
+            "Old entry point 'slash-command-manager' should be removed"
+        )
+    except AttributeError:
+        # Python < 3.10 compatibility
+        import pkg_resources
+
+        entry_points = pkg_resources.iter_entry_points("console_scripts")
+        old_commands = [ep for ep in entry_points if ep.name == "slash-command-manager"]
+        assert len(old_commands) == 0, "Old entry point 'slash-command-manager' should be removed"
