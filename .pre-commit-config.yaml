@@ -47,3 +47,10 @@ repos:
       stages: [pre-push]
       pass_filenames: false
       always_run: true
+    - id: integration-tests
+      name: Run integration tests in Docker
+      entry: bash -c 'docker build -t slash-man-test . && docker run --rm slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v"'
+      language: system
+      stages: [pre-push]
+      pass_filenames: false
+      always_run: true
