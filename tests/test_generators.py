@@ -197,3 +197,110 @@ def test_toml_generator_snapshot_regression(sample_prompt):
     assert isinstance(data["prompt"], str)
     assert "meta" in data
     assert isinstance(data["meta"], dict)
+
+
+def test_prompt_metadata_github_source(sample_prompt):
+    """Test that generated files contain correct GitHub source metadata."""
+    agent_md = get_agent_config("claude-code")
+    agent_toml = get_agent_config("gemini-cli")
+
+    source_metadata = {
+        "source_type": "github",
+        "source_repo": "liatrio-labs/spec-driven-workflow",
+        "source_branch": "refactor/improve-workflow",
+        "source_path": "prompts",
+    }
+
+    # Test Markdown generator
+    md_generator = MarkdownCommandGenerator()
+    md_generated = md_generator.generate(sample_prompt, agent_md, source_metadata)
+    md_frontmatter, _ = _extract_frontmatter_and_body(md_generated)
+
+    md_meta = md_frontmatter["meta"]
+    assert md_meta["source_type"] == "github"
+    assert md_meta["source_repo"] == "liatrio-labs/spec-driven-workflow"
+    assert md_meta["source_branch"] == "refactor/improve-workflow"
+    assert md_meta["source_path"] == "prompts"
+
+    # Test TOML generator
+    toml_generator = TomlCommandGenerator()
+    toml_generated = toml_generator.generate(sample_prompt, agent_toml, source_metadata)
+    toml_data = _parse_toml(toml_generated)
+
+    toml_meta = toml_data["meta"]
+    assert toml_meta["source_type"] == "github"
+    assert toml_meta["source_repo"] == "liatrio-labs/spec-driven-workflow"
+    assert toml_meta["source_branch"] == "refactor/improve-workflow"
+    assert toml_meta["source_path"] == "prompts"
+
+
+def test_prompt_metadata_github_single_file_source(sample_prompt):
+    """Test that generated files contain correct GitHub source metadata for single file."""
+    agent = get_agent_config("claude-code")
+
+    source_metadata = {
+        "source_type": "github",
+        "source_repo": "liatrio-labs/spec-driven-workflow",
+        "source_branch": "refactor/improve-workflow",
+        "source_path": "prompts/generate-spec.md",
+    }
+
+    generator = MarkdownCommandGenerator()
+    generated = generator.generate(sample_prompt, agent, source_metadata)
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+
+    meta = frontmatter["meta"]
+    assert meta["source_type"] == "github"
+    assert meta["source_repo"] == "liatrio-labs/spec-driven-workflow"
+    assert meta["source_branch"] == "refactor/improve-workflow"
+    assert meta["source_path"] == "prompts/generate-spec.md"
+
+
+def test_prompt_metadata_local_source(sample_prompt, tmp_path):
+    """Test that generated files contain correct local source metadata."""
+    agent_md = get_agent_config("claude-code")
+    agent_toml = get_agent_config("gemini-cli")
+
+    prompts_dir = tmp_path / "prompts"
+    prompts_dir.mkdir()
+    source_metadata = {
+        "source_type": "local",
+        "source_dir": str(prompts_dir.resolve()),
+    }
+
+    # Test Markdown generator
+    md_generator = MarkdownCommandGenerator()
+    md_generated = md_generator.generate(sample_prompt, agent_md, source_metadata)
+    md_frontmatter, _ = _extract_frontmatter_and_body(md_generated)
+
+    md_meta = md_frontmatter["meta"]
+    assert md_meta["source_type"] == "local"
+    assert md_meta["source_dir"] == str(prompts_dir.resolve())
+
+    # Test TOML generator
+    toml_generator = TomlCommandGenerator()
+    toml_generated = toml_generator.generate(sample_prompt, agent_toml, source_metadata)
+    toml_data = _parse_toml(toml_generated)
+
+    toml_meta = toml_data["meta"]
+    assert toml_meta["source_type"] == "local"
+    assert toml_meta["source_dir"] == str(prompts_dir.resolve())
+
+
+def test_prompt_metadata_no_source_metadata(sample_prompt):
+    """Test that generated files work correctly without source metadata."""
+    agent = get_agent_config("claude-code")
+    generator = MarkdownCommandGenerator()
+
+    # Generate without source metadata
+    generated = generator.generate(sample_prompt, agent, None)
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+
+    meta = frontmatter["meta"]
+    # Should not have source_type or source_dir/source_repo fields
+    assert "source_type" not in meta
+    assert "source_dir" not in meta
+    assert "source_repo" not in meta
+    # But should still have other metadata
+    assert "source_prompt" in meta
+    assert "agent" in meta

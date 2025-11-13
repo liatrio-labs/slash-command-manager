@@ -147,6 +147,23 @@ class SlashCommandWriter:
         self._global_overwrite = False  # Track if user chose "overwrite-all"
         self._backups_created = []  # Track backup files created
 
+        # Determine source metadata
+        self._source_metadata: dict[str, Any] | None = None
+        if github_repo and github_branch and github_path:
+            self._source_metadata = {
+                "source_type": "github",
+                "source_repo": github_repo,
+                "source_branch": github_branch,
+                "source_path": github_path,
+            }
+        elif is_explicit_prompts_dir:
+            # Use absolute path for local source
+            abs_prompts_dir = prompts_dir.resolve()
+            self._source_metadata = {
+                "source_type": "local",
+                "source_dir": str(abs_prompts_dir),
+            }
+
     def generate(self) -> dict[str, Any]:
         """Generate command files for all configured agents.
 
@@ -320,8 +337,8 @@ class SlashCommandWriter:
         # Create generator for this agent's format
         generator = CommandGenerator.create(agent.command_format)
 
-        # Generate command content
-        content = generator.generate(prompt, agent)
+        # Generate command content with source metadata
+        content = generator.generate(prompt, agent, self._source_metadata)
 
         # Determine output path (resolve relative to base_path)
         # Sanitize file stem: drop any path components and restrict to safe chars
