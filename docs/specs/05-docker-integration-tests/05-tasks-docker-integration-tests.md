@@ -95,7 +95,9 @@
 
 ### [x] 2.0 Basic CLI Command Tests
 
-### [~] 3.0 Generate Command Integration Tests
+### [x] 3.0 Generate Command Integration Tests
+
+### [~] 4.0 GitHub Integration Tests
 
 #### 3.0 Demo Criteria
 
@@ -123,18 +125,18 @@
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Create `tests/integration/test_generate_command.py` file
-- [ ] 3.2 Write test `test_generate_with_prompts_dir_and_agent()` that uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --target-path <temp_dir> --yes`, verifies exit code is 0, and verifies file is created in correct location (`<temp_dir>/.claude/commands/test-prompt-1.md`)
-- [ ] 3.3 Write test `test_generate_dry_run_mode()` that uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --target-path <temp_dir> --dry-run --yes`, verifies exit code is 0, verifies stdout contains "DRY RUN", and verifies no files are created
-- [ ] 3.4 Write test `test_generate_multiple_agents()` that uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --agent cursor --target-path <temp_dir> --yes`, verifies exit code is 0, and verifies files are created for both agents in correct directories
-- [ ] 3.5 Write test `test_generate_with_detection_path()` that creates agent detection directory structure, uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --detection-path <detection_dir> --target-path <temp_dir> --yes`, verifies exit code is 0, and verifies files are generated for detected agents
-- [ ] 3.6 Write test `test_generate_file_content_structure()` that generates a file and verifies file content structure using pathlib: checks file exists, reads content, verifies frontmatter contains required metadata fields (name, description, source_type, etc.)
-- [ ] 3.7 Write test `test_generate_exact_file_content()` that generates a file and reads entire file content, compares with expected content using exact text matching (full content comparison)
-- [ ] 3.8 Write test `test_generate_file_permissions()` that generates a file and uses `os.stat()` or `pathlib.Path.stat()` to verify file permissions are correct (readable/writable by user, not executable)
-- [ ] 3.9 Write test `test_generate_all_supported_agents()` that loops through all supported agents (claude-code, cursor, gemini-cli, vs-code, codex-cli, windsurf, opencode), generates files for each, and verifies files are created in correct agent-specific directories with correct file extensions
-- [ ] 3.10 Write test `test_generate_creates_parent_directories()` that generates a file to a non-existent directory path and verifies parent directories are created automatically
-- [ ] 3.11 Write test `test_generate_creates_backup_files()` that first generates a file using `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --target-path <temp_dir> --yes`, saves the original file content, then manually creates a backup file matching the pattern `filename.md.{YYYYMMDD-HHMMSS}.bak` (e.g., `test-prompt-1.md.20231113-164614.bak`) with the original content to simulate backup creation (since `--yes` flag uses "overwrite" action which doesn't create backups, and interactive backup creation is difficult to test with subprocess). The test verifies backup file exists, matches the expected pattern using regex `.*\.md\.\d{8}-\d{6}\.bak$`, and contains the original content. Note: Backup files are created by the generate command when overwriting existing files with "backup" action selected (backups are timestamped with format YYYYMMDD-HHMMSS), but for integration tests we simulate this by creating mock backup files matching the pattern
-- [ ] 3.12 Run tests in Docker: `docker run --rm slash-man-test uv run pytest tests/integration/test_generate_command.py -v` and verify all tests pass
+- [x] 3.1 Create `tests/integration/test_generate_command.py` file
+- [x] 3.2 Write test `test_generate_with_prompts_dir_and_agent()` that uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --target-path <temp_dir> --yes`, verifies exit code is 0, and verifies file is created in correct location (`<temp_dir>/.claude/commands/test-prompt-1.md`)
+- [x] 3.3 Write test `test_generate_dry_run_mode()` that uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --target-path <temp_dir> --dry-run --yes`, verifies exit code is 0, verifies stdout contains "DRY RUN", and verifies no files are created
+- [x] 3.4 Write test `test_generate_multiple_agents()` that uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --agent cursor --target-path <temp_dir> --yes`, verifies exit code is 0, and verifies files are created for both agents in correct directories
+- [x] 3.5 Write test `test_generate_with_detection_path()` that creates agent detection directory structure, uses `subprocess.run()` to execute `slash-man generate --prompts-dir <fixtures_dir> --detection-path <detection_dir> --target-path <temp_dir> --yes`, verifies exit code is 0, and verifies files are generated for detected agents
+- [x] 3.6 Write test `test_generate_file_content_structure()` that generates a file and verifies file content structure using pathlib: checks file exists, reads content, verifies frontmatter contains required metadata fields (name, description, source_type, etc.)
+- [x] 3.7 Write test `test_generate_exact_file_content()` that generates a file and reads entire file content, compares with expected content using exact text matching (full content comparison)
+- [x] 3.8 Write test `test_generate_file_permissions()` that generates a file and uses `os.stat()` or `pathlib.Path.stat()` to verify file permissions are correct (readable/writable by user, not executable)
+- [x] 3.9 Write test `test_generate_all_supported_agents()` that loops through all supported agents (claude-code, cursor, gemini-cli, vs-code, codex-cli, windsurf, opencode), generates files for each, and verifies files are created in correct agent-specific directories with correct file extensions
+- [x] 3.10 Write test `test_generate_creates_parent_directories()` that generates a file to a non-existent directory path and verifies parent directories are created automatically
+- [x] 3.11 Write test `test_generate_creates_backup_files()` that first generates a file using `slash-man generate --prompts-dir <fixtures_dir> --agent claude-code --target-path <temp_dir> --yes`, saves the original file content, then manually creates a backup file matching the pattern `filename.md.{YYYYMMDD-HHMMSS}.bak` (e.g., `test-prompt-1.md.20231113-164614.bak`) with the original content to simulate backup creation (since `--yes` flag uses "overwrite" action which doesn't create backups, and interactive backup creation is difficult to test with subprocess). The test verifies backup file exists, matches the expected pattern using regex `.*\.md\.\d{8}-\d{6}\.bak$`, and contains the original content. Note: Backup files are created by the generate command when overwriting existing files with "backup" action selected (backups are timestamped with format YYYYMMDD-HHMMSS), but for integration tests we simulate this by creating mock backup files matching the pattern
+- [x] 3.12 Run tests in Docker: `docker run --rm slash-man-test uv run pytest tests/integration/test_generate_command.py -v` and verify all tests pass
 
 ### [ ] 4.0 GitHub Integration Tests
 
