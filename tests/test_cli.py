@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -733,11 +734,13 @@ def test_mcp_subcommand_help():
     result = runner.invoke(app, ["mcp", "--help"])
 
     assert result.exit_code == 0
-    assert "--config" in result.stdout
-    assert "--transport" in result.stdout
-    assert "--port" in result.stdout
-    assert "stdio" in result.stdout
-    assert "http" in result.stdout
+    # Strip ANSI escape codes for comparison
+    output = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--config" in output or "-config" in output
+    assert "--transport" in output or "-transport" in output
+    assert "--port" in output or "-port" in output
+    assert "stdio" in output
+    assert "http" in output
 
 
 @patch("slash_commands.cli.create_app")
