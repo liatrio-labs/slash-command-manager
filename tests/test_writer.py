@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 
 from slash_commands.config import CommandFormat
 from slash_commands.writer import SlashCommandWriter, _find_package_prompts_dir
@@ -658,3 +659,137 @@ def test_writer_cleanup_excludes_backups_when_requested(tmp_path):
 
     assert result["files_deleted"] == 0
     assert backup_file.exists()  # Backup should still exist
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_loads_prompts_from_github(mock_download, tmp_path):
+    """Test that writer loads prompts from GitHub repository."""
+    # Create temporary directory structure that will be used by the writer
+    temp_dir = tmp_path / "temp_github"
+    temp_dir.mkdir()
+
+    # Create mock prompt files in temp directory
+    prompt1 = temp_dir / "prompt1.md"
+    prompt1.write_text(
+        """---
+name: prompt1
+description: Test prompt 1
+tags: []
+arguments: []
+enabled: true
+---
+# Prompt 1
+Content 1
+"""
+    )
+
+    prompt2 = temp_dir / "prompt2.md"
+    prompt2.write_text(
+        """---
+name: prompt2
+description: Test prompt 2
+tags: []
+arguments: []
+enabled: true
+---
+# Prompt 2
+Content 2
+"""
+    )
+
+    # Mock the download function to create files in temp directory
+    def mock_download_func(temp_dir_path, owner, repo, branch, path):
+        # Copy our test files to the temp directory
+        import shutil
+
+        shutil.copy(prompt1, temp_dir_path / "prompt1.md")
+        shutil.copy(prompt2, temp_dir_path / "prompt2.md")
+
+    mock_download.side_effect = mock_download_func
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",  # Not used when GitHub params provided
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="liatrio-labs/spec-driven-workflow",
+        github_branch="main",
+        github_path="prompts",
+    )
+
+    prompts = writer._load_prompts()
+
+    assert len(prompts) == 2
+    assert prompts[0].name == "prompt1"
+    assert prompts[1].name == "prompt2"
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_loads_single_file_from_github(mock_download, tmp_path):
+    """Test that writer loads single file from GitHub repository."""
+    temp_dir = tmp_path / "temp_github"
+    temp_dir.mkdir()
+
+    prompt_file = temp_dir / "generate-spec.md"
+    prompt_file.write_text(
+        """---
+name: generate-spec
+description: Generate spec prompt
+tags: []
+arguments: []
+enabled: true
+---
+# Generate Spec
+Content
+"""
+    )
+
+    def mock_download_func(temp_dir_path, owner, repo, branch, path):
+        import shutil
+
+        shutil.copy(prompt_file, temp_dir_path / "generate-spec.md")
+
+    mock_download.side_effect = mock_download_func
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="liatrio-labs/spec-driven-workflow",
+        github_branch="refactor/improve-workflow",
+        github_path="prompts/generate-spec.md",
+    )
+
+    prompts = writer._load_prompts()
+
+    assert len(prompts) == 1
+    assert prompts[0].name == "generate-spec"
+
+
+@patch("slash_commands.writer._download_github_prompts_to_temp_dir")
+def test_writer_github_api_error_handling(mock_download, tmp_path):
+    """Test that writer handles GitHub API errors gracefully."""
+    # Mock HTTPError (404)
+    mock_download.side_effect = requests.exceptions.HTTPError(
+        "Repository, branch, or path not found"
+    )
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        github_repo="owner/repo",
+        github_branch="main",
+        github_path="nonexistent",
+    )
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        writer._load_prompts()
+
+    # Mock RequestException (network error)
+    mock_download.side_effect = requests.exceptions.RequestException("Network error")
+
+    with pytest.raises(requests.exceptions.RequestException):
+        writer._load_prompts()

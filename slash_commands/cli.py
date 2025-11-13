@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 
 import questionary
+import requests
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -315,11 +316,31 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         base_path=actual_target_path,
         overwrite_action=overwrite_action,
         is_explicit_prompts_dir=is_explicit_prompts_dir,
+        github_repo=github_repo,
+        github_branch=github_branch,
+        github_path=github_path,
     )
 
     # Generate commands
     try:
         result = writer.generate()
+    except requests.exceptions.HTTPError as e:
+        print(f"Error: GitHub API error: {e}", file=sys.stderr)
+        print("\nTo fix this:", file=sys.stderr)
+        print("  - Verify the repository exists and is public", file=sys.stderr)
+        print("  - Check that the branch name is correct", file=sys.stderr)
+        print("  - Ensure the path exists in the repository", file=sys.stderr)
+        if github_repo:
+            print(f"  - Repository: {github_repo}", file=sys.stderr)
+            print(f"  - Branch: {github_branch}", file=sys.stderr)
+            print(f"  - Path: {github_path}", file=sys.stderr)
+        raise typer.Exit(code=3) from None  # I/O error
+    except requests.exceptions.RequestException as e:
+        print(f"Error: Network error accessing GitHub: {e}", file=sys.stderr)
+        print("\nTo fix this:", file=sys.stderr)
+        print("  - Check your internet connection", file=sys.stderr)
+        print("  - Verify GitHub API is accessible", file=sys.stderr)
+        raise typer.Exit(code=3) from None  # I/O error
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         print("\nTo fix this:", file=sys.stderr)

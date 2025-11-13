@@ -6,6 +6,7 @@ import importlib.resources
 import os
 import re
 import shutil
+import tempfile
 import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,6 +18,7 @@ import yaml
 from mcp_server.prompt_utils import MarkdownPrompt, load_markdown_prompt
 from slash_commands.config import AgentConfig, get_agent_config, list_agent_keys
 from slash_commands.generators import CommandGenerator
+from slash_commands.github_utils import _download_github_prompts_to_temp_dir
 
 
 def _find_package_prompts_dir() -> Path | None:
@@ -115,6 +117,9 @@ class SlashCommandWriter:
         base_path: Path | None = None,
         overwrite_action: OverwriteAction | None = None,
         is_explicit_prompts_dir: bool = True,
+        github_repo: str | None = None,
+        github_branch: str | None = None,
+        github_path: str | None = None,
     ):
         """Initialize the writer.
 
@@ -126,6 +131,9 @@ class SlashCommandWriter:
             overwrite_action: Global overwrite action to apply. If None, will prompt per file.
             is_explicit_prompts_dir: If True, prompts_dir was explicitly provided by user.
                 If False, use bundled prompts fallback.
+            github_repo: GitHub repository in format owner/repo (optional)
+            github_branch: GitHub branch name (optional)
+            github_path: Path to prompts directory or single file within repository (optional)
         """
         self.prompts_dir = prompts_dir
         self.agents = agents if agents is not None else list_agent_keys()
@@ -133,6 +141,9 @@ class SlashCommandWriter:
         self.base_path = base_path or Path.cwd()
         self.overwrite_action = overwrite_action
         self.is_explicit_prompts_dir = is_explicit_prompts_dir
+        self.github_repo = github_repo
+        self.github_branch = github_branch
+        self.github_path = github_path
         self._global_overwrite = False  # Track if user chose "overwrite-all"
         self._backups_created = []  # Track backup files created
 
@@ -182,8 +193,29 @@ class SlashCommandWriter:
         }
 
     def _load_prompts(self) -> list[MarkdownPrompt]:
-        """Load all prompts from the prompts directory."""
-        # Check if the specified prompts directory exists
+        """Load all prompts from the prompts directory or GitHub repository."""
+        # Check if GitHub parameters are provided
+        if self.github_repo and self.github_branch and self.github_path:
+            # Download from GitHub to temporary directory
+            from slash_commands.github_utils import validate_github_repo
+
+            owner, repo = validate_github_repo(self.github_repo)
+
+            with tempfile.TemporaryDirectory() as temp_dir_str:
+                temp_dir = Path(temp_dir_str)
+                _download_github_prompts_to_temp_dir(
+                    temp_dir, owner, repo, self.github_branch, self.github_path
+                )
+
+                # Load prompts from temp directory using existing logic
+                prompts = []
+                for prompt_file in sorted(temp_dir.glob("*.md")):
+                    prompt = load_markdown_prompt(prompt_file)
+                    prompts.append(prompt)
+
+                return prompts
+
+        # Load from local directory (existing logic)
         prompts_dir = self.prompts_dir
         if not prompts_dir.exists():
             # Only attempt fallback to bundled prompts when using default path
