@@ -14,9 +14,14 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 def pytest_collection_modifyitems(config, items):
     """Automatically mark all tests in the integration directory as integration tests."""
     for item in items:
-        # Check if test is in the integration directory
-        if "integration" in str(item.fspath):
-            item.add_marker(pytest.mark.integration)
+        # Check if test is in the integration directory using pathlib
+        path_parts = Path(item.fspath).parts
+        # Verify that 'tests' and 'integration' appear consecutively in the path
+        if "tests" in path_parts and "integration" in path_parts:
+            # Find the index of 'tests' and check if 'integration' follows it
+            tests_index = path_parts.index("tests")
+            if tests_index + 1 < len(path_parts) and path_parts[tests_index + 1] == "integration":
+                item.add_marker(pytest.mark.integration)
 
 
 @pytest.fixture
@@ -101,4 +106,6 @@ def run_command(args):
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
+        timeout=30,  # Prevent hanging tests
+        check=False,  # Explicit: caller handles exit codes
     )

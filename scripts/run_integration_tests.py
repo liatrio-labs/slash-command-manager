@@ -8,10 +8,15 @@ This script checks if Docker is available and runs integration tests if possible
 If Docker is not available, it exits gracefully with a warning message.
 """
 
+import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+# Docker configuration - can be overridden via environment variables
+DOCKER_WORKDIR = os.environ.get("DOCKER_WORKDIR", "/app")
+DOCKER_PYTHON_PATH = os.environ.get("DOCKER_PYTHON_PATH", "/usr/local/bin/python")
 
 
 def check_docker_available() -> bool:
@@ -56,6 +61,7 @@ def run_integration_tests() -> int:
         [docker_cmd, "build", "-t", "slash-man-test", "."],
         cwd=repo_root,
         check=False,
+        timeout=300,  # 5 minute timeout for building
     )
     if build_result.returncode != 0:
         print("❌ Docker build for integration tests failed")
@@ -63,6 +69,7 @@ def run_integration_tests() -> int:
 
     # Run integration tests (override ENTRYPOINT from Dockerfile)
     print("Running integration tests in Docker container...")
+    test_cmd = f"cd {DOCKER_WORKDIR} && {DOCKER_PYTHON_PATH} -m uv run pytest tests/integration/ -v -m integration"
     test_result = subprocess.run(
         [
             docker_cmd,
@@ -73,10 +80,11 @@ def run_integration_tests() -> int:
             "slash-man-test",
             "sh",
             "-c",
-            "cd /app && /usr/local/bin/uv run pytest tests/integration/ -v",
+            test_cmd,
         ],
         cwd=repo_root,
         check=False,
+        timeout=300,  # 5 minute timeout for running tests
     )
     return test_result.returncode
 

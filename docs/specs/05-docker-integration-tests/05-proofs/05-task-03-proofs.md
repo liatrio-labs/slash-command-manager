@@ -5,7 +5,7 @@
 ### Test Execution Output
 
 ```bash
-docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/test_generate_command.py -v"
+docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/test_generate_command.py -v -m integration"
 ```
 
 ```text
@@ -28,7 +28,7 @@ tests/integration/test_generate_command.py::test_generate_all_supported_agents P
 tests/integration/test_generate_command.py::test_generate_creates_parent_directories PASSED [ 90%]
 tests/integration/test_generate_command.py::test_generate_creates_backup_files PASSED [100%]
 
-============================= 10 passed in 18.56s ==============================
+============================= 10 passed in 20.46s ==============================
 ```
 
 ## File System Verification

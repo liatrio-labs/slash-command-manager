@@ -5,7 +5,7 @@
 ### Test Execution Output
 
 ```bash
-docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/test_basic_commands.py -v"
+docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/test_basic_commands.py -v -m integration"
 ```
 
 ```text
@@ -24,7 +24,7 @@ tests/integration/test_basic_commands.py::test_cleanup_help_command PASSED [ 66%
 tests/integration/test_basic_commands.py::test_mcp_help_command PASSED   [ 83%]
 tests/integration/test_basic_commands.py::test_list_agents_command PASSED [100%]
 
-============================== 6 passed in 6.95s ===============================
+============================== 6 passed in 7.35s ===============================
 ```
 
 ## CLI Output Examples

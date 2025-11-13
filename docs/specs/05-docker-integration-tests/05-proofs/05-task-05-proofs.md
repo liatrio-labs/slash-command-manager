@@ -5,7 +5,7 @@
 ### Full Integration Test Suite Execution
 
 ```bash
-docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v"
+docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v -m integration"
 ```
 
 ```text
@@ -47,7 +47,7 @@ tests/integration/test_generate_command.py::test_generate_all_supported_agents P
 tests/integration/test_generate_command.py::test_generate_creates_parent_directories PASSED [ 96%]
 tests/integration/test_generate_command.py::test_generate_creates_backup_files PASSED [100%]
 
-============================= 29 passed in 42.50s ==============================
+============================= 29 passed in 50.00s ==============================
 ```
 
 ## File System and Error Tests
@@ -55,11 +55,33 @@ tests/integration/test_generate_command.py::test_generate_creates_backup_files P
 ### Test Results Summary
 
 ```bash
-docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/test_filesystem_and_errors.py tests/integration/test_cleanup_command.py -v"
+docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/test_filesystem_and_errors.py tests/integration/test_cleanup_command.py -v -m integration"
 ```
 
 ```text
-============================= 13 passed in 19.03s ==============================
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-8.4.2, pluggy-1.6.0 -- /app/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /app
+configfile: pyproject.toml
+plugins: cov-7.0.0, httpx-0.35.0, anyio-4.11.0
+collecting ... collected 13 items
+
+tests/integration/test_filesystem_and_errors.py::test_file_timestamps_set_correctly PASSED [  7%]
+tests/integration/test_filesystem_and_errors.py::test_file_content_structure_validation PASSED [ 15%]
+tests/integration/test_filesystem_and_errors.py::test_exact_file_content_comparison PASSED [ 23%]
+tests/integration/test_filesystem_and_errors.py::test_invalid_flag_combination_error PASSED [ 30%]
+tests/integration/test_filesystem_and_errors.py::test_missing_required_flags_error PASSED [ 38%]
+tests/integration/test_filesystem_and_errors.py::test_invalid_agent_key_error PASSED [ 46%]
+tests/integration/test_filesystem_and_errors.py::test_permission_denied_error PASSED [ 53%]
+tests/integration/test_cleanup_command.py::test_cleanup_dry_run_mode PASSED [ 61%]
+tests/integration/test_cleanup_command.py::test_cleanup_removes_generated_files PASSED [ 69%]
+tests/integration/test_cleanup_command.py::test_cleanup_includes_backups PASSED [ 76%]
+tests/integration/test_cleanup_command.py::test_cleanup_excludes_backups_by_default PASSED [ 84%]
+tests/integration/test_cleanup_command.py::test_cleanup_multiple_agents PASSED [ 92%]
+tests/integration/test_cleanup_command.py::test_cleanup_all_agents PASSED [100%]
+
+============================= 13 passed in 26.51s ==============================
 ```
 
 **File System Tests (7 tests)**:
@@ -99,7 +121,7 @@ integration-test:
     - name: Build Docker image
       run: docker build -t slash-man-test .
     - name: Run integration tests
-      run: docker run --rm slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v"
+      run: docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v -m integration"
 ```
 
 ### Pre-commit Hook
@@ -109,7 +131,7 @@ Added integration test hook to `.pre-commit-config.yaml`:
 ```yaml
 - id: integration-tests
   name: Run integration tests in Docker
-  entry: bash -c 'docker build -t slash-man-test . && docker run --rm slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v"'
+  entry: uv run scripts/run_integration_tests.py
   language: system
   stages: [pre-push]
   pass_filenames: false

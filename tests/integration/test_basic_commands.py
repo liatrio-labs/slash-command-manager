@@ -2,6 +2,8 @@
 
 import subprocess
 
+from slash_commands.__version__ import __version__
+
 from .conftest import REPO_ROOT, get_slash_man_command
 
 
@@ -13,6 +15,7 @@ def test_main_help_command():
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
+        timeout=10,
     )
 
     assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -34,7 +37,7 @@ def test_main_version_command():
 
     assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
     assert "slash-man" in result.stdout
-    assert "0.1.0" in result.stdout
+    assert __version__ in result.stdout
 
 
 def test_generate_help_command():
