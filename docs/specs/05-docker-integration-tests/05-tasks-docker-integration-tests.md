@@ -63,7 +63,7 @@
 - [x] 1.9 Verify Docker build works: Run `docker build -t slash-man-test .` and confirm successful build
 - [x] 1.10 Verify Docker test execution works: Run `docker run --rm slash-man-test uv run pytest tests/integration/` (should pass with empty test suite initially)
 
-### [ ] 2.0 Basic CLI Command Tests
+### [~] 2.0 Basic CLI Command Tests
 
 #### 2.0 Demo Criteria
 
@@ -84,16 +84,18 @@
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Create `tests/integration/test_basic_commands.py` file
-- [ ] 2.2 Write test `test_main_help_command()` that uses `subprocess.run()` to execute `slash-man --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Manage slash commands", "generate", "cleanup", "mcp")
-- [ ] 2.3 Write test `test_main_version_command()` that uses `subprocess.run()` to execute `slash-man --version`, verifies exit code is 0, and uses exact text matching to verify version output matches pattern `slash-man <version>` (may include commit SHA)
-- [ ] 2.4 Write test `test_generate_help_command()` that uses `subprocess.run()` to execute `slash-man generate --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Generate slash commands", "--prompts-dir", "--agent", "--dry-run")
-- [ ] 2.5 Write test `test_cleanup_help_command()` that uses `subprocess.run()` to execute `slash-man cleanup --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Clean up generated slash commands", "--agent", "--dry-run", "--include-backups")
-- [ ] 2.6 Write test `test_mcp_help_command()` that uses `subprocess.run()` to execute `slash-man mcp --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Start the MCP server", "--transport", "--port", "--config")
-- [ ] 2.7 Write test `test_list_agents_command()` that uses `subprocess.run()` to execute `slash-man generate --list-agents`, verifies exit code is 0, and uses exact text matching to verify output contains all supported agent keys (claude-code, cursor, gemini-cli, vs-code, codex-cli, windsurf, opencode) and their display names
-- [ ] 2.8 Run tests in Docker: `docker run --rm slash-man-test uv run pytest tests/integration/test_basic_commands.py -v` and verify all tests pass
+- [x] 2.1 Create `tests/integration/test_basic_commands.py` file
+- [x] 2.2 Write test `test_main_help_command()` that uses `subprocess.run()` to execute `slash-man --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Manage slash commands", "generate", "cleanup", "mcp")
+- [x] 2.3 Write test `test_main_version_command()` that uses `subprocess.run()` to execute `slash-man --version`, verifies exit code is 0, and uses exact text matching to verify version output matches pattern `slash-man <version>` (may include commit SHA)
+- [x] 2.4 Write test `test_generate_help_command()` that uses `subprocess.run()` to execute `slash-man generate --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Generate slash commands", "--prompts-dir", "--agent", "--dry-run")
+- [x] 2.5 Write test `test_cleanup_help_command()` that uses `subprocess.run()` to execute `slash-man cleanup --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Clean up generated slash commands", "--agent", "--dry-run", "--include-backups")
+- [x] 2.6 Write test `test_mcp_help_command()` that uses `subprocess.run()` to execute `slash-man mcp --help`, verifies exit code is 0, and uses exact text matching to verify help output contains expected strings (e.g., "Start the MCP server", "--transport", "--port", "--config")
+- [x] 2.7 Write test `test_list_agents_command()` that uses `subprocess.run()` to execute `slash-man generate --list-agents`, verifies exit code is 0, and uses exact text matching to verify output contains all supported agent keys (claude-code, cursor, gemini-cli, vs-code, codex-cli, windsurf, opencode) and their display names
+- [x] 2.8 Run tests in Docker: `docker run --rm slash-man-test uv run pytest tests/integration/test_basic_commands.py -v` and verify all tests pass
 
-### [ ] 3.0 Generate Command Integration Tests
+### [x] 2.0 Basic CLI Command Tests
+
+### [~] 3.0 Generate Command Integration Tests
 
 #### 3.0 Demo Criteria
 
