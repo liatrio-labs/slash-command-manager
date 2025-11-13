@@ -161,3 +161,35 @@ jobs:
                   else:
                       raise Exception(f'Missing required file: {req}')
           PY
+
+  help-test:
+    name: Help Test (verify CLI help output)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies (frozen)
+        run: uv sync --all-groups --extra dev --frozen
+
+      - name: Test main command help
+        run: uv run slash-man --help
+
+      - name: Test generate subcommand help
+        run: uv run slash-man generate --help
+
+      - name: Test cleanup subcommand help
+        run: uv run slash-man cleanup --help

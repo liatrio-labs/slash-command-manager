@@ -93,6 +93,74 @@ slash-man --help
 slash-man cleanup
 ```
 
+### GitHub Repository Support
+
+You can download prompts directly from public GitHub repositories using explicit flags:
+
+```bash
+# Download prompts from a GitHub repository directory
+uv run slash-man generate \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch main \
+  --github-path prompts \
+  --agent claude-code \
+  --target-path /tmp/test-output
+
+# Download from a branch with slashes in the name
+uv run slash-man generate \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch refactor/improve-workflow \
+  --github-path prompts \
+  --agent claude-code \
+  --target-path /tmp/test-output
+
+# Download a single prompt file from GitHub
+uv run slash-man generate \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch refactor/improve-workflow \
+  --github-path prompts/generate-spec.md \
+  --agent claude-code \
+  --target-path /tmp/test-output
+
+# Download from a nested path
+uv run slash-man generate \
+  --github-repo owner/repo \
+  --github-branch main \
+  --github-path docs/prompts/commands \
+  --agent claude-code \
+  --target-path /tmp/test-output
+```
+
+**Important Notes:**
+
+- All three GitHub flags (`--github-repo`, `--github-branch`, `--github-path`) must be provided together
+- GitHub flags are mutually exclusive with `--prompts-dir` (cannot use both)
+- Repository must be in format `owner/repo` (e.g., `liatrio-labs/spec-driven-workflow`)
+- Only public repositories are supported
+- Only `.md` files are downloaded and processed
+- The `--github-path` can point to either a directory or a single `.md` file
+
+**Error Handling:**
+
+```bash
+# Invalid repository format
+uv run slash-man generate --github-repo invalid-format --target-path /tmp/test-output
+# Error: Repository must be in format owner/repo, got: 'invalid-format'. Example: liatrio-labs/spec-driven-workflow
+
+# Missing required flags
+uv run slash-man generate --github-repo owner/repo --target-path /tmp/test-output
+# Error: All GitHub flags must be provided together. Missing: --github-branch, --github-path
+
+# Mutual exclusivity error
+uv run slash-man generate \
+  --prompts-dir ./prompts \
+  --github-repo owner/repo \
+  --github-branch main \
+  --github-path prompts \
+  --target-path /tmp/test-output
+# Error: Cannot specify both --prompts-dir and GitHub repository flags simultaneously
+```
+
 ### MCP Server Usage
 
 Run the MCP server for programmatic access:

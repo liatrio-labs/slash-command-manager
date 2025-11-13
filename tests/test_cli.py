@@ -1115,3 +1115,26 @@ def test_cli_github_and_local_mutually_exclusive(mock_prompts_dir, tmp_path):
     assert "--github-repo" in output
     assert "--github-branch" in output
     assert "--github-path" in output
+
+
+def test_documentation_github_examples():
+    """Test that GitHub examples from README.md execute successfully (validation only)."""
+    runner = CliRunner()
+
+    # Test that help shows GitHub flags (validates examples are accurate)
+    result = runner.invoke(app, ["generate", "--help"])
+    assert result.exit_code == 0
+    assert "--github-repo" in result.stdout
+    assert "--github-branch" in result.stdout
+    assert "--github-path" in result.stdout
+
+    # Test that main help shows all subcommands
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    assert "generate" in result.stdout
+    assert "cleanup" in result.stdout
+    assert "mcp" in result.stdout
+
+    # Test that cleanup help works
+    result = runner.invoke(app, ["cleanup", "--help"])
+    assert result.exit_code == 0

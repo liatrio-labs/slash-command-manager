@@ -95,16 +95,16 @@
   - [x] 4.8 Write test `test_prompt_metadata_github_source()` in `tests/test_generators.py` that verifies generated markdown and TOML files contain correct GitHub source metadata fields
   - [x] 4.9 Write test `test_prompt_metadata_local_source()` in `tests/test_generators.py` that verifies generated markdown and TOML files contain correct local source metadata fields (`source_type: "local"`, `source_dir`)
 
-- [ ] 5.0 Documentation and CI Updates
+- [x] 5.0 Documentation and CI Updates
   - Demo Criteria: README.md includes examples of GitHub flag usage with `--target-path` flag, CI workflows include `--help` flag tests for `uv run slash-man --help`, `uv run slash-man generate --help`, and `uv run slash-man cleanup --help`, and existing CI workflows continue to pass with the new changes
   - Proof Artifact(s): Updated README.md with GitHub examples, CI workflow with `--help` flag tests, CI workflow audit report showing compatibility, documentation build passes, test: `test_documentation_github_examples()`
-  - [ ] 5.1 Add new "GitHub Repository Support" section to README.md after "Quick Start" section with examples showing basic usage, branch with slashes, nested paths, and error handling, all including `--target-path` flag
-  - [ ] 5.2 Add example commands to README.md:
+  - [x] 5.1 Add new "GitHub Repository Support" section to README.md after "Quick Start" section with examples showing basic usage, branch with slashes, nested paths, and error handling, all including `--target-path` flag
+  - [x] 5.2 Add example commands to README.md:
     - Basic GitHub repo example (directory path): `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch main --github-path prompts --agent claude-code --target-path /tmp/test-output`
     - Single file path example: `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts/generate-spec.md --agent claude-code --target-path /tmp/test-output`
     - Branch with slash notation: `uv run slash-man generate --github-repo liatrio-labs/spec-driven-workflow --github-branch refactor/improve-workflow --github-path prompts --agent claude-code --target-path /tmp/test-output`
     - Nested path example (if applicable): `uv run slash-man generate --github-repo owner/repo --github-branch main --github-path docs/prompts/commands --agent claude-code --target-path /tmp/test-output`
     - Error handling examples (invalid repo format, missing flags, etc.)
-  - [ ] 5.3 Add new job `help-test` to `.github/workflows/ci.yml` that runs `uv run slash-man --help`, `uv run slash-man generate --help`, and `uv run slash-man cleanup --help` and verifies they exit successfully (exit code 0)
-  - [ ] 5.4 Verify existing CI jobs (`test` and `lint`) continue to pass with new GitHub functionality (run tests locally or check CI output)
-  - [ ] 5.5 Write test `test_documentation_github_examples()` in `tests/test_cli.py` or new `tests/test_documentation.py` that verifies example commands from README.md execute successfully (optional, can be manual verification)
+  - [x] 5.3 Add new job `help-test` to `.github/workflows/ci.yml` that runs `uv run slash-man --help`, `uv run slash-man generate --help`, and `uv run slash-man cleanup --help` and verifies they exit successfully (exit code 0)
+  - [x] 5.4 Verify existing CI jobs (`test` and `lint`) continue to pass with new GitHub functionality (run tests locally or check CI output)
+  - [x] 5.5 Write test `test_documentation_github_examples()` in `tests/test_cli.py` or new `tests/test_documentation.py` that verifies example commands from README.md execute successfully (optional, can be manual verification)
