@@ -993,9 +993,11 @@ def test_cli_github_flags_validation():
     result = runner.invoke(app, ["generate", "--help"])
 
     assert result.exit_code == 0
-    assert "--github-repo" in result.stdout
-    assert "--github-branch" in result.stdout
-    assert "--github-path" in result.stdout
+    # Strip ANSI escape codes for comparison (Rich formats help output)
+    output = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--github-repo" in output
+    assert "--github-branch" in output
+    assert "--github-path" in output
 
 
 def test_validate_github_repo_invalid_format():
@@ -1124,9 +1126,11 @@ def test_documentation_github_examples():
     # Test that help shows GitHub flags (validates examples are accurate)
     result = runner.invoke(app, ["generate", "--help"])
     assert result.exit_code == 0
-    assert "--github-repo" in result.stdout
-    assert "--github-branch" in result.stdout
-    assert "--github-path" in result.stdout
+    # Strip ANSI escape codes for comparison (Rich formats help output)
+    output = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--github-repo" in output
+    assert "--github-branch" in output
+    assert "--github-path" in output
 
     # Test that main help shows all subcommands
     result = runner.invoke(app, ["--help"])
