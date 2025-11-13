@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "ruff>=0.1.0", "pre-commit>=3.0.0"]
+dev = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "pytest-httpx>=0.30.0", "ruff>=0.1.0", "pre-commit>=3.0.0"]
 
 [project.scripts]
 slash-man = "slash_commands.cli:main"

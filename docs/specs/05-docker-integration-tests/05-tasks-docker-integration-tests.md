@@ -30,7 +30,7 @@
 
 ## Tasks
 
-### [ ] 1.0 Docker Test Environment Setup and Infrastructure
+### [x] 1.0 Docker Test Environment Setup and Infrastructure
 
 #### 1.0 Demo Criteria
 
@@ -48,20 +48,20 @@
 
 #### 1.0 Tasks
 
-- [ ] 1.1 Add `pytest-httpx` dependency to `pyproject.toml` in the `[project.optional-dependencies]` dev section (check if already present first)
-- [ ] 1.2 Create `tests/integration/` directory structure
-- [ ] 1.3 Create `tests/integration/__init__.py` empty file to make it a Python package
-- [ ] 1.4 Create `tests/integration/fixtures/prompts/` directory structure
-- [ ] 1.5 Create `tests/integration/fixtures/prompts/test-prompt-1.md` with valid prompt file content (include frontmatter with name, description, tags, arguments, meta fields, and body content)
-- [ ] 1.6 Create `tests/integration/fixtures/prompts/test-prompt-2.md` with valid prompt file content (different name and content)
-- [ ] 1.7 Create `tests/integration/fixtures/prompts/test-prompt-3.md` with valid prompt file content (different name and content)
-- [ ] 1.8 Create `tests/integration/conftest.py` with pytest fixtures:
+- [x] 1.1 Add `pytest-httpx` dependency to `pyproject.toml` in the `[project.optional-dependencies]` dev section (check if already present first)
+- [x] 1.2 Create `tests/integration/` directory structure
+- [x] 1.3 Create `tests/integration/__init__.py` empty file to make it a Python package
+- [x] 1.4 Create `tests/integration/fixtures/prompts/` directory structure
+- [x] 1.5 Create `tests/integration/fixtures/prompts/test-prompt-1.md` with valid prompt file content (include frontmatter with name, description, tags, arguments, meta fields, and body content)
+- [x] 1.6 Create `tests/integration/fixtures/prompts/test-prompt-2.md` with valid prompt file content (different name and content)
+- [x] 1.7 Create `tests/integration/fixtures/prompts/test-prompt-3.md` with valid prompt file content (different name and content)
+- [x] 1.8 Create `tests/integration/conftest.py` with pytest fixtures:
   - `temp_test_dir` fixture that creates temporary directory for test execution
   - `test_prompts_dir` fixture that returns path to `tests/integration/fixtures/prompts/`
   - `mock_github_api` fixture using pytest-httpx for mocking GitHub API responses
   - `clean_agent_dirs` fixture that ensures agent directories are clean before each test
-- [ ] 1.9 Verify Docker build works: Run `docker build -t slash-man-test .` and confirm successful build
-- [ ] 1.10 Verify Docker test execution works: Run `docker run --rm slash-man-test uv run pytest tests/integration/` (should pass with empty test suite initially)
+- [x] 1.9 Verify Docker build works: Run `docker build -t slash-man-test .` and confirm successful build
+- [x] 1.10 Verify Docker test execution works: Run `docker run --rm slash-man-test uv run pytest tests/integration/` (should pass with empty test suite initially)
 
 ### [ ] 2.0 Basic CLI Command Tests
 
