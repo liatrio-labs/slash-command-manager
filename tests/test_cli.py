@@ -1086,3 +1086,32 @@ def test_cli_github_flags_missing_required():
     output = result.stdout + result.stderr
     assert "All GitHub flags must be provided together" in output
     assert "--github-repo" in output
+
+
+def test_cli_github_and_local_mutually_exclusive(mock_prompts_dir, tmp_path):
+    """Test that mutual exclusivity error is raised when both --prompts-dir and GitHub flags are provided."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--github-repo",
+            "owner/repo",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--target-path",
+            str(tmp_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    output = result.stdout + result.stderr
+    assert "Cannot specify both --prompts-dir and GitHub repository flags" in output
+    assert "--github-repo" in output
+    assert "--github-branch" in output
+    assert "--github-path" in output

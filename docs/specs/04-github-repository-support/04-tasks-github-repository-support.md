@@ -49,12 +49,12 @@
   - [x] 1.8 Write test `test_validate_github_repo_invalid_format()` in `tests/test_cli.py` that verifies invalid repository format produces clear error message
   - [x] 1.9 Write test `test_cli_github_flags_missing_required()` in `tests/test_cli.py` that verifies missing required flags produce clear error message
 
-- [ ] 2.0 GitHub and Local Directory Mutual Exclusivity
+- [x] 2.0 GitHub and Local Directory Mutual Exclusivity
   - Demo Criteria: Running `uv run slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output` shows error explaining mutual exclusivity with clear message
   - Proof Artifact(s): CLI error message output, test: `test_cli_github_and_local_mutually_exclusive()`
-  - [ ] 2.1 Add validation logic in `generate()` function in `slash_commands/cli.py` that checks if both `--prompts-dir` and any GitHub flag (`--github-repo`, `--github-branch`, or `--github-path`) are provided simultaneously
-  - [ ] 2.2 When both are detected, print clear error message to stderr explaining mutual exclusivity (e.g., "Error: Cannot specify both --prompts-dir and GitHub repository flags (--github-repo, --github-branch, --github-path) simultaneously") and raise `typer.Exit(code=2)`
-  - [ ] 2.3 Write test `test_cli_github_and_local_mutually_exclusive()` in `tests/test_cli.py` that verifies mutual exclusivity error is raised with clear message when both are provided
+  - [x] 2.1 Add validation logic in `generate()` function in `slash_commands/cli.py` that checks if both `--prompts-dir` and any GitHub flag (`--github-repo`, `--github-branch`, or `--github-path`) are provided simultaneously
+  - [x] 2.2 When both are detected, print clear error message to stderr explaining mutual exclusivity (e.g., "Error: Cannot specify both --prompts-dir and GitHub repository flags (--github-repo, --github-branch, --github-path) simultaneously") and raise `typer.Exit(code=2)`
+  - [x] 2.3 Write test `test_cli_github_and_local_mutually_exclusive()` in `tests/test_cli.py` that verifies mutual exclusivity error is raised with clear message when both are provided
 
 - [ ] 3.0 GitHub Prompt Download and Loading
   - Demo Criteria:
