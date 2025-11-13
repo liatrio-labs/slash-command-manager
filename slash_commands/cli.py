@@ -20,6 +20,7 @@ from slash_commands import (
     list_agent_keys,
 )
 from slash_commands.__version__ import __version_with_commit__
+from slash_commands.github_utils import validate_github_repo
 
 app = typer.Typer(
     name="slash-man",
@@ -141,8 +142,68 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             help="List all supported agents and exit",
         ),
     ] = False,
+    github_repo: Annotated[
+        str | None,
+        typer.Option(
+            "--github-repo",
+            help="GitHub repository in format owner/repo",
+        ),
+    ] = None,
+    github_branch: Annotated[
+        str | None,
+        typer.Option(
+            "--github-branch",
+            help="GitHub branch name (e.g., main, release/v1.0)",
+        ),
+    ] = None,
+    github_path: Annotated[
+        str | None,
+        typer.Option(
+            "--github-path",
+            help=(
+                "Path to prompts directory or single prompt file within repository "
+                "(e.g., 'prompts' for directory, 'prompts/my-prompt.md' for file)"
+            ),
+        ),
+    ] = None,
 ) -> None:
     """Generate slash commands for AI code assistants."""
+    # Validate GitHub flags
+    github_flags_provided = [
+        flag for flag in [github_repo, github_branch, github_path] if flag is not None
+    ]
+    if github_flags_provided:
+        # Check if all three GitHub flags are provided together
+        if len(github_flags_provided) != 3:
+            missing_flags = []
+            if github_repo is None:
+                missing_flags.append("--github-repo")
+            if github_branch is None:
+                missing_flags.append("--github-branch")
+            if github_path is None:
+                missing_flags.append("--github-path")
+            print(
+                f"Error: All GitHub flags must be provided together. "
+                f"Missing: {', '.join(missing_flags)}",
+                file=sys.stderr,
+            )
+            print(
+                "\nTo fix this:",
+                file=sys.stderr,
+            )
+            print(
+                "  - Provide all three flags: --github-repo, --github-branch, --github-path",
+                file=sys.stderr,
+            )
+            raise typer.Exit(code=2) from None  # Validation error
+
+        # Validate GitHub repository format
+        try:
+            validate_github_repo(github_repo)
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            raise typer.Exit(code=2) from None  # Validation error
+
     # Handle --list-agents
     if list_agents_flag:
         # Create Rich table

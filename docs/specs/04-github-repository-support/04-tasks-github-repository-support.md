@@ -36,18 +36,18 @@
 
 ## Tasks
 
-- [ ] 1.0 GitHub Repository Flag Integration and Validation
+- [x] 1.0 GitHub Repository Flag Integration and Validation
   - Demo Criteria: Running `uv run slash-man generate --github-repo owner/repo --github-branch main --github-path prompts --agent claude-code --dry-run --target-path /tmp/test-output` successfully validates flags and shows prompts that would be downloaded. Running `uv run slash-man generate --github-repo invalid-format --target-path /tmp/test-output` shows clear error: "Repository must be in format owner/repo, got: invalid-format. Example: liatrio-labs/spec-driven-workflow"
   - Proof Artifact(s): CLI help output showing new flags (`--github-repo`, `--github-branch`, `--github-path`), successful command execution with dry-run output, error output showing validation messages, test: `test_cli_github_flags_validation()`, test: `test_validate_github_repo_invalid_format()`, test: `test_cli_github_flags_missing_required()`
-  - [ ] 1.1 Add `requests` dependency to `pyproject.toml` in the dependencies list (check if already present first)
-  - [ ] 1.2 Create `slash_commands/github_utils.py` with `validate_github_repo()` function that validates `owner/repo` format (must contain exactly one `/`) and returns tuple `(owner, repo)` or raises ValueError with helpful error message including example
-  - [ ] 1.3 Write test `test_validate_github_repo()` in `tests/test_cli.py` or new `tests/test_github_utils.py` that tests valid formats (e.g., "owner/repo", "liatrio-labs/spec-driven-workflow") and invalid formats (e.g., "invalid-format", "owner/repo/extra", "", "owner", "owner/")
-  - [ ] 1.4 Add three CLI flags to `generate()` function in `slash_commands/cli.py`: `--github-repo`, `--github-branch`, and `--github-path` using `typer.Option()` with appropriate help text. For `--github-path`, help text should indicate it can be a directory or single file (e.g., "Path to prompts directory or single prompt file within repository (e.g., 'prompts' for directory, 'prompts/my-prompt.md' for file)")
-  - [ ] 1.5 Add validation logic in `generate()` function that calls `validate_github_repo()` when `--github-repo` is provided, catching ValueError and printing clear error message with example before raising `typer.Exit(code=2)`
-  - [ ] 1.6 Add validation logic that requires all three GitHub flags (`--github-repo`, `--github-branch`, `--github-path`) to be provided together when any one is provided, raising clear error with `typer.Exit(code=2)` if any are missing
-  - [ ] 1.7 Write test `test_cli_github_flags_validation()` in `tests/test_cli.py` that verifies CLI help shows new flags and validates successful flag parsing
-  - [ ] 1.8 Write test `test_validate_github_repo_invalid_format()` in `tests/test_cli.py` that verifies invalid repository format produces clear error message
-  - [ ] 1.9 Write test `test_cli_github_flags_missing_required()` in `tests/test_cli.py` that verifies missing required flags produce clear error message
+  - [x] 1.1 Add `requests` dependency to `pyproject.toml` in the dependencies list (check if already present first)
+  - [x] 1.2 Create `slash_commands/github_utils.py` with `validate_github_repo()` function that validates `owner/repo` format (must contain exactly one `/`) and returns tuple `(owner, repo)` or raises ValueError with helpful error message including example
+  - [x] 1.3 Write test `test_validate_github_repo()` in `tests/test_cli.py` or new `tests/test_github_utils.py` that tests valid formats (e.g., "owner/repo", "liatrio-labs/spec-driven-workflow") and invalid formats (e.g., "invalid-format", "owner/repo/extra", "", "owner", "owner/")
+  - [x] 1.4 Add three CLI flags to `generate()` function in `slash_commands/cli.py`: `--github-repo`, `--github-branch`, and `--github-path` using `typer.Option()` with appropriate help text. For `--github-path`, help text should indicate it can be a directory or single file (e.g., "Path to prompts directory or single prompt file within repository (e.g., 'prompts' for directory, 'prompts/my-prompt.md' for file)")
+  - [x] 1.5 Add validation logic in `generate()` function that calls `validate_github_repo()` when `--github-repo` is provided, catching ValueError and printing clear error message with example before raising `typer.Exit(code=2)`
+  - [x] 1.6 Add validation logic that requires all three GitHub flags (`--github-repo`, `--github-branch`, `--github-path`) to be provided together when any one is provided, raising clear error with `typer.Exit(code=2)` if any are missing
+  - [x] 1.7 Write test `test_cli_github_flags_validation()` in `tests/test_cli.py` that verifies CLI help shows new flags and validates successful flag parsing
+  - [x] 1.8 Write test `test_validate_github_repo_invalid_format()` in `tests/test_cli.py` that verifies invalid repository format produces clear error message
+  - [x] 1.9 Write test `test_cli_github_flags_missing_required()` in `tests/test_cli.py` that verifies missing required flags produce clear error message
 
 - [ ] 2.0 GitHub and Local Directory Mutual Exclusivity
   - Demo Criteria: Running `uv run slash-man generate --prompts-dir ./prompts --github-repo owner/repo --github-branch main --github-path prompts --target-path /tmp/test-output` shows error explaining mutual exclusivity with clear message
