@@ -1,11 +1,22 @@
 """Pytest fixtures for integration tests."""
 
-import base64
+import shutil
+import sys
 import tempfile
 from pathlib import Path
 
 import pytest
-import pytest_httpx
+
+# Repository root directory
+REPO_ROOT = Path(__file__).parent.parent.parent
+
+
+def pytest_collection_modifyitems(config, items):
+    """Automatically mark all tests in the integration directory as integration tests."""
+    for item in items:
+        # Check if test is in the integration directory
+        if "integration" in str(item.fspath):
+            item.add_marker(pytest.mark.integration)
 
 
 @pytest.fixture
@@ -27,79 +38,6 @@ def test_prompts_dir():
         Path to tests/integration/fixtures/prompts/
     """
     return Path(__file__).parent / "fixtures" / "prompts"
-
-
-@pytest.fixture
-def mock_github_api(httpx_mock, test_prompts_dir):
-    """Mock GitHub API responses using pytest-httpx.
-
-    This fixture sets up common GitHub API mocks for integration tests.
-    Tests can override these mocks as needed.
-
-    Args:
-        httpx_mock: pytest-httpx mock fixture
-        test_prompts_dir: Path to test prompts directory
-
-    Yields:
-        httpx_mock: The mock object for further customization
-    """
-
-    # Helper function to encode content as base64 (GitHub API format)
-    def encode_content(content: str) -> str:
-        return base64.b64encode(content.encode("utf-8")).decode("utf-8")
-
-    # Read test prompt files
-    prompt_files = {}
-    for prompt_file in test_prompts_dir.glob("*.md"):
-        prompt_files[prompt_file.name] = prompt_file.read_text(encoding="utf-8")
-
-    # Default mock: directory listing with test prompts
-    def directory_response(request):
-        """Return directory listing response."""
-        items = []
-        for filename, content in prompt_files.items():
-            items.append(
-                {
-                    "type": "file",
-                    "name": filename,
-                    "content": encode_content(content),
-                    "encoding": "base64",
-                }
-            )
-        return pytest_httpx.HTTPXMockResponse(json=items, status_code=200)
-
-    # Default mock: single file response
-    def file_response(request):
-        """Return single file response."""
-        # Extract filename from path
-        path = request.url.path.split("/")[-1]
-        filename = Path(path).name
-
-        if filename in prompt_files:
-            content = prompt_files[filename]
-            return pytest_httpx.HTTPXMockResponse(
-                json={
-                    "type": "file",
-                    "name": filename,
-                    "content": encode_content(content),
-                    "encoding": "base64",
-                },
-                status_code=200,
-            )
-        # File not found
-        return pytest_httpx.HTTPXMockResponse(status_code=404)
-
-    # Register default mocks (can be overridden in tests)
-    httpx_mock.add_callback(
-        directory_response,
-        url="https://api.github.com/repos/owner/repo/contents/prompts",
-    )
-    httpx_mock.add_callback(
-        file_response,
-        url="https://api.github.com/repos/owner/repo/contents/prompts/test-prompt-1.md",
-    )
-
-    yield httpx_mock
 
 
 @pytest.fixture
@@ -133,3 +71,34 @@ def clean_agent_dirs(temp_test_dir):
     yield temp_test_dir
 
     # Cleanup happens automatically via tempfile.TemporaryDirectory
+
+
+def get_slash_man_command():
+    """Get the slash-man command to execute."""
+    venv_bin = REPO_ROOT / ".venv" / "bin" / "slash-man"
+    if venv_bin.exists():
+        return [str(venv_bin)]
+    uv_path = shutil.which("uv")
+    if uv_path:
+        return [uv_path, "run", "slash-man"]
+    return [sys.executable, "-m", "slash_commands.cli"]
+
+
+def run_command(args):
+    """Run slash-man command and return result.
+
+    Args:
+        args: List of command arguments (without the base command)
+
+    Returns:
+        CompletedProcess result from subprocess.run
+    """
+    import subprocess
+
+    cmd = get_slash_man_command() + args
+    return subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )

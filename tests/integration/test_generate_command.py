@@ -1,13 +1,12 @@
 """Integration tests for generate command."""
 
 import re
-import shutil
 import subprocess
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
+
+from .conftest import REPO_ROOT, get_slash_man_command
 
 try:
     from slash_commands.config import get_agent_config
@@ -16,20 +15,9 @@ except ImportError:
     get_agent_config = None
 
 
-def _get_slash_man_command():
-    """Get the slash-man command to execute."""
-    venv_bin = Path(__file__).parent.parent.parent / ".venv" / "bin" / "slash-man"
-    if venv_bin.exists():
-        return [str(venv_bin)]
-    uv_path = shutil.which("uv")
-    if uv_path:
-        return [uv_path, "run", "slash-man"]
-    return [sys.executable, "-m", "slash_commands.cli"]
-
-
 def test_generate_with_prompts_dir_and_agent(temp_test_dir, test_prompts_dir):
     """Test generate with prompts-dir, agent, and target-path."""
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -43,7 +31,7 @@ def test_generate_with_prompts_dir_and_agent(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -53,7 +41,7 @@ def test_generate_with_prompts_dir_and_agent(temp_test_dir, test_prompts_dir):
 
 def test_generate_dry_run_mode(temp_test_dir, test_prompts_dir):
     """Test generate with dry-run mode doesn't create files."""
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -68,7 +56,7 @@ def test_generate_dry_run_mode(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -79,7 +67,7 @@ def test_generate_dry_run_mode(temp_test_dir, test_prompts_dir):
 
 def test_generate_multiple_agents(temp_test_dir, test_prompts_dir):
     """Test generate with multiple agents creates files for both."""
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -95,7 +83,7 @@ def test_generate_multiple_agents(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -112,7 +100,7 @@ def test_generate_with_detection_path(temp_test_dir, test_prompts_dir):
     (detection_dir / ".claude").mkdir(parents=True)
     (detection_dir / ".cursor").mkdir(parents=True)
 
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -126,7 +114,7 @@ def test_generate_with_detection_path(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -139,7 +127,7 @@ def test_generate_with_detection_path(temp_test_dir, test_prompts_dir):
 
 def test_generate_file_content_structure(temp_test_dir, test_prompts_dir):
     """Test generated file content structure includes required metadata."""
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -153,7 +141,7 @@ def test_generate_file_content_structure(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -170,7 +158,7 @@ def test_generate_file_content_structure(temp_test_dir, test_prompts_dir):
 
 def test_generate_exact_file_content(temp_test_dir, test_prompts_dir):
     """Test generated file content matches expected structure."""
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -184,7 +172,7 @@ def test_generate_exact_file_content(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -194,12 +182,12 @@ def test_generate_exact_file_content(temp_test_dir, test_prompts_dir):
     content = generated_file.read_text(encoding="utf-8")
     # Verify it's a valid markdown file with frontmatter
     assert content.startswith("---")
-    assert "test-prompt-1" in content or "test-prompt-1" in content.lower()
+    assert "test-prompt-1" in content.lower()
 
 
 def test_generate_file_permissions(temp_test_dir, test_prompts_dir):
     """Test generated files have correct permissions."""
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -213,7 +201,7 @@ def test_generate_file_permissions(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -229,13 +217,16 @@ def test_generate_file_permissions(temp_test_dir, test_prompts_dir):
 
 def test_generate_all_supported_agents(temp_test_dir, test_prompts_dir):
     """Test generate works for all supported agents."""
+    if get_agent_config is None:
+        pytest.skip("get_agent_config not available")
+
     agents = ["claude-code", "cursor", "gemini-cli", "vs-code", "codex-cli", "windsurf", "opencode"]
 
     for agent in agents:
         agent_temp_dir = temp_test_dir / f"agent_{agent}"
         agent_temp_dir.mkdir()
 
-        cmd = _get_slash_man_command() + [
+        cmd = get_slash_man_command() + [
             "generate",
             "--prompts-dir",
             str(test_prompts_dir),
@@ -249,15 +240,12 @@ def test_generate_all_supported_agents(temp_test_dir, test_prompts_dir):
             cmd,
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent.parent.parent,
+            cwd=REPO_ROOT,
         )
 
         assert result.returncode == 0, f"Failed for agent {agent}: {result.stderr}"
 
         # Verify file was created in correct agent-specific directory
-        if get_agent_config is None:
-            pytest.skip("get_agent_config not available")
-
         agent_config = get_agent_config(agent)
         expected_dir = agent_temp_dir / agent_config.command_dir
         assert expected_dir.exists(), (
@@ -274,7 +262,7 @@ def test_generate_creates_parent_directories(temp_test_dir, test_prompts_dir):
     # Use a deeply nested path that doesn't exist
     nested_path = temp_test_dir / "deep" / "nested" / "path"
 
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -288,7 +276,7 @@ def test_generate_creates_parent_directories(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -300,7 +288,7 @@ def test_generate_creates_parent_directories(temp_test_dir, test_prompts_dir):
 def test_generate_creates_backup_files(temp_test_dir, test_prompts_dir):
     """Test backup file creation pattern."""
     # First generate a file
-    cmd = _get_slash_man_command() + [
+    cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -314,7 +302,7 @@ def test_generate_creates_backup_files(temp_test_dir, test_prompts_dir):
         cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 

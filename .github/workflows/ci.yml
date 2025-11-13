@@ -203,11 +203,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build Docker image
         run: docker build -t slash-man-test .
 
       - name: Run integration tests
-        run: docker run --rm slash-man-test sh -c "cd /app && /usr/local/bin/python -m uv run pytest tests/integration/ -v"
+        run: docker run --rm slash-man-test uv run pytest tests/integration/ -v

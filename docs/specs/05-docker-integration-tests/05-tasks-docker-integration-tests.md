@@ -93,11 +93,7 @@
 - [x] 2.7 Write test `test_list_agents_command()` that uses `subprocess.run()` to execute `slash-man generate --list-agents`, verifies exit code is 0, and uses exact text matching to verify output contains all supported agent keys (claude-code, cursor, gemini-cli, vs-code, codex-cli, windsurf, opencode) and their display names
 - [x] 2.8 Run tests in Docker: `docker run --rm slash-man-test uv run pytest tests/integration/test_basic_commands.py -v` and verify all tests pass
 
-### [x] 2.0 Basic CLI Command Tests
-
 ### [x] 3.0 Generate Command Integration Tests
-
-### [~] 4.0 GitHub Integration Tests
 
 #### 3.0 Demo Criteria
 

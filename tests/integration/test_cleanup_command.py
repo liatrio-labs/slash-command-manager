@@ -1,27 +1,15 @@
 """Integration tests for cleanup command."""
 
-import shutil
 import subprocess
-import sys
 from datetime import UTC, datetime
-from pathlib import Path
 
-
-def _get_slash_man_command():
-    """Get the slash-man command to execute."""
-    venv_bin = Path(__file__).parent.parent.parent / ".venv" / "bin" / "slash-man"
-    if venv_bin.exists():
-        return [str(venv_bin)]
-    uv_path = shutil.which("uv")
-    if uv_path:
-        return [uv_path, "run", "slash-man"]
-    return [sys.executable, "-m", "slash_commands.cli"]
+from .conftest import REPO_ROOT, get_slash_man_command
 
 
 def test_cleanup_dry_run_mode(temp_test_dir, test_prompts_dir):
     """Test cleanup with dry-run mode shows files without deleting."""
     # First generate files
-    generate_cmd = _get_slash_man_command() + [
+    generate_cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -35,7 +23,7 @@ def test_cleanup_dry_run_mode(temp_test_dir, test_prompts_dir):
         generate_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 
@@ -43,7 +31,7 @@ def test_cleanup_dry_run_mode(temp_test_dir, test_prompts_dir):
     assert generated_file.exists()
 
     # Now test cleanup dry-run (needs --yes to skip confirmation)
-    cleanup_cmd = _get_slash_man_command() + [
+    cleanup_cmd = get_slash_man_command() + [
         "cleanup",
         "--agent",
         "claude-code",
@@ -56,7 +44,7 @@ def test_cleanup_dry_run_mode(temp_test_dir, test_prompts_dir):
         cleanup_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -67,7 +55,7 @@ def test_cleanup_dry_run_mode(temp_test_dir, test_prompts_dir):
 def test_cleanup_removes_generated_files(temp_test_dir, test_prompts_dir):
     """Test cleanup removes generated files."""
     # First generate files
-    generate_cmd = _get_slash_man_command() + [
+    generate_cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -81,7 +69,7 @@ def test_cleanup_removes_generated_files(temp_test_dir, test_prompts_dir):
         generate_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 
@@ -89,7 +77,7 @@ def test_cleanup_removes_generated_files(temp_test_dir, test_prompts_dir):
     assert generated_file.exists()
 
     # Now cleanup
-    cleanup_cmd = _get_slash_man_command() + [
+    cleanup_cmd = get_slash_man_command() + [
         "cleanup",
         "--agent",
         "claude-code",
@@ -101,7 +89,7 @@ def test_cleanup_removes_generated_files(temp_test_dir, test_prompts_dir):
         cleanup_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -112,7 +100,7 @@ def test_cleanup_removes_generated_files(temp_test_dir, test_prompts_dir):
 def test_cleanup_includes_backups(temp_test_dir, test_prompts_dir):
     """Test cleanup includes backup files when --include-backups is used."""
     # First generate files
-    generate_cmd = _get_slash_man_command() + [
+    generate_cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -126,7 +114,7 @@ def test_cleanup_includes_backups(temp_test_dir, test_prompts_dir):
         generate_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 
@@ -140,7 +128,7 @@ def test_cleanup_includes_backups(temp_test_dir, test_prompts_dir):
     assert backup_file.exists()
 
     # Cleanup with --include-backups
-    cleanup_cmd = _get_slash_man_command() + [
+    cleanup_cmd = get_slash_man_command() + [
         "cleanup",
         "--agent",
         "claude-code",
@@ -153,7 +141,7 @@ def test_cleanup_includes_backups(temp_test_dir, test_prompts_dir):
         cleanup_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -165,7 +153,7 @@ def test_cleanup_includes_backups(temp_test_dir, test_prompts_dir):
 def test_cleanup_excludes_backups_by_default(temp_test_dir, test_prompts_dir):
     """Test cleanup excludes backup files when --no-backups is used."""
     # First generate files
-    generate_cmd = _get_slash_man_command() + [
+    generate_cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -179,7 +167,7 @@ def test_cleanup_excludes_backups_by_default(temp_test_dir, test_prompts_dir):
         generate_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 
@@ -193,7 +181,7 @@ def test_cleanup_excludes_backups_by_default(temp_test_dir, test_prompts_dir):
     assert backup_file.exists()
 
     # Cleanup with --no-backups (excludes backups)
-    cleanup_cmd = _get_slash_man_command() + [
+    cleanup_cmd = get_slash_man_command() + [
         "cleanup",
         "--agent",
         "claude-code",
@@ -206,7 +194,7 @@ def test_cleanup_excludes_backups_by_default(temp_test_dir, test_prompts_dir):
         cleanup_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -218,7 +206,7 @@ def test_cleanup_excludes_backups_by_default(temp_test_dir, test_prompts_dir):
 def test_cleanup_multiple_agents(temp_test_dir, test_prompts_dir):
     """Test cleanup with multiple agents."""
     # Generate files for multiple agents
-    generate_cmd = _get_slash_man_command() + [
+    generate_cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -234,7 +222,7 @@ def test_cleanup_multiple_agents(temp_test_dir, test_prompts_dir):
         generate_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 
@@ -244,7 +232,7 @@ def test_cleanup_multiple_agents(temp_test_dir, test_prompts_dir):
     assert cursor_file.exists()
 
     # Cleanup both agents
-    cleanup_cmd = _get_slash_man_command() + [
+    cleanup_cmd = get_slash_man_command() + [
         "cleanup",
         "--agent",
         "claude-code",
@@ -258,7 +246,7 @@ def test_cleanup_multiple_agents(temp_test_dir, test_prompts_dir):
         cleanup_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
@@ -269,7 +257,7 @@ def test_cleanup_multiple_agents(temp_test_dir, test_prompts_dir):
 def test_cleanup_all_agents(temp_test_dir, test_prompts_dir):
     """Test cleanup without --agent flag cleans all agents."""
     # Generate files for multiple agents
-    generate_cmd = _get_slash_man_command() + [
+    generate_cmd = get_slash_man_command() + [
         "generate",
         "--prompts-dir",
         str(test_prompts_dir),
@@ -285,7 +273,7 @@ def test_cleanup_all_agents(temp_test_dir, test_prompts_dir):
         generate_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0
 
@@ -295,7 +283,7 @@ def test_cleanup_all_agents(temp_test_dir, test_prompts_dir):
     assert cursor_file.exists()
 
     # Cleanup without --agent flag (should clean all)
-    cleanup_cmd = _get_slash_man_command() + [
+    cleanup_cmd = get_slash_man_command() + [
         "cleanup",
         "--target-path",
         str(temp_test_dir),
@@ -305,7 +293,7 @@ def test_cleanup_all_agents(temp_test_dir, test_prompts_dir):
         cleanup_cmd,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent.parent,
+        cwd=REPO_ROOT,
     )
 
     assert result.returncode == 0
