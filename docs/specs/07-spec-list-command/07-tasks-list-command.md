@@ -108,26 +108,26 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 2.8 Update discovery logic to handle both Markdown (using `parse_frontmatter()`) and TOML (using `tomllib`) formats. Handle parsing errors gracefully: catch `yaml.YAMLError` and `tomllib.TOMLDecodeError`, skip malformed files silently (per spec assumption), run tests to verify they pass
 - [x] 2.9 Write failing unit test `test_discover_managed_prompts_excludes_backup_files()` verifying backup files matching pattern `*.{extension}.{timestamp}.bak` (e.g., `command.md.20250115-123456.bak`) are excluded
 - [x] 2.10 Update discovery logic to exclude backup files, run test to verify it passes, then commit with message: `feat(list): exclude backup files from discovery`
-- [ ] 2.11 Write failing unit test `test_discover_managed_prompts_handles_empty_directories()` verifying empty directories are handled gracefully
-- [ ] 2.12 Update discovery logic to handle empty directories, run test to verify it passes
-- [ ] 2.13 Write failing unit test `test_discover_managed_prompts_handles_multiple_agents()` verifying multiple agents are discovered correctly
-- [ ] 2.14 Update discovery logic to handle multiple agents, run test to verify it passes, then commit with message: `feat(list): support multiple agent discovery`
-- [ ] 2.15 Create function `count_unmanaged_prompts()` in `slash_commands/list_discovery.py` that counts valid prompt files without `managed_by` field
-- [ ] 2.16 Write failing unit tests for unmanaged prompt detection:
+- [x] 2.11 Write failing unit test `test_discover_managed_prompts_handles_empty_directories()` verifying empty directories are handled gracefully
+- [x] 2.12 Update discovery logic to handle empty directories, run test to verify it passes
+- [x] 2.13 Write failing unit test `test_discover_managed_prompts_handles_multiple_agents()` verifying multiple agents are discovered correctly
+- [x] 2.14 Update discovery logic to handle multiple agents, run test to verify it passes, then commit with message: `feat(list): support multiple agent discovery`
+- [x] 2.15 Create function `count_unmanaged_prompts()` in `slash_commands/list_discovery.py` that counts valid prompt files without `managed_by` field
+- [x] 2.16 Write failing unit tests for unmanaged prompt detection:
   - `test_count_unmanaged_prompts_counts_valid_prompts_without_managed_by()` - counts valid prompt files without `managed_by`
   - `test_count_unmanaged_prompts_excludes_backup_files()` - excludes backup files
   - `test_count_unmanaged_prompts_excludes_managed_files()` - excludes managed files
   - `test_count_unmanaged_prompts_excludes_invalid_files()` - excludes files that aren't valid prompts
-- [ ] 2.17 Implement `count_unmanaged_prompts()` logic: scan files matching agent's `command_file_extension`, exclude backups (matching pattern `*.{extension}.{timestamp}.bak`) and managed files, attempt to parse remaining files, count only valid prompt files. Handle parsing errors gracefully (skip malformed files silently per spec assumption)
-- [ ] 2.18 Run tests to verify they pass, then commit with message: `feat(list): implement unmanaged prompt counting`
+- [x] 2.17 Implement `count_unmanaged_prompts()` logic: scan files matching agent's `command_file_extension`, exclude backups (matching pattern `*.{extension}.{timestamp}.bak`) and managed files, attempt to parse remaining files, count only valid prompt files. Handle parsing errors gracefully (skip malformed files silently per spec assumption)
+- [x] 2.18 Run tests to verify they pass, then commit with message: `feat(list): implement unmanaged prompt counting`
 - [ ] 2.19 Write failing integration test `test_list_discovers_managed_prompts()` in `tests/integration/test_list_command.py` that creates managed prompts across multiple agent directories and verifies discovery works
 - [ ] 2.20 Run integration test to verify it passes, then commit with message: `test(integration): verify list discovers managed prompts across agents`
-- [ ] 2.21 Write failing unit tests for error handling scenarios:
+- [x] 2.21 Write failing unit tests for error handling scenarios:
   - `test_discover_managed_prompts_handles_malformed_frontmatter()` - skips files with malformed frontmatter silently (per spec assumption)
   - `test_discover_managed_prompts_handles_permission_errors()` - handles permission errors gracefully (skip inaccessible files)
   - `test_discover_managed_prompts_handles_unicode_errors()` - handles Unicode decode errors gracefully
-- [ ] 2.22 Implement error handling in discovery logic: catch parsing errors, permission errors, and Unicode errors, skip problematic files silently (log warnings in debug mode per spec), run tests to verify they pass
-- [ ] 2.23 Commit with message: `feat(list): add error handling for malformed files and permission errors`
+- [x] 2.22 Implement error handling in discovery logic: catch parsing errors, permission errors, and Unicode errors, skip problematic files silently (log warnings in debug mode per spec), run tests to verify they pass
+- [x] 2.23 Commit with message: `feat(list): add error handling for malformed files and permission errors`
 - [ ] 2.24 Create CLI transcript proof artifact: run `slash-man list` and show discovery working correctly
 
 ### [ ] 3.0 Implement Backup Counting and Source Metadata Extraction

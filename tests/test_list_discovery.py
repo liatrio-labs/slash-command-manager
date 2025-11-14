@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 from slash_commands.list_discovery import count_unmanaged_prompts, discover_managed_prompts
 
@@ -385,3 +386,128 @@ invalid yaml: [unclosed
 
     # Verify only valid unmanaged file is counted
     assert result["cursor"] == 1
+
+
+def test_discover_managed_prompts_handles_malformed_frontmatter(tmp_path: Path):
+    """Test that files with malformed frontmatter are skipped silently."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed command file (valid)
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create file with malformed frontmatter (should be skipped)
+    malformed_file = cursor_dir / "malformed-command.md"
+    malformed_file.write_text(
+        """---
+name: malformed-command
+invalid yaml: [unclosed bracket
+meta:
+  managed_by: slash-man
+---
+# Malformed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Discover managed prompts
+    result = discover_managed_prompts(tmp_path, ["cursor"])
+
+    # Verify only valid managed file is discovered (malformed file skipped)
+    assert len(result) == 1
+    assert result[0]["name"] == "managed-command"
+
+
+def test_discover_managed_prompts_handles_unicode_errors(tmp_path: Path):
+    """Test that Unicode decode errors are handled gracefully."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed command file (valid)
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create file with invalid encoding (binary data that can't be decoded as UTF-8)
+    invalid_encoding_file = cursor_dir / "invalid-encoding.md"
+    invalid_encoding_file.write_bytes(b"\xff\xfe\x00\x01\x02\x03")
+
+    # Discover managed prompts
+    result = discover_managed_prompts(tmp_path, ["cursor"])
+
+    # Verify only valid managed file is discovered (invalid encoding file skipped)
+    assert len(result) == 1
+    assert result[0]["name"] == "managed-command"
+
+
+def test_discover_managed_prompts_handles_permission_errors(tmp_path: Path):
+    """Test that permission errors are handled gracefully."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed command file (valid)
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create file that will raise PermissionError when read
+    inaccessible_file = cursor_dir / "inaccessible-command.md"
+    inaccessible_file.write_text(
+        """---
+name: inaccessible-command
+meta:
+  managed_by: slash-man
+---
+# Inaccessible Command
+""",
+        encoding="utf-8",
+    )
+
+    # Mock _parse_command_file to simulate permission error for inaccessible_file
+    from slash_commands import list_discovery
+
+    original_parse = list_discovery._parse_command_file
+
+    def mock_parse_command_file(file_path: Path, agent):
+        if file_path == inaccessible_file:
+            raise PermissionError("Permission denied")
+        return original_parse(file_path, agent)
+
+    # Discover managed prompts with mocked permission error
+    with patch(
+        "slash_commands.list_discovery._parse_command_file", side_effect=mock_parse_command_file
+    ):
+        result = discover_managed_prompts(tmp_path, ["cursor"])
+
+    # Verify only accessible managed file is discovered (inaccessible file skipped)
+    assert len(result) == 1
+    assert result[0]["name"] == "managed-command"
