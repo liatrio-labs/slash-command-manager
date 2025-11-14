@@ -296,7 +296,7 @@ This command should be used whenever GitHub source metadata display or handling 
   - Demonstrate flag usage (`--agent`, `--target-path`, `--detection-path`, multiple `--agent` flags)
   - Show empty state message when no managed prompts found
 
-### [ ] 6.0 Extract Shared Utilities and Refactor for DRY Principles
+### [x] 6.0 Extract Shared Utilities and Refactor for DRY Principles
 
 #### 6.0 Demo Criteria
 
@@ -352,8 +352,8 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 6.20 Write failing unit tests for source metadata formatting utility in `tests/test_cli_utils.py`
 - [x] 6.21 Run tests to verify they pass, update `generate` and `list` commands to use shared utility, verify existing tests still pass
 - [x] 6.22 Commit with message: `refactor(cli): extract source metadata formatting utility`
-- [ ] 6.23 Run full test suite to verify both `generate` and `list` commands maintain existing functionality after refactoring
-- [ ] 6.24 Generate test coverage report and verify coverage remains >90% for refactored code
-- [ ] 6.25 Create code review diff showing extracted shared utilities and code reduction/consolidation
-- [ ] 6.26 Verify at least 3 shared utilities were extracted (as required by success metrics)
-- [ ] 6.27 Commit with message: `refactor(cli): consolidate shared utilities between generate and list commands`
+- [x] 6.23 Run full test suite to verify both `generate` and `list` commands maintain existing functionality after refactoring
+- [x] 6.24 Generate test coverage report and verify coverage remains >90% for refactored code
+- [x] 6.25 Create code review diff showing extracted shared utilities and code reduction/consolidation
+- [x] 6.26 Verify at least 3 shared utilities were extracted (as required by success metrics)
+- [x] 6.27 Commit with message: `refactor(cli): consolidate shared utilities between generate and list commands`
