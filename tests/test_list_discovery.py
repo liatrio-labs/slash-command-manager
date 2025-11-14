@@ -704,3 +704,156 @@ def test_format_source_info_missing_fields():
     result = format_source_info(meta_github_incomplete)
     # Should handle gracefully - show what we have
     assert result == "github: owner/repo"
+
+
+def test_build_list_data_structure_groups_by_prompt_name():
+    """Test that build_list_data_structure groups prompts by name (not by agent)."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure
+
+    # Create discovered prompts with same name but different agents
+    discovered_prompts = [
+        {
+            "name": "test-command",
+            "agent": "cursor",
+            "agent_display_name": "Cursor",
+            "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+            "meta": {
+                "managed_by": "slash-man",
+                "source_type": "local",
+                "source_dir": "/path/to/prompts",
+                "updated_at": "2025-01-15T10:00:00Z",
+            },
+            "format": "markdown",
+        },
+        {
+            "name": "test-command",  # Same name, different agent
+            "agent": "claude-code",
+            "agent_display_name": "Claude Code",
+            "file_path": Path("/tmp/.claude/commands/test-command.md"),
+            "meta": {
+                "managed_by": "slash-man",
+                "source_type": "local",
+                "source_dir": "/path/to/prompts",
+                "updated_at": "2025-01-15T10:00:00Z",
+            },
+            "format": "markdown",
+        },
+        {
+            "name": "other-command",  # Different name
+            "agent": "cursor",
+            "agent_display_name": "Cursor",
+            "file_path": Path("/tmp/.cursor/commands/other-command.md"),
+            "meta": {
+                "managed_by": "slash-man",
+                "source_type": "local",
+                "source_dir": "/path/to/prompts",
+                "updated_at": "2025-01-15T11:00:00Z",
+            },
+            "format": "markdown",
+        },
+    ]
+
+    unmanaged_counts = {"cursor": 1, "claude-code": 0}
+
+    result = build_list_data_structure(discovered_prompts, unmanaged_counts)
+
+    # Verify structure
+    assert "prompts" in result
+    assert "unmanaged_counts" in result
+
+    # Verify grouping by prompt name (should have 2 prompts, not 3)
+    assert len(result["prompts"]) == 2, "Should group by prompt name"
+
+    # Verify test-command has both agents
+    assert "test-command" in result["prompts"]
+    test_command = result["prompts"]["test-command"]
+    assert len(test_command["agents"]) == 2, "test-command should have 2 agents"
+
+    # Verify other-command has 1 agent
+    assert "other-command" in result["prompts"]
+    other_command = result["prompts"]["other-command"]
+    assert len(other_command["agents"]) == 1, "other-command should have 1 agent"
+
+
+def test_build_list_data_structure_aggregates_agent_info():
+    """Test that build_list_data_structure aggregates agent information per prompt."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure
+
+    discovered_prompts = [
+        {
+            "name": "test-command",
+            "agent": "cursor",
+            "agent_display_name": "Cursor",
+            "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+            "meta": {
+                "managed_by": "slash-man",
+                "source_type": "local",
+                "source_dir": "/path/to/prompts",
+                "updated_at": "2025-01-15T10:00:00Z",
+            },
+            "format": "markdown",
+        },
+    ]
+
+    unmanaged_counts = {"cursor": 0}
+
+    result = build_list_data_structure(discovered_prompts, unmanaged_counts)
+
+    prompt = result["prompts"]["test-command"]
+    assert len(prompt["agents"]) == 1
+    agent_info = prompt["agents"][0]
+    assert agent_info["agent"] == "cursor"
+    assert agent_info["display_name"] == "Cursor"
+    assert agent_info["file_path"] == Path("/tmp/.cursor/commands/test-command.md")
+
+
+def test_build_list_data_structure_includes_all_fields():
+    """Test that build_list_data_structure includes all required fields."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import (
+        build_list_data_structure,
+    )
+
+    # Mock count_backups and format_source_info for testing
+    discovered_prompts = [
+        {
+            "name": "test-command",
+            "agent": "cursor",
+            "agent_display_name": "Cursor",
+            "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+            "meta": {
+                "managed_by": "slash-man",
+                "source_type": "local",
+                "source_dir": "/path/to/prompts",
+                "updated_at": "2025-01-15T10:00:00Z",
+            },
+            "format": "markdown",
+        },
+    ]
+
+    unmanaged_counts = {"cursor": 2}
+
+    result = build_list_data_structure(discovered_prompts, unmanaged_counts)
+
+    prompt = result["prompts"]["test-command"]
+    assert "name" in prompt
+    assert prompt["name"] == "test-command"
+    assert "agents" in prompt
+    assert len(prompt["agents"]) == 1
+
+    agent_info = prompt["agents"][0]
+    assert "agent" in agent_info
+    assert "display_name" in agent_info
+    assert "file_path" in agent_info
+    assert "backup_count" in agent_info
+
+    assert "source_info" in prompt
+    assert "updated_at" in prompt
+
+    assert "unmanaged_counts" in result
+    assert result["unmanaged_counts"]["cursor"] == 2

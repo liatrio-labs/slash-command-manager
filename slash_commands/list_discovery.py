@@ -278,3 +278,63 @@ def format_source_info(meta: dict[str, Any]) -> str:
 
     # Unknown or missing source_type
     return "Unknown"
+
+
+def build_list_data_structure(
+    discovered_prompts: list[dict[str, Any]], unmanaged_counts: dict[str, int]
+) -> dict[str, Any]:
+    """Build structured data for list command output.
+
+    Groups discovered prompts by name and aggregates agent information per prompt.
+
+    Args:
+        discovered_prompts: List of prompt dicts from discover_managed_prompts()
+        unmanaged_counts: Dict mapping agent keys to unmanaged prompt counts
+
+    Returns:
+        Dict with structure:
+        {
+            "prompts": {
+                prompt_name: {
+                    "name": str,
+                    "agents": [
+                        {
+                            "agent": str,
+                            "display_name": str,
+                            "file_path": Path,
+                            "backup_count": int
+                        }
+                    ],
+                    "source_info": str,
+                    "updated_at": str
+                }
+            },
+            "unmanaged_counts": {agent_key: int}
+        }
+    """
+    prompts_dict: dict[str, dict[str, Any]] = {}
+
+    # Group prompts by name
+    for prompt in discovered_prompts:
+        name = prompt["name"]
+        if name not in prompts_dict:
+            prompts_dict[name] = {
+                "name": name,
+                "agents": [],
+                "source_info": format_source_info(prompt["meta"]),
+                "updated_at": prompt["meta"].get("updated_at", "Unknown"),
+            }
+
+        # Add agent information
+        agent_info = {
+            "agent": prompt["agent"],
+            "display_name": prompt["agent_display_name"],
+            "file_path": prompt["file_path"],
+            "backup_count": count_backups(prompt["file_path"]),
+        }
+        prompts_dict[name]["agents"].append(agent_info)
+
+    return {
+        "prompts": prompts_dict,
+        "unmanaged_counts": unmanaged_counts,
+    }

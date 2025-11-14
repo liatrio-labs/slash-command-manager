@@ -212,13 +212,13 @@ This command should be used whenever GitHub source metadata display or handling 
 
 #### 4.0 Tasks
 
-- [ ] 4.1 Create function `build_list_data_structure(discovered_prompts: list[dict[str, Any]], unmanaged_counts: dict[str, int]) -> dict[str, Any]` in `slash_commands/list_discovery.py` that groups discovered prompts by name and aggregates agent information per prompt. Expected return structure: `{"prompts": {prompt_name: {"name": str, "agents": [{"agent": str, "display_name": str, "file_path": Path, "backup_count": int}], "source_info": str, "updated_at": str}}, "unmanaged_counts": {agent_key: int}}`. Function takes list of prompt dicts from `discover_managed_prompts()` and unmanaged counts dict, returns structured data for rendering
-- [ ] 4.2 Write failing unit tests for data structure building:
+- [x] 4.1 Create function `build_list_data_structure(discovered_prompts: list[dict[str, Any]], unmanaged_counts: dict[str, int]) -> dict[str, Any]` in `slash_commands/list_discovery.py` that groups discovered prompts by name and aggregates agent information per prompt. Expected return structure: `{"prompts": {prompt_name: {"name": str, "agents": [{"agent": str, "display_name": str, "file_path": Path, "backup_count": int}], "source_info": str, "updated_at": str}}, "unmanaged_counts": {agent_key: int}}`. Function takes list of prompt dicts from `discover_managed_prompts()` and unmanaged counts dict, returns structured data for rendering
+- [x] 4.2 Write failing unit tests for data structure building:
   - `test_build_list_data_structure_groups_by_prompt_name()` - groups prompts by name (not by agent)
   - `test_build_list_data_structure_aggregates_agent_info()` - aggregates agent information per prompt
   - `test_build_list_data_structure_includes_all_fields()` - includes agent keys, display names, file paths, backup counts, source info, timestamps
-- [ ] 4.3 Implement `build_list_data_structure()` to group by prompt name, aggregate agent info, include all required fields, run tests to verify they pass
-- [ ] 4.4 Commit with message: `feat(list): implement data structure building for list output`
+- [x] 4.3 Implement `build_list_data_structure()` to group by prompt name, aggregate agent info, include all required fields, run tests to verify they pass
+- [x] 4.4 Commit with message: `feat(list): implement data structure building for list output`
 - [ ] 4.5 Create function `render_list_tree()` in `slash_commands/list_discovery.py` that takes data structure and renders Rich tree format similar to `generate` command summary
 - [ ] 4.6 Write failing unit tests for Rich rendering:
   - `test_render_list_tree_creates_tree_structure()` - creates Rich Tree with correct structure
