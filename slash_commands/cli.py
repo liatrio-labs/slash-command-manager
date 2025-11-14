@@ -63,6 +63,11 @@ def _display_local_path(path: Path) -> str:
     return str(path.resolve())
 
 
+def _resolve_detected_agents(detected: list[str] | None, selected: list[str]) -> list[str]:
+    """Preserve explicitly empty detections while falling back when missing."""
+    return detected if detected is not None else selected
+
+
 def _build_summary_data(
     *,
     result: dict[str, Any] | None,
@@ -550,7 +555,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         print(str(e), file=sys.stderr)
         summary_data = _build_summary_data(
             result=None,
-            detected_agents=detected_agent_keys or selected_agent_keys,
+            detected_agents=_resolve_detected_agents(detected_agent_keys, selected_agent_keys),
             selected_agents=selected_agent_keys,
             safe_mode=safe_mode,
             dry_run=dry_run,
@@ -608,7 +613,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
 
     summary_data = _build_summary_data(
         result=result,
-        detected_agents=detected_agent_keys or selected_agent_keys,
+        detected_agents=_resolve_detected_agents(detected_agent_keys, selected_agent_keys),
         selected_agents=selected_agent_keys,
         safe_mode=safe_mode,
         dry_run=dry_run,

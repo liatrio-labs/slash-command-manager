@@ -70,7 +70,8 @@ def test_skip_backups_only_route_without_backups(temp_test_dir: Path, test_promp
 
     child.expect("WARNING: Skip backups selected", timeout=60)
     child.expect("Generation complete:", timeout=60)
-    child.wait()
+    exit_status = child.wait()
+    assert exit_status == 0, f"Process exited with code {exit_status}"
 
     backup_files = list(command_dir.glob("*.bak"))
     assert backup_files == [], f"Unexpected backups created: {backup_files}"

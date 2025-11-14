@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from slash_commands.cli import app
+from slash_commands.cli import _resolve_detected_agents, app
 from slash_commands.config import AgentConfig, CommandFormat
 
 
@@ -36,6 +36,26 @@ This is a test prompt.
     )
 
     return prompts_dir
+
+
+def test_resolve_detected_agents_preserves_empty_list():
+    """Explicitly empty detections should not fall back to selected agents."""
+    detected = []
+    selected = ["claude-code"]
+
+    resolved = _resolve_detected_agents(detected, selected)
+
+    assert resolved == []
+
+
+def test_resolve_detected_agents_falls_back_when_missing():
+    """When detections are unavailable, fall back to selected agents."""
+    detected = None
+    selected = ["claude-code"]
+
+    resolved = _resolve_detected_agents(detected, selected)
+
+    assert resolved == selected
 
 
 def test_cli_list_agents_handles_unknown_agent():
