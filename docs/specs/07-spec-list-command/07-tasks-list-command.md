@@ -268,28 +268,28 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 5.2 Write failing integration test `test_list_command_executes_successfully()` in `tests/integration/test_list_command.py` that runs `slash-man list` and verifies exit code is 0
 - [x] 5.3 Implement basic `list` command that calls discovery functions and renders output, run test to verify it passes
 - [x] 5.4 Commit with message: `feat(cli): add basic list command`
-- [ ] 5.5 Add `--agent` / `-a` flag to `list` command in `slash_commands/cli.py` (can be specified multiple times, matches `generate` command behavior)
-- [ ] 5.6 Write failing integration test `test_list_agent_flag_filters_results()` in `tests/integration/test_list_command.py` that runs `slash-man list --agent cursor` and verifies only Cursor prompts are shown
-- [ ] 5.7 Implement agent filtering logic in `list` command, run test to verify it passes
-- [ ] 5.8 Commit with message: `feat(cli): add --agent flag to list command`
-- [ ] 5.9 Add `--target-path` / `-t` flag to `list` command in `slash_commands/cli.py` (defaults to home directory, matches `generate` behavior)
-- [ ] 5.10 Write failing integration test `test_list_target_path_flag()` in `tests/integration/test_list_command.py` that runs `slash-man list --target-path /custom/path` and verifies search location is modified
-- [ ] 5.11 Implement target path logic in `list` command, run test to verify it passes
-- [ ] 5.12 Commit with message: `feat(cli): add --target-path flag to list command`
-- [ ] 5.13 Add `--detection-path` / `-d` flag to `list` command in `slash_commands/cli.py` (defaults to home directory, matches `generate` behavior)
-- [ ] 5.14 Write failing integration test `test_list_detection_path_flag()` in `tests/integration/test_list_command.py` that runs `slash-man list --detection-path /custom/path` and verifies detection location is modified
-- [ ] 5.15 Implement detection path logic in `list` command, run test to verify it passes
-- [ ] 5.16 Commit with message: `feat(cli): add --detection-path flag to list command`
-- [ ] 5.17 Write failing integration test `test_list_multiple_agent_flags()` in `tests/integration/test_list_command.py` that runs `slash-man list --agent cursor --agent claude-code` and verifies both agents are shown
-- [ ] 5.18 Update agent filtering logic to handle multiple `--agent` flags, run test to verify it passes
-- [ ] 5.19 Commit with message: `feat(cli): support multiple --agent flags in list command`
-- [ ] 5.20 Write failing integration test `test_list_empty_state()` in `tests/integration/test_list_command.py` that runs `slash-man list` with no managed prompts and verifies:
+- [x] 5.5 Add `--agent` / `-a` flag to `list` command in `slash_commands/cli.py` (can be specified multiple times, matches `generate` command behavior)
+- [x] 5.6 Write failing integration test `test_list_agent_flag_filters_results()` in `tests/integration/test_list_command.py` that runs `slash-man list --agent cursor` and verifies only Cursor prompts are shown
+- [x] 5.7 Implement agent filtering logic in `list` command, run test to verify it passes
+- [x] 5.8 Commit with message: `feat(cli): add --agent flag to list command`
+- [x] 5.9 Add `--target-path` / `-t` flag to `list` command in `slash_commands/cli.py` (defaults to home directory, matches `generate` behavior)
+- [x] 5.10 Write failing integration test `test_list_target_path_flag()` in `tests/integration/test_list_command.py` that runs `slash-man list --target-path /custom/path` and verifies search location is modified
+- [x] 5.11 Implement target path logic in `list` command, run test to verify it passes
+- [x] 5.12 Commit with message: `feat(cli): add --target-path flag to list command`
+- [x] 5.13 Add `--detection-path` / `-d` flag to `list` command in `slash_commands/cli.py` (defaults to home directory, matches `generate` behavior)
+- [x] 5.14 Write failing integration test `test_list_detection_path_flag()` in `tests/integration/test_list_command.py` that runs `slash-man list --detection-path /custom/path` and verifies detection location is modified
+- [x] 5.15 Implement detection path logic in `list` command, run test to verify it passes
+- [x] 5.16 Commit with message: `feat(cli): add --detection-path flag to list command`
+- [x] 5.17 Write failing integration test `test_list_multiple_agent_flags()` in `tests/integration/test_list_command.py` that runs `slash-man list --agent cursor --agent claude-code` and verifies both agents are shown
+- [x] 5.18 Update agent filtering logic to handle multiple `--agent` flags, run test to verify it passes
+- [x] 5.19 Commit with message: `feat(cli): support multiple --agent flags in list command`
+- [x] 5.20 Write failing integration test `test_list_empty_state()` in `tests/integration/test_list_command.py` that runs `slash-man list` with no managed prompts and verifies:
   - Informative empty state message is displayed
   - Message explains that only files with `managed_by: slash-man` metadata are detected
   - Message notes that files generated by older versions won't appear until regenerated
   - Exit code is 0 (success, not error)
-- [ ] 5.21 Implement empty state handling in `list` command: check if no managed prompts found, display informative message, exit with code 0, run test to verify it passes
-- [ ] 5.22 Commit with message: `feat(cli): add empty state handling to list command`
+- [x] 5.21 Implement empty state handling in `list` command: check if no managed prompts found, display informative message, exit with code 0, run test to verify it passes
+- [x] 5.22 Commit with message: `feat(cli): add empty state handling to list command`
 - [ ] 5.23 Write unit tests for flag parsing and validation in `tests/test_cli.py` or `tests/integration/test_list_command.py`
 - [ ] 5.24 Run tests to verify flag parsing works correctly
 - [ ] 5.25 Create CLI transcript proof artifacts:

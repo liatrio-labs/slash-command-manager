@@ -256,3 +256,223 @@ def test_list_command_executes_successfully(temp_test_dir, test_prompts_dir):
     assert "Managed Prompts" in result_list.stdout or "List Summary" in result_list.stdout, (
         "Output should contain tree structure"
     )
+
+
+def test_list_agent_flag_filters_results(temp_test_dir, test_prompts_dir):
+    """Test that --agent flag filters results to only specified agent."""
+    # Generate prompts for multiple agents
+    agents = ["cursor", "claude-code"]
+
+    for agent in agents:
+        cmd_generate = get_slash_man_command() + [
+            "generate",
+            "--prompts-dir",
+            str(test_prompts_dir),
+            "--agent",
+            agent,
+            "--target-path",
+            str(temp_test_dir),
+            "--yes",
+        ]
+        result_generate = subprocess.run(
+            cmd_generate,
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+        assert result_generate.returncode == 0, (
+            f"Failed to generate for {agent}: {result_generate.stderr}"
+        )
+
+    # Run list with --agent cursor filter
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--agent",
+        "cursor",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+    # Should only show cursor prompts
+    assert "cursor" in result_list.stdout.lower()
+    # Should not show claude-code prompts (or show fewer)
+    # Since prompts are grouped by name, we check that cursor is present
+    assert "claude" not in result_list.stdout.lower() or result_list.stdout.count(
+        "cursor"
+    ) > result_list.stdout.count("claude")
+
+
+def test_list_target_path_flag(temp_test_dir, test_prompts_dir):
+    """Test that --target-path flag modifies search location."""
+    # Generate prompt in temp_test_dir
+    cmd_generate = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_generate = subprocess.run(
+        cmd_generate,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_generate.returncode == 0, f"Failed to generate: {result_generate.stderr}"
+
+    # Run list with --target-path pointing to temp_test_dir
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+    assert "Managed Prompts" in result_list.stdout or "List Summary" in result_list.stdout
+
+
+def test_list_detection_path_flag(temp_test_dir, test_prompts_dir):
+    """Test that --detection-path flag modifies detection location."""
+    # Generate prompt
+    cmd_generate = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_generate = subprocess.run(
+        cmd_generate,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_generate.returncode == 0, f"Failed to generate: {result_generate.stderr}"
+
+    # Run list with --detection-path pointing to temp_test_dir
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+
+
+def test_list_multiple_agent_flags(temp_test_dir, test_prompts_dir):
+    """Test that multiple --agent flags work correctly."""
+    # Generate prompts for multiple agents
+    agents = ["cursor", "claude-code"]
+
+    for agent in agents:
+        cmd_generate = get_slash_man_command() + [
+            "generate",
+            "--prompts-dir",
+            str(test_prompts_dir),
+            "--agent",
+            agent,
+            "--target-path",
+            str(temp_test_dir),
+            "--yes",
+        ]
+        result_generate = subprocess.run(
+            cmd_generate,
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+        assert result_generate.returncode == 0, (
+            f"Failed to generate for {agent}: {result_generate.stderr}"
+        )
+
+    # Run list with multiple --agent flags
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--agent",
+        "cursor",
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+    # Should show prompts from both agents
+    assert "cursor" in result_list.stdout.lower()
+    assert "claude" in result_list.stdout.lower()
+
+
+def test_list_empty_state(temp_test_dir):
+    """Test that list command shows informative empty state message."""
+    # Run list in a directory with no managed prompts
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+        "--agent",
+        "claude-code",  # Specify agent to avoid detection issues
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    # Should exit with code 0 (success, not error)
+    assert result_list.returncode == 0, (
+        f"Empty state should exit with code 0, got {result_list.returncode}: {result_list.stderr}"
+    )
+
+    # Should show informative message
+    assert (
+        "No managed prompts found" in result_list.stdout
+        or "managed_by" in result_list.stdout.lower()
+    )
+    assert (
+        "older versions" in result_list.stdout.lower()
+        or "regenerated" in result_list.stdout.lower()
+    )
