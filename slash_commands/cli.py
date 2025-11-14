@@ -33,6 +33,13 @@ app = typer.Typer(
 )
 
 
+def version_callback_impl(value: bool) -> None:
+    """Print version and exit."""
+    if value:
+        typer.echo(f"slash-man {__version_with_commit__}")
+        raise typer.Exit()
+
+
 @app.callback()
 def version_callback(
     version: Annotated[
@@ -50,6 +57,7 @@ def version_callback(
 
 
 console = Console(width=120)
+SUMMARY_PANEL_WIDTH = 80
 
 
 def _display_local_path(path: Path) -> str:
@@ -165,7 +173,11 @@ def _build_summary_data(
 
 def _render_rich_summary(summary: dict[str, Any], *, record: bool = False) -> str | None:
     """Render the structured summary using Rich."""
-    target_console = console if not record else Console(record=True, width=120)
+    target_console = (
+        Console(record=True, width=SUMMARY_PANEL_WIDTH)
+        if record
+        else Console(width=SUMMARY_PANEL_WIDTH)
+    )
     mode_label = "DRY RUN" if summary["mode"] == "dry-run" else "Generation"
     mode_text = f"{mode_label} (safe mode)" if summary["safe_mode"] else mode_label
 
@@ -224,7 +236,13 @@ def _render_rich_summary(summary: dict[str, Any], *, record: bool = False) -> st
     else:
         prompts_branch.add("None")
 
-    panel = Panel(root, title="Generation Summary", border_style="cyan")
+    panel = Panel(
+        root,
+        title="Generation Summary",
+        border_style="cyan",
+        width=SUMMARY_PANEL_WIDTH,
+        expand=False,
+    )
     target_console.print(panel)
 
     if record:
@@ -232,11 +250,13 @@ def _render_rich_summary(summary: dict[str, Any], *, record: bool = False) -> st
     return None
 
 
-def version_callback_impl(value: bool) -> None:
-    """Print version and exit."""
-    if value:
-        typer.echo(f"slash-man {__version_with_commit__}")
-        raise typer.Exit()
+def _print_generation_complete(summary: dict[str, Any]) -> None:
+    """Print a concise textual completion message for interactive workflows."""
+    mode_label = "DRY RUN complete" if summary["mode"] == "dry-run" else "Generation complete"
+    console.print()
+    console.print(f"{mode_label}:")
+    console.print(f"  Prompts loaded: {summary['prompts_loaded']}")
+    console.print(f"  Files written: {summary['files_written']}")
 
 
 def _prompt_agent_selection(detected_agents: list) -> list:
@@ -621,6 +641,8 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         output_base=str(actual_target_path.resolve()),
     )
     _render_rich_summary(summary_data)
+    if result is not None:
+        _print_generation_complete(summary_data)
 
 
 @app.command()

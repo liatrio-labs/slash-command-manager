@@ -32,100 +32,100 @@ def _normalize_summary(summary: str, target_path: Path) -> str:
     return normalized
 
 
-EXPECTED_REAL_RUN = """╭───────────────────────────── Generation Summary ─────────────────────────────╮
-│ Generation (safe mode) Summary                                               │
-│ ├── Counts                                                                   │
-│ │   ├── Prompts loaded: 3                                                    │
-│ │   ├── Files planned: 3                                                     │
-│ │   └── Files written: 3                                                     │
-│ ├── Agents                                                                   │
-│ │   ├── Detected                                                             │
-│ │   │   └── claude-code                                                      │
-│ │   └── Selected                                                             │
-│ │       └── claude-code                                                      │
-│ ├── Source                                                                   │
-│ │   └── Directory: tests/integration/fixtures/prompts                        │
-│ ├── Output                                                                   │
+EXPECTED_REAL_RUN = """╭──────────────────────────── Generation Summary ────────────────────────────╮
+│ Generation (safe mode) Summary                                             │
+│ ├── Counts                                                                 │
+│ │   ├── Prompts loaded: 3                                                  │
+│ │   ├── Files planned: 3                                                   │
+│ │   └── Files written: 3                                                   │
+│ ├── Agents                                                                 │
+│ │   ├── Detected                                                           │
+│ │   │   └── claude-code                                                    │
+│ │   └── Selected                                                           │
+│ │       └── claude-code                                                    │
+│ ├── Source                                                                 │
+│ │   └── Directory: tests/integration/fixtures/prompts                      │
+│ ├── Output                                                                 │
 │ │   └── Directory: <target> │
-│ ├── Backups                                                                  │
-│ │   ├── Created: 0                                                           │
-│ │   └── Pending: 0                                                           │
-│ ├── Files                                                                    │
-│ │   └── Claude Code (claude-code) • 3 file(s)                                │
-│ │       ├── .claude/commands/test-prompt-1.md                                │
-│ │       ├── .claude/commands/test-prompt-2.md                                │
-│ │       └── .claude/commands/test-prompt-3.md                                │
-│ └── Prompts                                                                  │
-│     ├── test-prompt-1: tests/integration/fixtures/prompts/test-prompt-1.md   │
-│     ├── test-prompt-2: tests/integration/fixtures/prompts/test-prompt-2.md   │
-│     └── test-prompt-3: tests/integration/fixtures/prompts/test-prompt-3.md   │
-╰──────────────────────────────────────────────────────────────────────────────╯"""
+│ ├── Backups                                                                │
+│ │   ├── Created: 0                                                         │
+│ │   └── Pending: 0                                                         │
+│ ├── Files                                                                  │
+│ │   └── Claude Code (claude-code) • 3 file(s)                              │
+│ │       ├── .claude/commands/test-prompt-1.md                              │
+│ │       ├── .claude/commands/test-prompt-2.md                              │
+│ │       └── .claude/commands/test-prompt-3.md                              │
+│ └── Prompts                                                                │
+│     ├── test-prompt-1: tests/integration/fixtures/prompts/test-prompt-1.md │
+│     ├── test-prompt-2: tests/integration/fixtures/prompts/test-prompt-2.md │
+│     └── test-prompt-3: tests/integration/fixtures/prompts/test-prompt-3.md │
+╰────────────────────────────────────────────────────────────────────────────╯"""
 
 
-EXPECTED_BACKUP_RUN = """╭───────────────────────────── Generation Summary ─────────────────────────────╮
-│ Generation (safe mode) Summary                                               │
-│ ├── Counts                                                                   │
-│ │   ├── Prompts loaded: 3                                                    │
-│ │   ├── Files planned: 3                                                     │
-│ │   └── Files written: 3                                                     │
-│ ├── Agents                                                                   │
-│ │   ├── Detected                                                             │
-│ │   │   └── claude-code                                                      │
-│ │   └── Selected                                                             │
-│ │       └── claude-code                                                      │
-│ ├── Source                                                                   │
-│ │   └── Directory: tests/integration/fixtures/prompts                        │
-│ ├── Output                                                                   │
+EXPECTED_BACKUP_RUN = """╭──────────────────────────── Generation Summary ────────────────────────────╮
+│ Generation (safe mode) Summary                                             │
+│ ├── Counts                                                                 │
+│ │   ├── Prompts loaded: 3                                                  │
+│ │   ├── Files planned: 3                                                   │
+│ │   └── Files written: 3                                                   │
+│ ├── Agents                                                                 │
+│ │   ├── Detected                                                           │
+│ │   │   └── claude-code                                                    │
+│ │   └── Selected                                                           │
+│ │       └── claude-code                                                    │
+│ ├── Source                                                                 │
+│ │   └── Directory: tests/integration/fixtures/prompts                      │
+│ ├── Output                                                                 │
 │ │   └── Directory: <target> │
-│ ├── Backups                                                                  │
-│ │   ├── Created: 3                                                           │
-│ │   │   ├── .claude/commands/test-prompt-1.md.<timestamp>.bak            │
-│ │   │   ├── .claude/commands/test-prompt-2.md.<timestamp>.bak            │
-│ │   │   └── .claude/commands/test-prompt-3.md.<timestamp>.bak            │
-│ │   └── Pending: 0                                                           │
-│ ├── Files                                                                    │
-│ │   └── Claude Code (claude-code) • 3 file(s)                                │
-│ │       ├── .claude/commands/test-prompt-1.md                                │
-│ │       ├── .claude/commands/test-prompt-2.md                                │
-│ │       └── .claude/commands/test-prompt-3.md                                │
-│ └── Prompts                                                                  │
-│     ├── test-prompt-1: tests/integration/fixtures/prompts/test-prompt-1.md   │
-│     ├── test-prompt-2: tests/integration/fixtures/prompts/test-prompt-2.md   │
-│     └── test-prompt-3: tests/integration/fixtures/prompts/test-prompt-3.md   │
-╰──────────────────────────────────────────────────────────────────────────────╯"""
+│ ├── Backups                                                                │
+│ │   ├── Created: 3                                                         │
+│ │   │   ├── .claude/commands/test-prompt-1.md.<timestamp>.bak          │
+│ │   │   ├── .claude/commands/test-prompt-2.md.<timestamp>.bak          │
+│ │   │   └── .claude/commands/test-prompt-3.md.<timestamp>.bak          │
+│ │   └── Pending: 0                                                         │
+│ ├── Files                                                                  │
+│ │   └── Claude Code (claude-code) • 3 file(s)                              │
+│ │       ├── .claude/commands/test-prompt-1.md                              │
+│ │       ├── .claude/commands/test-prompt-2.md                              │
+│ │       └── .claude/commands/test-prompt-3.md                              │
+│ └── Prompts                                                                │
+│     ├── test-prompt-1: tests/integration/fixtures/prompts/test-prompt-1.md │
+│     ├── test-prompt-2: tests/integration/fixtures/prompts/test-prompt-2.md │
+│     └── test-prompt-3: tests/integration/fixtures/prompts/test-prompt-3.md │
+╰────────────────────────────────────────────────────────────────────────────╯"""
 
 
-EXPECTED_DRY_RUN = """╭───────────────────────────── Generation Summary ─────────────────────────────╮
-│ DRY RUN (safe mode) Summary                                                  │
-│ ├── Counts                                                                   │
-│ │   ├── Prompts loaded: 3                                                    │
-│ │   ├── Files planned: 3                                                     │
-│ │   └── Files written: 0                                                     │
-│ ├── Agents                                                                   │
-│ │   ├── Detected                                                             │
-│ │   │   └── claude-code                                                      │
-│ │   └── Selected                                                             │
-│ │       └── claude-code                                                      │
-│ ├── Source                                                                   │
-│ │   └── Directory: tests/integration/fixtures/prompts                        │
-│ ├── Output                                                                   │
+EXPECTED_DRY_RUN = """╭──────────────────────────── Generation Summary ────────────────────────────╮
+│ DRY RUN (safe mode) Summary                                                │
+│ ├── Counts                                                                 │
+│ │   ├── Prompts loaded: 3                                                  │
+│ │   ├── Files planned: 3                                                   │
+│ │   └── Files written: 0                                                   │
+│ ├── Agents                                                                 │
+│ │   ├── Detected                                                           │
+│ │   │   └── claude-code                                                    │
+│ │   └── Selected                                                           │
+│ │       └── claude-code                                                    │
+│ ├── Source                                                                 │
+│ │   └── Directory: tests/integration/fixtures/prompts                      │
+│ ├── Output                                                                 │
 │ │   └── Directory: <target> │
-│ ├── Backups                                                                  │
-│ │   ├── Created: 0                                                           │
-│ │   └── Pending: 3                                                           │
-│ │       ├── .claude/commands/test-prompt-1.md                                │
-│ │       ├── .claude/commands/test-prompt-2.md                                │
-│ │       └── .claude/commands/test-prompt-3.md                                │
-│ ├── Files                                                                    │
-│ │   └── Claude Code (claude-code) • 3 file(s)                                │
-│ │       ├── .claude/commands/test-prompt-1.md                                │
-│ │       ├── .claude/commands/test-prompt-2.md                                │
-│ │       └── .claude/commands/test-prompt-3.md                                │
-│ └── Prompts                                                                  │
-│     ├── test-prompt-1: tests/integration/fixtures/prompts/test-prompt-1.md   │
-│     ├── test-prompt-2: tests/integration/fixtures/prompts/test-prompt-2.md   │
-│     └── test-prompt-3: tests/integration/fixtures/prompts/test-prompt-3.md   │
-╰──────────────────────────────────────────────────────────────────────────────╯"""
+│ ├── Backups                                                                │
+│ │   ├── Created: 0                                                         │
+│ │   └── Pending: 3                                                         │
+│ │       ├── .claude/commands/test-prompt-1.md                              │
+│ │       ├── .claude/commands/test-prompt-2.md                              │
+│ │       └── .claude/commands/test-prompt-3.md                              │
+│ ├── Files                                                                  │
+│ │   └── Claude Code (claude-code) • 3 file(s)                              │
+│ │       ├── .claude/commands/test-prompt-1.md                              │
+│ │       ├── .claude/commands/test-prompt-2.md                              │
+│ │       └── .claude/commands/test-prompt-3.md                              │
+│ └── Prompts                                                                │
+│     ├── test-prompt-1: tests/integration/fixtures/prompts/test-prompt-1.md │
+│     ├── test-prompt-2: tests/integration/fixtures/prompts/test-prompt-2.md │
+│     └── test-prompt-3: tests/integration/fixtures/prompts/test-prompt-3.md │
+╰────────────────────────────────────────────────────────────────────────────╯"""
 
 
 @pytest.mark.integration
