@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "ruff>=0.1.0", "pre-commit>=3.0.0"]
+dev = ["pytest>=7.0.0", "pytest-cov>=4.0.0", "pytest-httpx>=0.35.0", "ruff>=0.1.0", "pre-commit>=3.0.0"]
 
 [project.scripts]
 slash-man = "slash_commands.cli:main"
@@ -50,7 +50,10 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 pythonpath = ["."]
-addopts = ["-v", "--strict-markers", "--strict-config"]
+addopts = ["-v", "--strict-markers", "--strict-config", "-m", "not integration"]
+markers = [
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+]
 
 [tool.ruff]
 line-length = 100

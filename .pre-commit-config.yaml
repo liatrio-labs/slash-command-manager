@@ -41,7 +41,7 @@ repos:
   - repo: local
     hooks:
     - id: run-tests
-      name: Run pytest before push
+      name: Run unit tests before push (excludes integration tests)
       entry: uv run pytest
       language: system
       stages: [pre-push]

@@ -193,3 +193,18 @@ jobs:
 
       - name: Test cleanup subcommand help
         run: uv run slash-man cleanup --help
+
+  integration-test:
+    name: Integration Tests (Docker)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t slash-man-test .
+
+      - name: Run integration tests
+        run: docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && uv run pytest tests/integration/ -v -m integration"

@@ -13,8 +13,8 @@ COPY pyproject.toml uv.lock LICENSE README.md ./
 # Copy source code
 COPY . .
 
-# Install dependencies and the package
-RUN uv sync
+# Install dependencies and the package (including dev dependencies for testing)
+RUN uv sync --extra dev
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 slashuser && chown -R slashuser:slashuser /app
