@@ -329,7 +329,7 @@ def test_writer_detects_existing_files(mock_prompt_load: Path, tmp_path):
     with patch(
         "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
     ) as mock_prompt:
-        mock_prompt.return_value = "overwrite"
+        mock_prompt.return_value = "backup"
         writer.generate()
 
         # Verify prompt was called
@@ -394,8 +394,60 @@ def test_writer_backs_up_existing_files(mock_prompt_load: Path, tmp_path):
 
             # Verify backup was created
             mock_backup.assert_called_once_with(output_path)
-            # Verify file was overwritten
-            assert "Test Prompt" in output_path.read_text()
+            # Note: File overwrite and result["backups_created"] assertions are tested in test_writer_tracks_created_backups_in_result
+
+
+def test_writer_tracks_created_backups_in_result(mock_prompt_load: Path, tmp_path):
+    """Test that writer tracks created backups in result dict when prompt returns 'backup'."""
+    prompts_dir = mock_prompt_load
+
+    output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("original content")
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+    )
+
+    backup_path = output_path.with_suffix(".md.20250101-010101.bak")
+    with (
+        patch(
+            "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+        ) as mock_prompt,
+        patch("slash_commands.writer.create_backup") as mock_backup,
+    ):
+        mock_prompt.return_value = "backup"
+        mock_backup.return_value = backup_path
+        result = writer.generate()
+
+    mock_prompt.assert_called_once()
+    mock_backup.assert_called_once_with(output_path)
+    assert result["backups_created"] == [str(backup_path)]
+    assert "Test Prompt" in output_path.read_text()
+
+
+def test_writer_reports_pending_backups_in_dry_run(mock_prompt_load: Path, tmp_path):
+    """Dry runs should report which files would get backups without creating them."""
+    prompts_dir = mock_prompt_load
+
+    output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("original content")
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=["claude-code"],
+        dry_run=True,
+        base_path=tmp_path,
+    )
+
+    result = writer.generate()
+
+    assert result["backups_created"] == []
+    assert result["backups_pending"] == [str(output_path)]
 
 
 def test_writer_applies_overwrite_globally(mock_prompt_load: Path, tmp_path):

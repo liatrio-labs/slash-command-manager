@@ -21,6 +21,10 @@ from slash_commands.generators import CommandGenerator
 from slash_commands.github_utils import _download_github_prompts_to_temp_dir
 
 
+class NoPromptsDiscoveredError(RuntimeError):
+    """Raised when no prompts can be found from the configured sources."""
+
+
 def _find_package_prompts_dir() -> Path | None:
     """Find the prompts directory in the installed package.
 
@@ -59,7 +63,7 @@ def _find_package_prompts_dir() -> Path | None:
     return None
 
 
-OverwriteAction = Literal["cancel", "overwrite", "backup", "overwrite-all"]
+OverwriteAction = Literal["cancel", "overwrite", "backup", "overwrite-all", "skip-backups"]
 
 
 def prompt_overwrite_action(file_path: Path) -> OverwriteAction:
@@ -145,7 +149,8 @@ class SlashCommandWriter:
         self.github_branch = github_branch
         self.github_path = github_path
         self._global_overwrite = False  # Track if user chose "overwrite-all"
-        self._backups_created = []  # Track backup files created
+        self._backups_created: list[str] = []  # Track backup files created
+        self._backups_pending: list[str] = []  # Track backups that would be created in dry-run
 
         # Determine source metadata
         self._source_metadata: dict[str, Any] | None = None
@@ -176,6 +181,8 @@ class SlashCommandWriter:
         """
         # Load prompts
         prompts = self._load_prompts()
+        if not prompts:
+            raise NoPromptsDiscoveredError(self._build_no_prompts_message())
 
         # Get agent configs
         agent_configs = [get_agent_config(key) for key in self.agents]
@@ -207,7 +214,30 @@ class SlashCommandWriter:
             "files": files,
             "prompts": [{"name": p.name, "path": str(p.path)} for p in prompts],
             "backups_created": self._backups_created,
+            "backups_pending": self._backups_pending,
         }
+
+    def _build_no_prompts_message(self) -> str:
+        """Construct an actionable error message for zero-prompt scenarios."""
+        lines = ["Error: No prompts were discovered."]
+        if self.github_repo and self.github_branch and self.github_path:
+            lines.append(
+                f"Source: GitHub {self.github_repo}@{self.github_branch}/{self.github_path}"
+            )
+        else:
+            source_dir = self.prompts_dir.resolve()
+            lines.append(f"Source directory: {source_dir}")
+
+        lines.extend(
+            [
+                "",
+                "To fix this:",
+                "  - Ensure the prompts directory contains .md files",
+                "  - Provide --prompts-dir pointing to a populated directory",
+                "  - Or use --github-repo/--github-branch/--github-path to pull prompts",
+            ]
+        )
+        return "\n".join(lines)
 
     def _load_prompts(self) -> list[MarkdownPrompt]:
         """Load all prompts from the prompts directory or GitHub repository."""
@@ -306,17 +336,24 @@ class SlashCommandWriter:
         file_count = len(existing_files)
         response = questionary.select(
             f"Found {file_count} existing file{'s' if file_count != 1 else ''} "
-            f"that will be overwritten.\nWhat would you like to do?",
+            "that will be overwritten.\nWhat would you like to do?",
             choices=[
                 questionary.Choice("Cancel", "cancel"),
-                questionary.Choice("Overwrite all existing files", "overwrite"),
-                questionary.Choice("Create backups and overwrite all", "backup"),
+                questionary.Choice("Create backups and overwrite all (recommended)", "backup"),
+                questionary.Choice(
+                    "Skip backups and overwrite all (NOT RECOMMENDED)", "skip-backups"
+                ),
             ],
         ).ask()
 
         if response is None:
             # User pressed Ctrl+C or similar
             return "cancel"
+
+        if response == "skip-backups":
+            print(
+                "WARNING: Skip backups selected. Existing files will be overwritten without backups."
+            )
 
         return response  # type: ignore[return-value]
 
@@ -346,13 +383,16 @@ class SlashCommandWriter:
         output_path = self.base_path / agent.command_dir / filename
 
         # Handle existing files
-        if output_path.exists() and not self.dry_run:
+        if output_path.exists():
             action = self._handle_existing_file(output_path)
             if action == "cancel":
                 raise RuntimeError("Cancelled by user")
-            elif action == "backup":
-                backup_path = create_backup(output_path)
-                self._backups_created.append(str(backup_path))
+            if action == "backup":
+                if self.dry_run:
+                    self._backups_pending.append(str(output_path))
+                else:
+                    backup_path = create_backup(output_path)
+                    self._backups_created.append(str(backup_path))
 
         # Create parent directories if needed
         if not self.dry_run:
@@ -379,11 +419,15 @@ class SlashCommandWriter:
             OverwriteAction to apply
         """
         # Use global action if set (it should always be set after our upfront check)
+        if self.dry_run:
+            # Default to backup during dry-run to surface pending backups
+            return self.overwrite_action or "backup"
+
         if self.overwrite_action:
             return self.overwrite_action
 
         # This should not happen anymore, but keep as fallback
-        return "overwrite"
+        return "backup"
 
     def find_generated_files(
         self, agents: list[str] | None = None, include_backups: bool = True

@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from slash_commands.cli import app
+from slash_commands.cli import _resolve_detected_agents, app
 from slash_commands.config import AgentConfig, CommandFormat
 
 
@@ -36,6 +36,26 @@ This is a test prompt.
     )
 
     return prompts_dir
+
+
+def test_resolve_detected_agents_preserves_empty_list():
+    """Explicitly empty detections should not fall back to selected agents."""
+    detected = []
+    selected = ["claude-code"]
+
+    resolved = _resolve_detected_agents(detected, selected)
+
+    assert resolved == []
+
+
+def test_resolve_detected_agents_falls_back_when_missing():
+    """When detections are unavailable, fall back to selected agents."""
+    detected = None
+    selected = ["claude-code"]
+
+    resolved = _resolve_detected_agents(detected, selected)
+
+    assert resolved == selected
 
 
 def test_cli_list_agents_handles_unknown_agent():
@@ -84,6 +104,87 @@ def test_cli_dry_run_flag(mock_prompts_dir, tmp_path):
     assert result.exit_code == 0
     assert "dry run" in result.stdout.lower()
     assert not (tmp_path / ".claude" / "commands" / "test-prompt.md").exists()
+
+
+def test_cli_dry_run_reports_pending_backups(mock_prompts_dir, tmp_path):
+    """Dry runs should state when backups would be created."""
+    output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("existing content")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--agent",
+            "claude-code",
+            "--dry-run",
+            "--target-path",
+            str(tmp_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0
+    lower_output = result.stdout.lower()
+    assert "pending: 1" in lower_output or "backups pending" in lower_output
+
+
+def test_cli_yes_flag_injects_backup_action(mock_prompts_dir, tmp_path):
+    """--yes should always configure the writer to use backup overwrite action."""
+    runner = CliRunner()
+    with patch("slash_commands.cli.SlashCommandWriter") as mock_writer:
+        writer_instance = mock_writer.return_value
+        writer_instance.generate.return_value = {
+            "prompts_loaded": 0,
+            "files_written": 0,
+            "files": [],
+            "prompts": [],
+            "backups_created": [],
+            "backups_pending": [],
+        }
+
+        result = runner.invoke(
+            app,
+            [
+                "generate",
+                "--prompts-dir",
+                str(mock_prompts_dir),
+                "--agent",
+                "claude-code",
+                "--target-path",
+                str(tmp_path),
+                "--yes",
+            ],
+        )
+
+        assert result.exit_code == 0
+        _, kwargs = mock_writer.call_args
+        assert kwargs["overwrite_action"] == "backup"
+
+
+def test_cli_yes_flag_mentions_safe_mode(mock_prompts_dir, tmp_path):
+    """--yes output should mention non-interactive safe mode to users."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--agent",
+            "claude-code",
+            "--target-path",
+            str(tmp_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "safe mode" in result.stdout.lower()
 
 
 def test_cli_generates_files_for_single_agent(mock_prompts_dir, tmp_path):
@@ -264,7 +365,7 @@ def test_cli_prompts_for_overwrite_without_yes(mock_prompts_dir, tmp_path):
     with patch(
         "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
     ) as mock_prompt:
-        mock_prompt.return_value = "overwrite"
+        mock_prompt.return_value = "skip-backups"
         result = runner.invoke(
             app,
             [

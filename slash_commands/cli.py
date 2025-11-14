@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -12,9 +13,12 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
+from rich.tree import Tree
 
 from mcp_server import create_app
 from slash_commands import (
+    NoPromptsDiscoveredError,
     SlashCommandWriter,
     detect_agents,
     get_agent_config,
@@ -28,6 +32,13 @@ app = typer.Typer(
     help="Manage slash commands for the spec-driven workflow in your AI assistants",
     rich_markup_mode="rich",
 )
+
+
+def version_callback_impl(value: bool) -> None:
+    """Print version and exit."""
+    if value:
+        typer.echo(f"slash-man {__version_with_commit__}")
+        raise typer.Exit()
 
 
 @app.callback()
@@ -46,14 +57,248 @@ def version_callback(
     """Slash Command Manager - Generate and manage slash commands for AI code assistants."""
 
 
-console = Console()
+console = Console(width=120)
+SUMMARY_PANEL_WIDTH = 80
 
 
-def version_callback_impl(value: bool) -> None:
-    """Print version and exit."""
-    if value:
-        typer.echo(f"slash-man {__version_with_commit__}")
-        raise typer.Exit()
+def _find_project_root() -> Path:
+    """Find the project root directory using a robust strategy.
+
+    Strategy:
+    1. Check PROJECT_ROOT environment variable first
+    2. Walk upward from Path.cwd() and Path(__file__) looking for marker files/directories
+       (.git directory, pyproject.toml, setup.py)
+    3. Fall back to Path.cwd() if no marker is found
+
+    Returns:
+        Resolved Path to the project root directory
+    """
+    # Check environment variable first
+    env_root = os.getenv("PROJECT_ROOT")
+    if env_root:
+        return Path(env_root).resolve()
+
+    # Marker files/directories that indicate a project root
+    marker_files = [".git", "pyproject.toml", "setup.py"]
+
+    # Start from current working directory and __file__ location
+    start_paths = [Path.cwd(), Path(__file__).resolve().parent]
+
+    for start_path in start_paths:
+        current = start_path.resolve()
+        # Walk upward looking for marker files
+        for _ in range(10):  # Limit depth to prevent infinite loops
+            # Check if any marker file exists in current directory
+            if any((current / marker).exists() for marker in marker_files):
+                return current
+            # Stop at filesystem root
+            parent = current.parent
+            if parent == current:
+                break
+            current = parent
+
+    # Fall back to current working directory
+    return Path.cwd().resolve()
+
+
+def _display_local_path(path: Path) -> str:
+    """Return a path relative to the current working directory or project root."""
+    resolved_path = path.resolve()
+    candidates = [Path.cwd().resolve(), _find_project_root()]
+    for candidate in candidates:
+        try:
+            return str(resolved_path.relative_to(candidate))
+        except ValueError:
+            continue
+    return str(resolved_path)
+
+
+def _resolve_detected_agents(detected: list[str] | None, selected: list[str]) -> list[str]:
+    """Preserve explicitly empty detections while falling back when missing."""
+    return detected if detected is not None else selected
+
+
+def _build_summary_data(
+    *,
+    result: dict[str, Any] | None,
+    detected_agents: list[str],
+    selected_agents: list[str],
+    safe_mode: bool,
+    dry_run: bool,
+    source_info: dict[str, Any],
+    output_base: str,
+) -> dict[str, Any]:
+    """Build structured data describing generation results."""
+    prompts_loaded = result["prompts_loaded"] if result else 0
+    files_written = result["files_written"] if result else 0
+    planned_files = len(result["files"]) if result else 0
+    files_by_agent: dict[str, dict[str, Any]] = {}
+    prompt_entries: list[dict[str, str]] = []
+    base_path = Path(output_base).resolve()
+    repo_root = _find_project_root()
+    cwd = Path.cwd().resolve()
+    source_candidates = [cwd, repo_root]
+
+    def _relative_to_candidates(path_str: str, candidates: list[Path]) -> str:
+        file_path = Path(path_str)
+        for candidate in candidates:
+            try:
+                return str(file_path.resolve().relative_to(candidate.resolve()))
+            except (ValueError, FileNotFoundError):
+                continue
+        return str(file_path)
+
+    if result:
+        for file_info in result["files"]:
+            agent_key = file_info["agent"]
+            agent_entry = files_by_agent.setdefault(
+                agent_key,
+                {
+                    "display_name": file_info["agent_display_name"],
+                    "paths": [],
+                },
+            )
+            file_path = Path(file_info["path"])
+            rel_path = file_info["path"]
+            try:
+                rel_path = str(file_path.resolve().relative_to(base_path.resolve()))
+            except (ValueError, FileNotFoundError):
+                rel_path = str(file_path)
+            agent_entry["paths"].append(rel_path)
+
+        for entry in files_by_agent.values():
+            entry["count"] = len(entry["paths"])
+
+    def _relative_backup(path: str) -> str:
+        file_path = Path(path)
+        try:
+            return str(file_path.resolve().relative_to(base_path.resolve()))
+        except (ValueError, FileNotFoundError):
+            return path
+
+    backups_created = (
+        [_relative_backup(path) for path in result["backups_created"]] if result else []
+    )
+    backups_pending = (
+        [_relative_backup(path) for path in result["backups_pending"]] if result else []
+    )
+
+    if result:
+        for prompt in result["prompts"]:
+            prompt_entries.append(
+                {
+                    "name": prompt["name"],
+                    "path": _relative_to_candidates(prompt["path"], source_candidates),
+                }
+            )
+
+    return {
+        "mode": "dry-run" if dry_run else "generation",
+        "safe_mode": safe_mode,
+        "prompts_loaded": prompts_loaded,
+        "files_written": files_written,
+        "files_planned": planned_files,
+        "agents": {
+            "detected": detected_agents,
+            "selected": selected_agents,
+        },
+        "files": files_by_agent,
+        "backups": {
+            "created": backups_created,
+            "pending": backups_pending,
+        },
+        "source": source_info,
+        "prompts": prompt_entries,
+        "output_base": output_base,
+    }
+
+
+def _render_rich_summary(summary: dict[str, Any], *, record: bool = False) -> str | None:
+    """Render the structured summary using Rich."""
+    target_console = (
+        Console(record=True, width=SUMMARY_PANEL_WIDTH)
+        if record
+        else Console(width=SUMMARY_PANEL_WIDTH)
+    )
+    mode_label = "DRY RUN" if summary["mode"] == "dry-run" else "Generation"
+    mode_text = f"{mode_label} (safe mode)" if summary["safe_mode"] else mode_label
+
+    root = Tree(f"{mode_text} Summary")
+
+    counts = root.add("Counts")
+    counts.add(f"Prompts loaded: {summary['prompts_loaded']}")
+    counts.add(f"Files planned: {summary['files_planned']}")
+    counts.add(f"Files written: {summary['files_written']}")
+
+    agents_branch = root.add("Agents")
+    detected = agents_branch.add("Detected")
+    for agent in summary["agents"]["detected"] or ["None"]:
+        detected.add(agent)
+    selected = agents_branch.add("Selected")
+    for agent in summary["agents"]["selected"] or ["None"]:
+        selected.add(agent)
+
+    source_branch = root.add("Source")
+    if summary["source"]["type"] == "github":
+        gh = summary["source"]
+        source_branch.add(Text(f"Repository: {gh['display']}", overflow="fold"))
+    else:
+        source_branch.add(Text(f"Directory: {summary['source']['display']}", overflow="fold"))
+
+    output_branch = root.add("Output")
+    output_branch.add(Text(f"Directory: {summary['output_base']}", overflow="fold"))
+
+    backups_branch = root.add("Backups")
+    created = summary["backups"]["created"]
+    pending = summary["backups"]["pending"]
+    created_branch = backups_branch.add(f"Created: {len(created)}")
+    if created:
+        for path in created:
+            created_branch.add(path)
+    pending_branch = backups_branch.add(f"Pending: {len(pending)}")
+    if pending:
+        for path in pending:
+            pending_branch.add(path)
+
+    files_branch = root.add("Files")
+    if summary["files"]:
+        for agent_key, info in summary["files"].items():
+            display = info.get("display_name", agent_key)
+            count = info.get("count", 0)
+            agent_branch = files_branch.add(f"{display} ({agent_key}) • {count} file(s)")
+            for path in info.get("paths", []):
+                agent_branch.add(Text(path, overflow="fold"))
+    else:
+        files_branch.add("None")
+
+    prompts_branch = root.add("Prompts")
+    if summary["prompts"]:
+        for prompt in summary["prompts"]:
+            prompts_branch.add(Text(f"{prompt['name']}: {prompt['path']}", overflow="fold"))
+    else:
+        prompts_branch.add("None")
+
+    panel = Panel(
+        root,
+        title="Generation Summary",
+        border_style="cyan",
+        width=SUMMARY_PANEL_WIDTH,
+        expand=False,
+    )
+    target_console.print(panel)
+
+    if record:
+        return target_console.export_text(clear=False)
+    return None
+
+
+def _print_generation_complete(summary: dict[str, Any]) -> None:
+    """Print a concise textual completion message for interactive workflows."""
+    mode_label = "DRY RUN complete" if summary["mode"] == "dry-run" else "Generation complete"
+    console.print()
+    console.print(f"{mode_label}:")
+    console.print(f"  Prompts loaded: {summary['prompts_loaded']}")
+    console.print(f"  Files written: {summary['files_written']}")
 
 
 def _prompt_agent_selection(detected_agents: list) -> list:
@@ -117,7 +362,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         typer.Option(
             "--yes",
             "-y",
-            help="Skip confirmation prompts",
+            help="Skip confirmation prompts (forces backup-safe mode)",
         ),
     ] = False,
     target_path: Annotated[
@@ -259,6 +504,8 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         return
 
     # Detect agents if not specified
+    detected_agent_keys: list[str] = []
+
     if agents is None or len(agents) == 0:
         # Use detection_path if specified, otherwise target_path, otherwise home directory
         detection_dir = (
@@ -295,8 +542,14 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             # If --yes is used, auto-select all detected agents
             agents = [agent.key for agent in detected]
             print(f"Detected agents: {', '.join(agents)}")
+        detected_agent_keys = [agent.key for agent in detected]
     else:
         print(f"Selected agents: {', '.join(agents)}")
+        detected_agent_keys = agents.copy()
+
+    safe_mode = bool(yes)
+    if safe_mode:
+        print("Running in non-interactive safe mode: backups will be created before overwriting.")
 
     # Determine target path (default to home directory)
     actual_target_path = target_path if target_path is not None else Path.home()
@@ -308,7 +561,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
     actual_prompts_dir = prompts_dir if prompts_dir is not None else Path("prompts")
 
     # Create writer
-    overwrite_action = "overwrite" if yes else None
+    overwrite_action = "backup" if yes else None
     writer = SlashCommandWriter(
         prompts_dir=actual_prompts_dir,
         agents=agents,
@@ -320,6 +573,25 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         github_branch=github_branch,
         github_path=github_path,
     )
+
+    if github_repo and github_branch and github_path:
+        source_info: dict[str, Any] = {
+            "type": "github",
+            "repo": github_repo,
+            "branch": github_branch,
+            "path": github_path,
+            "display": f"{github_repo}@{github_branch}:{github_path}",
+        }
+    else:
+        resolved_prompts = actual_prompts_dir.resolve()
+        display_dir = _display_local_path(resolved_prompts)
+        source_info = {
+            "type": "local",
+            "path": str(resolved_prompts),
+            "display": display_dir,
+        }
+
+    selected_agent_keys = agents.copy()
 
     # Generate commands
     try:
@@ -341,6 +613,19 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         print("  - Check your internet connection", file=sys.stderr)
         print("  - Verify GitHub API is accessible", file=sys.stderr)
         raise typer.Exit(code=3) from None  # I/O error
+    except NoPromptsDiscoveredError as e:
+        print(str(e), file=sys.stderr)
+        summary_data = _build_summary_data(
+            result=None,
+            detected_agents=_resolve_detected_agents(detected_agent_keys, selected_agent_keys),
+            selected_agents=selected_agent_keys,
+            safe_mode=safe_mode,
+            dry_run=dry_run,
+            source_info=source_info,
+            output_base=str(actual_target_path.resolve()),
+        )
+        _render_rich_summary(summary_data)
+        raise typer.Exit(code=1) from None
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         print("\nTo fix this:", file=sys.stderr)
@@ -388,19 +673,18 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             raise typer.Exit(code=1) from None  # User cancellation
         raise
 
-    # Print summary
-    mode = "DRY RUN" if dry_run else "Generation"
-    print(f"\n{mode} complete:")
-    print(f"  Prompts loaded: {result['prompts_loaded']}")
-    print(f"  Files {'would be' if dry_run else ''} written: {result['files_written']}")
-    if result.get("backups_created"):
-        print(f"  Backups created: {len(result['backups_created'])}")
-        for backup in result["backups_created"]:
-            print(f"    - {backup}")
-    print("\nFiles:")
-    for file_info in result["files"]:
-        print(f"  - {file_info['path']}")
-        print(f"    Agent: {file_info['agent_display_name']} ({file_info['agent']})")
+    summary_data = _build_summary_data(
+        result=result,
+        detected_agents=_resolve_detected_agents(detected_agent_keys, selected_agent_keys),
+        selected_agents=selected_agent_keys,
+        safe_mode=safe_mode,
+        dry_run=dry_run,
+        source_info=source_info,
+        output_base=str(actual_target_path.resolve()),
+    )
+    _render_rich_summary(summary_data)
+    if result is not None:
+        _print_generation_complete(summary_data)
 
 
 @app.command()
