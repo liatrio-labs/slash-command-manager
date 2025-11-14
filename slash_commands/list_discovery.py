@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -199,3 +200,81 @@ def count_unmanaged_prompts(base_path: Path, agents: list[str]) -> dict[str, int
         unmanaged_counts[agent_key] = count
 
     return unmanaged_counts
+
+
+def count_backups(file_path: Path) -> int:
+    """Count backup files for a given command file.
+
+    Counts files matching pattern: {filename}.{extension}.{timestamp}.bak
+    where timestamp format is YYYYMMDD-HHMMSS.
+
+    Args:
+        file_path: Path to the command file
+
+    Returns:
+        Number of backup files found
+    """
+    if not file_path.exists():
+        return 0
+
+    # Get directory and base filename
+    directory = file_path.parent
+    base_name = file_path.stem
+    extension = file_path.suffix
+
+    # Pattern: filename.{extension}.YYYYMMDD-HHMMSS.bak
+    # Escape the extension for regex
+    escaped_ext = re.escape(extension)
+    pattern = re.compile(rf"^{re.escape(base_name)}{escaped_ext}\.\d{{8}}-\d{{6}}\.bak$")
+
+    count = 0
+    # Look for files matching the pattern in the same directory
+    for backup_file in directory.iterdir():
+        if backup_file.is_file() and pattern.match(backup_file.name):
+            count += 1
+
+    return count
+
+
+def format_source_info(meta: dict[str, Any]) -> str:
+    """Format source metadata into a single display line.
+
+    Consolidates source information from metadata:
+    - Local sources: "local: /path/to/prompts" (uses source_dir or source_path)
+    - GitHub sources: "github: owner/repo@branch:path"
+    - Missing fields: "Unknown"
+
+    Args:
+        meta: Metadata dict from command file
+
+    Returns:
+        Formatted source information string
+    """
+    source_type = meta.get("source_type", "")
+
+    if source_type == "local":
+        # Prefer source_dir, fallback to source_path
+        source_dir = meta.get("source_dir")
+        if source_dir:
+            return f"local: {source_dir}"
+        source_path = meta.get("source_path")
+        if source_path:
+            return f"local: {source_path}"
+        return "Unknown"
+
+    if source_type == "github":
+        source_repo = meta.get("source_repo")
+        source_branch = meta.get("source_branch", "")
+        source_path = meta.get("source_path", "")
+
+        if source_repo:
+            parts = [f"github: {source_repo}"]
+            if source_branch:
+                parts.append(f"@{source_branch}")
+            if source_path:
+                parts.append(f":{source_path}")
+            return "".join(parts)
+        return "Unknown"
+
+    # Unknown or missing source_type
+    return "Unknown"

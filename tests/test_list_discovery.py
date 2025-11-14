@@ -511,3 +511,196 @@ meta:
     # Verify only accessible managed file is discovered (inaccessible file skipped)
     assert len(result) == 1
     assert result[0]["name"] == "managed-command"
+
+
+def test_count_backups_returns_zero_for_no_backups(tmp_path: Path):
+    """Test that count_backups returns 0 when no backups exist."""
+    from slash_commands.list_discovery import count_backups
+
+    # Create a command file with no backups
+    command_file = tmp_path / "test-command.md"
+    command_file.write_text(
+        """---
+name: test-command
+meta:
+  managed_by: slash-man
+---
+# Test Command
+""",
+        encoding="utf-8",
+    )
+
+    # Count backups
+    count = count_backups(command_file)
+
+    # Verify count is 0
+    assert count == 0
+
+
+def test_count_backups_counts_matching_backups(tmp_path: Path):
+    """Test that count_backups counts backups matching pattern filename.{extension}.{timestamp}.bak."""
+    from slash_commands.list_discovery import count_backups
+
+    # Create a command file
+    command_file = tmp_path / "test-command.md"
+    command_file.write_text(
+        """---
+name: test-command
+meta:
+  managed_by: slash-man
+---
+# Test Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create backup files matching pattern: filename.{extension}.YYYYMMDD-HHMMSS.bak
+    backup1 = tmp_path / "test-command.md.20250115-123456.bak"
+    backup1.write_text("backup content 1", encoding="utf-8")
+
+    backup2 = tmp_path / "test-command.md.20250116-234567.bak"
+    backup2.write_text("backup content 2", encoding="utf-8")
+
+    # Count backups
+    count = count_backups(command_file)
+
+    # Verify count is 2
+    assert count == 2
+
+
+def test_count_backups_handles_multiple_backups(tmp_path: Path):
+    """Test that count_backups handles files with multiple backups."""
+    from slash_commands.list_discovery import count_backups
+
+    # Create a command file
+    command_file = tmp_path / "test-command.md"
+    command_file.write_text(
+        """---
+name: test-command
+meta:
+  managed_by: slash-man
+---
+# Test Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create multiple backup files
+    for i in range(5):
+        backup = tmp_path / f"test-command.md.2025011{i}-123456.bak"
+        backup.write_text(f"backup content {i}", encoding="utf-8")
+
+    # Count backups
+    count = count_backups(command_file)
+
+    # Verify count is 5
+    assert count == 5
+
+
+def test_count_backups_excludes_non_matching_files(tmp_path: Path):
+    """Test that count_backups excludes files that don't match backup pattern."""
+    from slash_commands.list_discovery import count_backups
+
+    # Create a command file
+    command_file = tmp_path / "test-command.md"
+    command_file.write_text(
+        """---
+name: test-command
+meta:
+  managed_by: slash-man
+---
+# Test Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create valid backup file
+    valid_backup = tmp_path / "test-command.md.20250115-123456.bak"
+    valid_backup.write_text("valid backup", encoding="utf-8")
+
+    # Create invalid backup files (don't match pattern)
+    invalid_backup1 = tmp_path / "test-command.md.bak"  # Missing timestamp
+    invalid_backup1.write_text("invalid backup 1", encoding="utf-8")
+
+    invalid_backup2 = tmp_path / "test-command.md.20250115.bak"  # Missing time part
+    invalid_backup2.write_text("invalid backup 2", encoding="utf-8")
+
+    invalid_backup3 = tmp_path / "test-command.md.abc12345-123456.bak"  # Invalid timestamp format
+    invalid_backup3.write_text("invalid backup 3", encoding="utf-8")
+
+    # Count backups
+    count = count_backups(command_file)
+
+    # Verify only valid backup is counted
+    assert count == 1
+
+
+def test_format_source_info_local_source():
+    """Test that format_source_info formats local source correctly."""
+    from slash_commands.list_discovery import format_source_info
+
+    # Test with source_dir
+    meta_with_dir = {
+        "source_type": "local",
+        "source_dir": "/path/to/prompts",
+    }
+    result = format_source_info(meta_with_dir)
+    assert result == "local: /path/to/prompts"
+
+    # Test with source_path (fallback)
+    meta_with_path = {
+        "source_type": "local",
+        "source_path": "/path/to/prompt.md",
+    }
+    result = format_source_info(meta_with_path)
+    assert result == "local: /path/to/prompt.md"
+
+    # Test with both (prefer source_dir)
+    meta_both = {
+        "source_type": "local",
+        "source_dir": "/path/to/prompts",
+        "source_path": "/path/to/prompt.md",
+    }
+    result = format_source_info(meta_both)
+    assert result == "local: /path/to/prompts"
+
+
+def test_format_source_info_github_source():
+    """Test that format_source_info formats GitHub source correctly."""
+    from slash_commands.list_discovery import format_source_info
+
+    # Test with all GitHub fields
+    meta_github = {
+        "source_type": "github",
+        "source_repo": "owner/repo",
+        "source_branch": "main",
+        "source_path": "prompts",
+    }
+    result = format_source_info(meta_github)
+    assert result == "github: owner/repo@main:prompts"
+
+
+def test_format_source_info_missing_fields():
+    """Test that format_source_info handles missing fields gracefully."""
+    from slash_commands.list_discovery import format_source_info
+
+    # Test with missing source_type
+    meta_no_type = {
+        "source_dir": "/path/to/prompts",
+    }
+    result = format_source_info(meta_no_type)
+    assert result == "Unknown"
+
+    # Test with empty meta
+    result = format_source_info({})
+    assert result == "Unknown"
+
+    # Test with GitHub source missing fields
+    meta_github_incomplete = {
+        "source_type": "github",
+        "source_repo": "owner/repo",
+        # Missing branch and path
+    }
+    result = format_source_info(meta_github_incomplete)
+    # Should handle gracefully - show what we have
+    assert result == "github: owner/repo"

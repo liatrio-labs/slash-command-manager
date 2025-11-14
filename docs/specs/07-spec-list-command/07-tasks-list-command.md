@@ -160,21 +160,21 @@ This command should be used whenever GitHub source metadata display or handling 
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Create function `count_backups(file_path: Path) -> int` in `slash_commands/list_discovery.py` that takes a file path and returns count of backup files matching pattern `{filename}.{extension}.{timestamp}.bak` (e.g., `command.md.20250115-123456.bak`). This matches the actual backup creation pattern from `writer.py` line 105: `backup_path = file_path.with_suffix(f"{file_path.suffix}.{timestamp}.bak")`
-- [ ] 3.2 Write failing unit tests for backup counting:
+- [x] 3.1 Create function `count_backups(file_path: Path) -> int` in `slash_commands/list_discovery.py` that takes a file path and returns count of backup files matching pattern `{filename}.{extension}.{timestamp}.bak` (e.g., `command.md.20250115-123456.bak`). This matches the actual backup creation pattern from `writer.py` line 105: `backup_path = file_path.with_suffix(f"{file_path.suffix}.{timestamp}.bak")`
+- [x] 3.2 Write failing unit tests for backup counting:
   - `test_count_backups_returns_zero_for_no_backups()` - handles files with no backups
   - `test_count_backups_counts_matching_backups()` - counts backups matching pattern `{filename}.{extension}.{timestamp}.bak` (e.g., `command.md.20250115-123456.bak`)
   - `test_count_backups_handles_multiple_backups()` - handles files with multiple backups
   - `test_count_backups_excludes_non_matching_files()` - excludes files that don't match backup pattern (e.g., `command.md.bak` without timestamp)
-- [ ] 3.3 Implement `count_backups()` using `Path.glob()` with pattern `{filename}.{extension}.*.bak` and validate timestamp format (`YYYYMMDD-HHMMSS`) to ensure only valid backups are counted. Use regex pattern `.*\{extension\}\.\d{8}-\d{6}\.bak$` similar to `writer.py` line 474, run tests to verify they pass
-- [ ] 3.4 Commit with message: `feat(list): implement backup counting logic`
-- [ ] 3.5 Create function `format_source_info()` in `slash_commands/list_discovery.py` that consolidates source metadata into a single display line
-- [ ] 3.6 Write failing unit tests for source metadata consolidation:
+- [x] 3.3 Implement `count_backups()` using `Path.glob()` with pattern `{filename}.{extension}.*.bak` and validate timestamp format (`YYYYMMDD-HHMMSS`) to ensure only valid backups are counted. Use regex pattern `.*\{extension\}\.\d{8}-\d{6}\.bak$` similar to `writer.py` line 474, run tests to verify they pass
+- [x] 3.4 Commit with message: `feat(list): implement backup counting logic`
+- [x] 3.5 Create function `format_source_info()` in `slash_commands/list_discovery.py` that consolidates source metadata into a single display line
+- [x] 3.6 Write failing unit tests for source metadata consolidation:
   - `test_format_source_info_local_source()` - formats local source as "local: /path/to/prompts" using `meta.source_dir` or `meta.source_path`
   - `test_format_source_info_github_source()` - formats GitHub source as "github: owner/repo@branch:path" using `meta.source_repo`, `meta.source_branch`, `meta.source_path`
   - `test_format_source_info_missing_fields()` - handles missing fields gracefully (shows "Unknown" or omits)
-- [ ] 3.7 Implement `format_source_info()` logic: check `meta.source_type`, format accordingly, handle missing fields, run tests to verify they pass
-- [ ] 3.8 Commit with message: `feat(list): implement source metadata consolidation`
+- [x] 3.7 Implement `format_source_info()` logic: check `meta.source_type`, format accordingly, handle missing fields, run tests to verify they pass
+- [x] 3.8 Commit with message: `feat(list): implement source metadata consolidation`
 - [ ] 3.9 Write failing integration test `test_list_shows_backup_counts()` in `tests/integration/test_list_command.py` that creates backups using the same pattern as `writer.py` (e.g., `command.md.20250115-123456.bak`) and verifies counts are shown correctly
 - [ ] 3.10 Run integration test to verify it passes
 - [ ] 3.11 Write failing integration test `test_list_shows_source_info()` in `tests/integration/test_list_command.py` that generates prompts from both local and GitHub sources and verifies source information is displayed correctly
