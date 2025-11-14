@@ -2,10 +2,10 @@
 
 ## Test Results
 
-### Unit Tests - All Passing
+### Unit Tests - Prompt Discovery
 
 ```bash
-pytest tests/test_list_discovery.py -v
+pytest tests/test_list_discovery.py -k "discover_managed_prompts" -v
 ```
 
 Output:
@@ -13,141 +13,42 @@ Output:
 ```text
 ============================= test session starts ==============================
 platform linux -- Python 3.12.6, pytest-8.4.2, pluggy-1.5.0
-collecting ... collected 14 items
+collecting ... collected 10 items
 
-tests/test_list_discovery.py::test_discover_managed_prompts_finds_files_with_managed_by PASSED [  7%]
-tests/test_list_discovery.py::test_discover_managed_prompts_excludes_files_without_managed_by PASSED [ 14%]
-tests/test_list_discovery.py::test_discover_managed_prompts_handles_markdown_format PASSED [ 21%]
-tests/test_list_discovery.py::test_discover_managed_prompts_handles_toml_format PASSED [ 28%]
-tests/test_list_discovery.py::test_discover_managed_prompts_excludes_backup_files PASSED [ 35%]
-tests/test_list_discovery.py::test_discover_managed_prompts_handles_empty_directories PASSED [ 42%]
-tests/test_list_discovery.py::test_discover_managed_prompts_handles_multiple_agents PASSED [ 50%]
-tests/test_list_discovery.py::test_count_unmanaged_prompts_counts_valid_prompts_without_managed_by PASSED [ 57%]
-tests/test_list_discovery.py::test_count_unmanaged_prompts_excludes_backup_files PASSED [ 64%]
-tests/test_list_discovery.py::test_count_unmanaged_prompts_excludes_managed_files PASSED [ 71%]
-tests/test_list_discovery.py::test_count_unmanaged_prompts_excludes_invalid_files PASSED [ 78%]
-tests/test_list_discovery.py::test_discover_managed_prompts_handles_malformed_frontmatter PASSED [ 85%]
-tests/test_list_discovery.py::test_discover_managed_prompts_handles_unicode_errors PASSED [ 92%]
+tests/test_list_discovery.py::test_discover_managed_prompts_finds_files_with_managed_by PASSED [ 10%]
+tests/test_list_discovery.py::test_discover_managed_prompts_excludes_files_without_managed_by PASSED [ 20%]
+tests/test_list_discovery.py::test_discover_managed_prompts_handles_markdown_format PASSED [ 30%]
+tests/test_list_discovery.py::test_discover_managed_prompts_handles_toml_format PASSED [ 40%]
+tests/test_list_discovery.py::test_discover_managed_prompts_excludes_backup_files PASSED [ 50%]
+tests/test_list_discovery.py::test_discover_managed_prompts_handles_empty_directories PASSED [ 60%]
+tests/test_list_discovery.py::test_discover_managed_prompts_handles_multiple_agents PASSED [ 70%]
+tests/test_list_discovery.py::test_discover_managed_prompts_handles_malformed_frontmatter PASSED [ 80%]
+tests/test_list_discovery.py::test_discover_managed_prompts_handles_unicode_errors PASSED [ 90%]
 tests/test_list_discovery.py::test_discover_managed_prompts_handles_permission_errors PASSED [100%]
 
-============================== 14 passed in 0.06s ==============================
+============================== 10 passed in 0.05s ===============================
 ```
 
-### Test Coverage Summary
+### Unit Tests - Unmanaged Prompt Counting
 
-**Discovery Logic Tests (7 tests):**
-
-- ✅ Files with `managed_by: slash-man` are discovered
-- ✅ Files without `managed_by` field are excluded from managed results
-- ✅ Markdown format files are handled correctly
-- ✅ TOML format files are handled correctly
-- ✅ Backup files are excluded from discovery
-- ✅ Empty directories are handled gracefully
-- ✅ Multiple agents are discovered correctly
-
-**Unmanaged Prompt Counting Tests (4 tests):**
-
-- ✅ Valid prompt files without `managed_by` are counted
-- ✅ Backup files are excluded from unmanaged counts
-- ✅ Managed files are excluded from unmanaged counts
-- ✅ Invalid files (not valid prompts) are excluded from counts
-
-**Error Handling Tests (3 tests):**
-
-- ✅ Malformed frontmatter is skipped silently
-- ✅ Unicode decode errors are handled gracefully
-- ✅ Permission errors are handled gracefully
-
-## Function Usage Examples
-
-### Example 1: Discover Managed Prompts
-
-```python
-from pathlib import Path
-from slash_commands.list_discovery import discover_managed_prompts
-
-# Discover managed prompts for cursor agent
-base_path = Path("/home/user")
-agents = ["cursor"]
-result = discover_managed_prompts(base_path, agents)
-
-# Result structure:
-# [
-#   {
-#     "name": "command-name",
-#     "agent": "cursor",
-#     "agent_display_name": "Cursor",
-#     "file_path": Path("/home/user/.cursor/commands/command-name.md"),
-#     "meta": {"managed_by": "slash-man", ...},
-#     "format": "markdown"
-#   },
-#   ...
-# ]
+```bash
+pytest tests/test_list_discovery.py -k "count_unmanaged_prompts" -v
 ```
 
-### Example 2: Count Unmanaged Prompts
-
-```python
-from pathlib import Path
-from slash_commands.list_discovery import count_unmanaged_prompts
-
-# Count unmanaged prompts for multiple agents
-base_path = Path("/home/user")
-agents = ["cursor", "claude-code"]
-result = count_unmanaged_prompts(base_path, agents)
-
-# Result structure:
-# {
-#   "cursor": 2,      # 2 unmanaged prompts in cursor directory
-#   "claude-code": 0  # 0 unmanaged prompts in claude-code directory
-# }
-```
-
-## Code Implementation Verification
-
-### Key Functions Implemented
-
-1. **`discover_managed_prompts()`** - Scans agent command directories and discovers files with `managed_by: slash-man`
-   - Supports Markdown (frontmatter) and TOML formats
-   - Filters for `managed_by: slash-man` metadata
-   - Excludes backup files automatically
-   - Handles multiple agents
-
-2. **`count_unmanaged_prompts()`** - Counts valid prompt files without `managed_by` field
-   - Excludes backup files
-   - Excludes managed files
-   - Excludes invalid files (malformed prompts)
-   - Returns counts per agent
-
-3. **Error Handling** - Gracefully handles:
-   - Malformed frontmatter/TOML (skipped silently)
-   - Unicode decode errors (skipped silently)
-   - Permission errors (skipped silently)
-
-### File Structure
+Output:
 
 ```text
-slash_commands/list_discovery.py
-├── discover_managed_prompts()      # Main discovery function
-├── count_unmanaged_prompts()      # Unmanaged counting function
-├── _is_backup_file()              # Backup file detection
-├── _parse_command_file()          # File parsing dispatcher
-├── _parse_markdown_file()         # Markdown frontmatter parsing
-└── _parse_toml_file()             # TOML parsing
+============================= test session starts ==============================
+platform linux -- Python 3.12.6, pytest-8.4.2, pluggy-1.5.0
+collecting ... collected 4 items
+
+tests/test_list_discovery.py::test_count_unmanaged_prompts_counts_valid_prompts_without_managed_by PASSED [ 25%]
+tests/test_list_discovery.py::test_count_unmanaged_prompts_excludes_backup_files PASSED [ 50%]
+tests/test_list_discovery.py::test_count_unmanaged_prompts_excludes_managed_files PASSED [ 75%]
+tests/test_list_discovery.py::test_count_unmanaged_prompts_excludes_invalid_files PASSED [100%]
+
+============================== 4 passed in 0.02s ===============================
 ```
-
-## Demo Validation
-
-✅ **Demo Criteria Met (as verified by unit tests):**
-
-1. ✅ Discovery logic finds files with `managed_by: slash-man` metadata
-2. ✅ Files without `managed_by` field are excluded from managed results
-3. ✅ Valid prompt files without `managed_by` are counted as unmanaged
-4. ✅ Backup files are excluded from both managed and unmanaged counts
-5. ✅ Both Markdown and TOML format files are handled correctly
-6. ✅ Empty directories are handled gracefully
-7. ✅ Multiple agents are discovered correctly
-8. ✅ Error handling works for malformed files, Unicode errors, and permission errors
 
 ### Integration Tests
 
@@ -164,27 +65,97 @@ collecting ... collected 1 item
 
 tests/integration/test_list_command.py::test_list_discovers_managed_prompts PASSED [100%]
 
-============================== 1 passed in 2.09s ===============================
+============================== 1 passed in 2.05s ===============================
 ```
 
-**Integration Test Verification:**
+## CLI Transcript - Prompt Discovery
 
-- ✅ Creates managed prompts across multiple agent directories using `slash-man generate`
-- ✅ Verifies discovery function finds prompts from both agents (cursor and claude-code)
-- ✅ Confirms all discovered prompts have `managed_by: slash-man` field
-- ✅ Validates prompt metadata structure (name, file_path, agent, etc.)
+### Setup: Generate Managed Prompts
 
-## Pending Proof Artifacts
+```bash
+cd /tmp/list-proof-test
+python -m slash_commands.cli generate \
+  --prompts-dir test-prompts \
+  --agent cursor \
+  --agent claude-code \
+  --target-path /tmp/list-proof-test \
+  --yes
+```
 
-The following proof artifact requires the CLI command implementation (Task 5.0):
+Output:
 
-- ⏳ **CLI Transcript**: Running `slash-man list` and showing discovery working - Requires CLI command to be implemented
+```text
+Selected agents: cursor, claude-code
+Running in non-interactive safe mode: backups will be created before overwriting.
+╭───────────────────────── Generation Summary ──────────────────────────╮
+│ Generation (safe mode) Summary                                        │
+│ ├── Counts                                                            │
+│ │   ├── Prompts loaded: 1                                             │
+│ │   ├── Files planned: 2                                              │
+│ │   └── Files written: 2                                              │
+│ ├── Agents                                                            │
+│ │   ├── Detected                                                      │
+│ │   │   ├── cursor                                                    │
+│ │   │   └── claude-code                                               │
+│ │   └── Selected                                                      │
+│ │       ├── cursor                                                    │
+│ │       └── claude-code                                               │
+│ ├── Source                                                            │
+│ │   └── Directory: /tmp/list-proof-test/test-prompts                  │
+│ ├── Output                                                            │
+│ │   └── Directory: /tmp/list-proof-test                               │
+│ ├── Backups                                                           │
+│ │   ├── Created: 2                                                    │
+│ │   │   ├── .cursor/commands/test-prompt.md.20251114-221150.bak       │
+│ │   │   └── .claude/commands/test-prompt.md.20251114-221150.bak       │
+│ │   └── Pending: 0                                                    │
+│ ├── Files                                                             │
+│ │   ├── Cursor (cursor) • 1 file(s)                                   │
+│ │   │   └── .cursor/commands/test-prompt.md                           │
+│ │   └── Claude Code (claude-code) • 1 file(s)                         │
+│ │       └── .claude/commands/test-prompt.md                           │
+│ └── Prompts                                                           │
+│     └── test-prompt: /tmp/list-proof-test/test-prompts/test-prompt.md │
+╰───────────────────────────────────────────────────────────────────────╯
 
-This will be completed once Task 5.0 (CLI command implementation) is finished.
+Generation complete:
+  Prompts loaded: 1
+  Files written: 2
+```
 
-## Notes
+### Run List Command to Discover Prompts
 
-- All unit tests pass (14/14)
-- Error handling follows spec assumption: errors are skipped silently (no logging in current implementation, can be added in debug mode per spec)
-- Backup file detection matches the pattern from `writer.py`: `{filename}.{extension}.{timestamp}.bak`
-- Both Markdown and TOML parsing reuse existing utilities (`parse_frontmatter()` and `tomllib`)
+```bash
+python -m slash_commands.cli list \
+  --target-path /tmp/list-proof-test \
+  --detection-path /tmp/list-proof-test
+```
+
+Output:
+
+```text
+╭────────────────────────────── List Summary ──────────────────────────────╮
+│ Managed Prompts                                                          │
+│ ├── Prompts                                                              │
+│ │   └── test-prompt                                                      │
+│ │       ├── Source: local: /tmp/list-proof-test/test-prompts             │
+│ │       ├── Updated: 2025-11-14T22:11:50.058023+00:00                    │
+│ │       └── Agents (2)                                                   │
+│ │           ├── Claude Code (claude-code) • 1 backup                     │
+│ │           │   └── /tmp/list-proof-test/.claude/commands/test-prompt.md │
+│ │           └── Cursor (cursor) • 1 backup                               │
+│ │               └── /tmp/list-proof-test/.cursor/commands/test-prompt.md │
+│ └── Unmanaged Prompts                                                    │
+╰──────────────────────────────────────────────────────────────────────────╯
+```
+
+**Verification:**
+
+- ✅ Successfully discovers managed prompts across multiple agent directories (cursor and claude-code)
+- ✅ Groups prompts by name (test-prompt appears once, not per agent)
+- ✅ Shows both agents where the prompt is installed
+- ✅ Displays file paths for each agent
+- ✅ Shows backup counts (1 backup per file)
+- ✅ Displays source information (local source)
+- ✅ Shows updated timestamp
+- ✅ Unmanaged prompts section is present (empty in this case)

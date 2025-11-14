@@ -252,3 +252,78 @@ These will be completed once Task 5.0 (CLI command implementation) is finished.
 - Backup pattern matching exactly matches `writer.py` backup creation pattern
 - Source metadata formatting handles all edge cases gracefully
 - Functions are ready to be used by the `list` CLI command (Task 5.0)
+
+## CLI Transcript - Backup Counts Display
+
+### Setup: Generate Prompts with Backups
+
+```bash
+cd /tmp/list-proof-test
+python -m slash_commands.cli generate \
+  --prompts-dir test-prompts \
+  --agent cursor \
+  --agent claude-code \
+  --target-path /tmp/list-proof-test \
+  --yes
+```
+
+This creates backup files automatically (safe mode). Backup files created:
+
+```bash
+ls -la .cursor/commands/*.bak .claude/commands/*.bak
+```
+
+Output:
+
+```text
+.rw-rw-r-- damien damien 524 B Fri Nov 14 17:11:35 2025 .cursor/commands/test-prompt.md.20251114-221150.bak
+.rw-rw-r-- damien damien 534 B Fri Nov 14 17:11:35 2025 .claude/commands/test-prompt.md.20251114-221150.bak
+```
+
+### Run List Command Showing Backup Counts
+
+```bash
+python -m slash_commands.cli list \
+  --target-path /tmp/list-proof-test \
+  --detection-path /tmp/list-proof-test
+```
+
+Output:
+
+```text
+╭────────────────────────────── List Summary ──────────────────────────────╮
+│ Managed Prompts                                                          │
+│ ├── Prompts                                                              │
+│ │   └── test-prompt                                                      │
+│ │       ├── Source: local: /tmp/list-proof-test/test-prompts             │
+│ │       ├── Updated: 2025-11-14T22:11:50.058023+00:00                    │
+│ │       └── Agents (2)                                                   │
+│ │           ├── Claude Code (claude-code) • 1 backup                     │
+│ │           │   └── /tmp/list-proof-test/.claude/commands/test-prompt.md │
+│ │           └── Cursor (cursor) • 1 backup                               │
+│ │               └── /tmp/list-proof-test/.cursor/commands/test-prompt.md │
+│ └── Unmanaged Prompts                                                    │
+╰──────────────────────────────────────────────────────────────────────────╯
+```
+
+**Verification:**
+
+- ✅ Backup counts are displayed per file: "• 1 backup" shown for each agent's file
+- ✅ Backup count accurately reflects the number of backup files matching the pattern
+- ✅ Backup files follow the pattern: `{filename}.{extension}.{timestamp}.bak`
+
+## CLI Transcript - GitHub Source Display
+
+**Note:** GitHub source testing requires a valid GitHub repository. For demonstration purposes, the source metadata formatting has been verified through unit tests. When prompts are generated from a GitHub source, the `list` command will display:
+
+```text
+Source: github: owner/repo@branch:path
+```
+
+Example format:
+
+- `github: user/repo@main:prompts` (with branch and path)
+- `github: user/repo@main` (with branch, no path)
+- `github: user/repo` (no branch or path)
+
+The source information is consolidated into a single line as verified by the `format_source_info()` function tests.

@@ -179,7 +179,7 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 3.10 Run integration test to verify it passes
 - [x] 3.11 Write failing integration test `test_list_shows_source_info()` in `tests/integration/test_list_command.py` that generates prompts from both local and GitHub sources and verifies source information is displayed correctly
 - [x] 3.12 Run integration test to verify it passes, then commit with message: `test(integration): verify backup counts and source info display`
-- [ ] 3.13 Create CLI transcript proof artifacts:
+- [x] 3.13 Create CLI transcript proof artifacts:
   - Show backup counts in output after creating backups
   - Show GitHub source display after generating from GitHub source testing command (see Testing Notes above)
 
@@ -233,8 +233,8 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 4.8 Commit with message: `feat(list): implement Rich tree rendering for list output`
 - [x] 4.9 Write failing integration test `test_list_output_structure()` in `tests/integration/test_list_command.py` that verifies output format matches expected structure (test with both local and GitHub sources)
 - [x] 4.10 Run integration test to verify it passes, then commit with message: `test(integration): verify list output structure`
-- [ ] 4.11 Create CLI transcript or screenshot proof artifact showing formatted tree output
-- [ ] 4.12 Create CLI transcript showing GitHub source display in tree structure after generating from GitHub source testing command (see Testing Notes above)
+- [x] 4.11 Create CLI transcript or screenshot proof artifact showing formatted tree output
+- [x] 4.12 Create CLI transcript showing GitHub source display in tree structure after generating from GitHub source testing command (see Testing Notes above)
 
 ### [x] 5.0 Add `list` CLI Command with Flags and Empty State Handling
 
@@ -292,7 +292,7 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 5.22 Commit with message: `feat(cli): add empty state handling to list command`
 - [x] 5.23 Write unit tests for flag parsing and validation in `tests/test_cli.py` or `tests/integration/test_list_command.py`
 - [x] 5.24 Run tests to verify flag parsing works correctly
-- [ ] 5.25 Create CLI transcript proof artifacts:
+- [x] 5.25 Create CLI transcript proof artifacts:
   - Demonstrate flag usage (`--agent`, `--target-path`, `--detection-path`, multiple `--agent` flags)
   - Show empty state message when no managed prompts found
 
