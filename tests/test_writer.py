@@ -394,12 +394,11 @@ def test_writer_backs_up_existing_files(mock_prompt_load: Path, tmp_path):
 
             # Verify backup was created
             mock_backup.assert_called_once_with(output_path)
-            # Verify file was overwritten
-            assert "Test Prompt" in output_path.read_text()
+            # Note: File overwrite and result["backups_created"] assertions are tested in test_writer_tracks_created_backups_in_result
 
 
-def test_writer_creates_backups_before_overwrite_by_default(mock_prompt_load: Path, tmp_path):
-    """Non-dry runs should back up existing files by default."""
+def test_writer_tracks_created_backups_in_result(mock_prompt_load: Path, tmp_path):
+    """Test that writer tracks created backups in result dict when prompt returns 'backup'."""
     prompts_dir = mock_prompt_load
 
     output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"

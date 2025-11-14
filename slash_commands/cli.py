@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -60,15 +61,56 @@ console = Console(width=120)
 SUMMARY_PANEL_WIDTH = 80
 
 
+def _find_project_root() -> Path:
+    """Find the project root directory using a robust strategy.
+
+    Strategy:
+    1. Check PROJECT_ROOT environment variable first
+    2. Walk upward from Path.cwd() and Path(__file__) looking for marker files/directories
+       (.git directory, pyproject.toml, setup.py)
+    3. Fall back to Path.cwd() if no marker is found
+
+    Returns:
+        Resolved Path to the project root directory
+    """
+    # Check environment variable first
+    env_root = os.getenv("PROJECT_ROOT")
+    if env_root:
+        return Path(env_root).resolve()
+
+    # Marker files/directories that indicate a project root
+    marker_files = [".git", "pyproject.toml", "setup.py"]
+
+    # Start from current working directory and __file__ location
+    start_paths = [Path.cwd(), Path(__file__).resolve().parent]
+
+    for start_path in start_paths:
+        current = start_path.resolve()
+        # Walk upward looking for marker files
+        for _ in range(10):  # Limit depth to prevent infinite loops
+            # Check if any marker file exists in current directory
+            if any((current / marker).exists() for marker in marker_files):
+                return current
+            # Stop at filesystem root
+            parent = current.parent
+            if parent == current:
+                break
+            current = parent
+
+    # Fall back to current working directory
+    return Path.cwd().resolve()
+
+
 def _display_local_path(path: Path) -> str:
     """Return a path relative to the current working directory or project root."""
-    candidates = [Path.cwd(), Path(__file__).resolve().parent.parent]
+    resolved_path = path.resolve()
+    candidates = [Path.cwd().resolve(), _find_project_root()]
     for candidate in candidates:
         try:
-            return str(path.resolve().relative_to(candidate.resolve()))
+            return str(resolved_path.relative_to(candidate))
         except ValueError:
             continue
-    return str(path.resolve())
+    return str(resolved_path)
 
 
 def _resolve_detected_agents(detected: list[str] | None, selected: list[str]) -> list[str]:
@@ -92,9 +134,9 @@ def _build_summary_data(
     planned_files = len(result["files"]) if result else 0
     files_by_agent: dict[str, dict[str, Any]] = {}
     prompt_entries: list[dict[str, str]] = []
-    base_path = Path(output_base)
-    repo_root = Path(__file__).resolve().parent.parent
-    cwd = Path.cwd()
+    base_path = Path(output_base).resolve()
+    repo_root = _find_project_root()
+    cwd = Path.cwd().resolve()
     source_candidates = [cwd, repo_root]
 
     def _relative_to_candidates(path_str: str, candidates: list[Path]) -> str:
