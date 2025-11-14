@@ -117,7 +117,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         typer.Option(
             "--yes",
             "-y",
-            help="Skip confirmation prompts",
+            help="Skip confirmation prompts (forces backup-safe mode)",
         ),
     ] = False,
     target_path: Annotated[
@@ -297,6 +297,10 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             print(f"Detected agents: {', '.join(agents)}")
     else:
         print(f"Selected agents: {', '.join(agents)}")
+
+    safe_mode = bool(yes)
+    if safe_mode:
+        print("Running in non-interactive safe mode: backups will be created before overwriting.")
 
     # Determine target path (default to home directory)
     actual_target_path = target_path if target_path is not None else Path.home()

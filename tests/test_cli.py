@@ -113,6 +113,60 @@ def test_cli_dry_run_reports_pending_backups(mock_prompts_dir, tmp_path):
     assert "backups would be created" in lower_output or "pending backups" in lower_output
 
 
+def test_cli_yes_flag_injects_backup_action(mock_prompts_dir, tmp_path):
+    """--yes should always configure the writer to use backup overwrite action."""
+    runner = CliRunner()
+    with patch("slash_commands.cli.SlashCommandWriter") as mock_writer:
+        writer_instance = mock_writer.return_value
+        writer_instance.generate.return_value = {
+            "prompts_loaded": 0,
+            "files_written": 0,
+            "files": [],
+            "prompts": [],
+            "backups_created": [],
+            "backups_pending": [],
+        }
+
+        result = runner.invoke(
+            app,
+            [
+                "generate",
+                "--prompts-dir",
+                str(mock_prompts_dir),
+                "--agent",
+                "claude-code",
+                "--target-path",
+                str(tmp_path),
+                "--yes",
+            ],
+        )
+
+        assert result.exit_code == 0
+        _, kwargs = mock_writer.call_args
+        assert kwargs["overwrite_action"] == "backup"
+
+
+def test_cli_yes_flag_mentions_safe_mode(mock_prompts_dir, tmp_path):
+    """--yes output should mention non-interactive safe mode to users."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--agent",
+            "claude-code",
+            "--target-path",
+            str(tmp_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "safe mode" in result.stdout.lower()
+
+
 def test_cli_generates_files_for_single_agent(mock_prompts_dir, tmp_path):
     """Test that CLI generates files for a single agent."""
     runner = CliRunner()
@@ -291,7 +345,7 @@ def test_cli_prompts_for_overwrite_without_yes(mock_prompts_dir, tmp_path):
     with patch(
         "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
     ) as mock_prompt:
-        mock_prompt.return_value = "overwrite"
+        mock_prompt.return_value = "skip-backups"
         result = runner.invoke(
             app,
             [

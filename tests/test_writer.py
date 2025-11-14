@@ -329,7 +329,7 @@ def test_writer_detects_existing_files(mock_prompt_load: Path, tmp_path):
     with patch(
         "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
     ) as mock_prompt:
-        mock_prompt.return_value = "overwrite"
+        mock_prompt.return_value = "backup"
         writer.generate()
 
         # Verify prompt was called

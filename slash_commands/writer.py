@@ -59,7 +59,7 @@ def _find_package_prompts_dir() -> Path | None:
     return None
 
 
-OverwriteAction = Literal["cancel", "overwrite", "backup", "overwrite-all"]
+OverwriteAction = Literal["cancel", "overwrite", "backup", "overwrite-all", "skip-backups"]
 
 
 def prompt_overwrite_action(file_path: Path) -> OverwriteAction:
@@ -308,17 +308,24 @@ class SlashCommandWriter:
         file_count = len(existing_files)
         response = questionary.select(
             f"Found {file_count} existing file{'s' if file_count != 1 else ''} "
-            f"that will be overwritten.\nWhat would you like to do?",
+            "that will be overwritten.\nWhat would you like to do?",
             choices=[
                 questionary.Choice("Cancel", "cancel"),
-                questionary.Choice("Overwrite all existing files", "overwrite"),
-                questionary.Choice("Create backups and overwrite all", "backup"),
+                questionary.Choice("Create backups and overwrite all (recommended)", "backup"),
+                questionary.Choice(
+                    "Skip backups and overwrite all (NOT RECOMMENDED)", "skip-backups"
+                ),
             ],
         ).ask()
 
         if response is None:
             # User pressed Ctrl+C or similar
             return "cancel"
+
+        if response == "skip-backups":
+            print(
+                "WARNING: Skip backups selected. Existing files will be overwritten without backups."
+            )
 
         return response  # type: ignore[return-value]
 

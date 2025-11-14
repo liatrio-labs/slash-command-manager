@@ -141,8 +141,8 @@ def test_single_prompt_cancel_cancels_all(mock_prompts_dir, tmp_path):
             assert file_path.read_text() == "existing content"
 
 
-def test_single_prompt_overwrite_all_applies_to_all(mock_prompts_dir, tmp_path):
-    """Test that 'overwrite' choice applies to all existing files."""
+def test_single_prompt_skip_backups_applies_to_all(mock_prompts_dir, tmp_path):
+    """Test that the skip backups choice applies to all existing files."""
     # Create existing files
     claude_dir = tmp_path / ".claude" / "commands"
     claude_dir.mkdir(parents=True, exist_ok=True)
@@ -156,7 +156,7 @@ def test_single_prompt_overwrite_all_applies_to_all(mock_prompts_dir, tmp_path):
     with patch(
         "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
     ) as mock_prompt:
-        mock_prompt.return_value = "overwrite"
+        mock_prompt.return_value = "skip-backups"
 
         result = runner.invoke(
             app,

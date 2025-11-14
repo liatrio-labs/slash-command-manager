@@ -37,7 +37,7 @@
 - [x] 1.4 Propagate backup counts/paths into the CLI summary payload so later Rich rendering can display them accurately.
 - [x] 1.5 From inside the Docker test container, run `slash-man generate --agents claude-code --yes` against seeded prompts to capture proof of `.bak` creation plus corresponding `ls -l` output.
 
-### [ ] 2.0 Align `--yes` and Interactive Choices With Safety Policy
+### [x] 2.0 Align `--yes` and Interactive Choices With Safety Policy
 
 #### 2.0 Demo Criteria
 
@@ -53,11 +53,11 @@
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Create failing tests in `tests/test_cli.py` (and/or a new `tests/test_cli_flags.py`) to assert `--yes` always injects the `backup` action and surfaces a “non-interactive safe mode” indicator.
-- [ ] 2.2 Add a pexpect-driven integration test (Docker-compatible) that walks the interactive overwrite prompt, selects “skip backups,” and verifies it is the only route that avoids backups.
-- [ ] 2.3 Update `slash_commands/cli.py` flag handling so `--yes` sets `overwrite_action="backup"` while interactive flows continue to honor user choices; include new help text describing the safety policy.
-- [ ] 2.4 Ensure questionary menu options label the skip-backups path clearly and log the selection for auditability.
-- [ ] 2.5 Capture containerized CLI help/output demonstrating the updated messaging for proof artifacts (no local file changes).
+- [x] 2.1 Create failing tests in `tests/test_cli.py` (and/or a new `tests/test_cli_flags.py`) to assert `--yes` always injects the `backup` action and surfaces a “non-interactive safe mode” indicator.
+- [x] 2.2 Add a pexpect-driven integration test (Docker-compatible) that walks the interactive overwrite prompt, selects “skip backups,” and verifies it is the only route that avoids backups.
+- [x] 2.3 Update `slash_commands/cli.py` flag handling so `--yes` sets `overwrite_action="backup"` while interactive flows continue to honor user choices; include new help text describing the safety policy.
+- [x] 2.4 Ensure questionary menu options label the skip-backups path clearly and log the selection for auditability.
+- [x] 2.5 Capture containerized CLI help/output demonstrating the updated messaging for proof artifacts (no local file changes).
 
 ### [ ] 3.0 Guard Against Missing Prompts With Actionable Errors
 
