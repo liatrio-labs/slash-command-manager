@@ -236,7 +236,7 @@ This command should be used whenever GitHub source metadata display or handling 
 - [ ] 4.11 Create CLI transcript or screenshot proof artifact showing formatted tree output
 - [ ] 4.12 Create CLI transcript showing GitHub source display in tree structure after generating from GitHub source testing command (see Testing Notes above)
 
-### [ ] 5.0 Add `list` CLI Command with Flags and Empty State Handling
+### [x] 5.0 Add `list` CLI Command with Flags and Empty State Handling
 
 #### 5.0 Demo Criteria
 
@@ -290,8 +290,8 @@ This command should be used whenever GitHub source metadata display or handling 
   - Exit code is 0 (success, not error)
 - [x] 5.21 Implement empty state handling in `list` command: check if no managed prompts found, display informative message, exit with code 0, run test to verify it passes
 - [x] 5.22 Commit with message: `feat(cli): add empty state handling to list command`
-- [ ] 5.23 Write unit tests for flag parsing and validation in `tests/test_cli.py` or `tests/integration/test_list_command.py`
-- [ ] 5.24 Run tests to verify flag parsing works correctly
+- [x] 5.23 Write unit tests for flag parsing and validation in `tests/test_cli.py` or `tests/integration/test_list_command.py`
+- [x] 5.24 Run tests to verify flag parsing works correctly
 - [ ] 5.25 Create CLI transcript proof artifacts:
   - Demonstrate flag usage (`--agent`, `--target-path`, `--detection-path`, multiple `--agent` flags)
   - Show empty state message when no managed prompts found
