@@ -209,3 +209,50 @@ def test_list_output_structure(temp_test_dir, test_prompts_dir):
     assert "Unmanaged" in output or len(unmanaged_counts) == 0, (
         "Output should handle unmanaged counts"
     )
+
+
+def test_list_command_executes_successfully(temp_test_dir, test_prompts_dir):
+    """Test that list command executes successfully."""
+    # Generate a managed prompt first
+    cmd_generate = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_generate = subprocess.run(
+        cmd_generate,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_generate.returncode == 0, f"Failed to generate prompt: {result_generate.stderr}"
+
+    # Run list command
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    # Verify exit code is 0
+    assert result_list.returncode == 0, (
+        f"List command failed with exit code {result_list.returncode}: {result_list.stderr}"
+    )
+
+    # Verify output contains expected elements
+    assert "Managed Prompts" in result_list.stdout or "List Summary" in result_list.stdout, (
+        "Output should contain tree structure"
+    )

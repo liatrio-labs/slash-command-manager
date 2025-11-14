@@ -183,7 +183,7 @@ This command should be used whenever GitHub source metadata display or handling 
   - Show backup counts in output after creating backups
   - Show GitHub source display after generating from GitHub source testing command (see Testing Notes above)
 
-### [ ] 4.0 Implement Rich Output Display with Tree Structure
+### [x] 4.0 Implement Rich Output Display with Tree Structure
 
 #### 4.0 Demo Criteria
 
@@ -264,10 +264,10 @@ This command should be used whenever GitHub source metadata display or handling 
 
 #### 5.0 Tasks
 
-- [ ] 5.1 Add `list` command function to `slash_commands/cli.py` using `@app.command()` decorator with basic structure (no flags yet)
-- [ ] 5.2 Write failing integration test `test_list_command_executes_successfully()` in `tests/integration/test_list_command.py` that runs `slash-man list` and verifies exit code is 0
-- [ ] 5.3 Implement basic `list` command that calls discovery functions and renders output, run test to verify it passes
-- [ ] 5.4 Commit with message: `feat(cli): add basic list command`
+- [x] 5.1 Add `list` command function to `slash_commands/cli.py` using `@app.command()` decorator with basic structure (no flags yet)
+- [x] 5.2 Write failing integration test `test_list_command_executes_successfully()` in `tests/integration/test_list_command.py` that runs `slash-man list` and verifies exit code is 0
+- [x] 5.3 Implement basic `list` command that calls discovery functions and renders output, run test to verify it passes
+- [x] 5.4 Commit with message: `feat(cli): add basic list command`
 - [ ] 5.5 Add `--agent` / `-a` flag to `list` command in `slash_commands/cli.py` (can be specified multiple times, matches `generate` command behavior)
 - [ ] 5.6 Write failing integration test `test_list_agent_flag_filters_results()` in `tests/integration/test_list_command.py` that runs `slash-man list --agent cursor` and verifies only Cursor prompts are shown
 - [ ] 5.7 Implement agent filtering logic in `list` command, run test to verify it passes
