@@ -128,8 +128,7 @@ This command should be used whenever GitHub source metadata display or handling 
   - `test_discover_managed_prompts_handles_unicode_errors()` - handles Unicode decode errors gracefully
 - [x] 2.22 Implement error handling in discovery logic: catch parsing errors, permission errors, and Unicode errors, skip problematic files silently (log warnings in debug mode per spec), run tests to verify they pass
 - [x] 2.23 Commit with message: `feat(list): add error handling for malformed files and permission errors`
-- [ ] 2.24 Create CLI transcript proof artifact: run `slash-man list` and show discovery working correctly
-  - **Note:** This task depends on Task 5.0 (CLI command implementation). Cannot be completed until `list` command is implemented.
+- [x] 2.24 Create CLI transcript proof artifact: run `slash-man list` and show discovery working correctly
 
 ### [x] 3.0 Implement Backup Counting and Source Metadata Extraction
 
