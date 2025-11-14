@@ -68,25 +68,52 @@ def test_validate_github_repo_error_message_includes_example():
 @patch("slash_commands.github_utils.requests.get")
 def test_download_prompts_from_github_directory(mock_get):
     """Test downloading prompts from a GitHub directory."""
-    # Mock directory response
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = [
+    # Mock directory response (real API behavior: no content field, has download_url)
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
         {
             "type": "file",
             "name": "prompt1.md",
-            "content": base64.b64encode(b"# Prompt 1\nContent 1").decode("utf-8"),
+            "path": "prompts/prompt1.md",
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt1.md",
+            "size": 100,
         },
         {
             "type": "file",
             "name": "prompt2.md",
-            "content": base64.b64encode(b"# Prompt 2\nContent 2").decode("utf-8"),
+            "path": "prompts/prompt2.md",
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt2.md",
+            "size": 100,
         },
-        {"type": "file", "name": "not-markdown.txt", "content": "ignored"},
+        {
+            "type": "file",
+            "name": "not-markdown.txt",
+            "path": "prompts/not-markdown.txt",
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/not-markdown.txt",
+            "size": 50,
+        },
         {"type": "dir", "name": "subdir", "path": "prompts/subdir"},
     ]
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
+    directory_response.raise_for_status = MagicMock()
+
+    # Mock file download responses
+    file1_response = MagicMock()
+    file1_response.status_code = 200
+    file1_response.text = "# Prompt 1\nContent 1"
+    file1_response.raise_for_status = MagicMock()
+
+    file2_response = MagicMock()
+    file2_response.status_code = 200
+    file2_response.text = "# Prompt 2\nContent 2"
+    file2_response.raise_for_status = MagicMock()
+
+    # Setup mock to return directory response first, then file responses
+    mock_get.side_effect = [
+        directory_response,  # Directory listing
+        file1_response,  # prompt1.md download
+        file2_response,  # prompt2.md download
+    ]
 
     prompts = download_prompts_from_github("owner", "repo", "main", "prompts")
 
@@ -94,11 +121,16 @@ def test_download_prompts_from_github_directory(mock_get):
     assert ("prompt1.md", "# Prompt 1\nContent 1") in prompts
     assert ("prompt2.md", "# Prompt 2\nContent 2") in prompts
 
-    # Verify API call
-    mock_get.assert_called_once()
-    call_args = mock_get.call_args
+    # Verify API calls: 1 for directory + 2 for files
+    assert mock_get.call_count == 3
+    # First call: directory listing
+    call_args = mock_get.call_args_list[0]
     assert "application/vnd.github+json" in call_args[1]["headers"]["Accept"]
     assert call_args[1]["params"]["ref"] == "main"
+    assert "contents/prompts" in call_args[0][0]
+    # Second and third calls: file downloads via download_url
+    assert "raw.githubusercontent.com" in mock_get.call_args_list[1][0][0]
+    assert "raw.githubusercontent.com" in mock_get.call_args_list[2][0][0]
 
 
 @patch("slash_commands.github_utils.requests.get")
@@ -159,18 +191,26 @@ def test_download_prompts_from_github_empty_directory(mock_get):
 @patch("slash_commands.github_utils.requests.get")
 def test_download_prompts_from_github_filters_subdirectories(mock_get):
     """Test that subdirectories are not recursively processed."""
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = [
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
         {
             "type": "file",
             "name": "prompt.md",
-            "content": base64.b64encode(b"# Prompt").decode("utf-8"),
+            "path": "prompts/prompt.md",
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt.md",
+            "size": 100,
         },
         {"type": "dir", "name": "subdir", "path": "prompts/subdir"},
     ]
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
+    directory_response.raise_for_status = MagicMock()
+
+    file_response = MagicMock()
+    file_response.status_code = 200
+    file_response.text = "# Prompt"
+    file_response.raise_for_status = MagicMock()
+
+    mock_get.side_effect = [directory_response, file_response]
 
     prompts = download_prompts_from_github("owner", "repo", "main", "prompts")
 

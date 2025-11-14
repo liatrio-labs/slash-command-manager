@@ -109,17 +109,30 @@ def download_prompts_from_github(
                 if item.get("type") == "file" and item.get("name", "").endswith(".md"):
                     filename = item["name"]
                     content_encoded = item.get("content", "")
-                    if not content_encoded:
-                        continue
 
-                    # Decode base64 content
-                    try:
-                        content = base64.b64decode(content_encoded).decode("utf-8")
-                    except Exception:
-                        # Skip files that can't be decoded
-                        continue
+                    if content_encoded:
+                        # Single file requests include base64-encoded content
+                        try:
+                            content = base64.b64decode(content_encoded).decode("utf-8")
+                            prompts.append((filename, content))
+                        except Exception:
+                            # Skip files that can't be decoded
+                            continue
+                    else:
+                        # Directory listings don't include content, use download_url
+                        download_url = item.get("download_url")
+                        if not download_url:
+                            continue
 
-                    prompts.append((filename, content))
+                        try:
+                            # Fetch file content from download_url
+                            file_response = requests.get(download_url, timeout=30)
+                            file_response.raise_for_status()
+                            content = file_response.text
+                            prompts.append((filename, content))
+                        except Exception:
+                            # Skip files that can't be downloaded
+                            continue
                 # Skip subdirectories (do not recursively process)
 
         return prompts
