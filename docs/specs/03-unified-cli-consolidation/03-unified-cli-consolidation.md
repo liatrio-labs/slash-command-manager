@@ -1,4 +1,4 @@
-# 04-spec-unified-cli-consolidation.md
+# 03-spec-unified-cli-consolidation.md
 
 ## Introduction/Overview
 

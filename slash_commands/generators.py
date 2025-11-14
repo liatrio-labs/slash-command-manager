@@ -25,7 +25,10 @@ from slash_commands.config import AgentConfig, CommandFormat
 
 class CommandGeneratorProtocol(Protocol):
     def generate(
-        self, prompt: MarkdownPrompt, agent: AgentConfig
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
     ) -> str:  # pragma: no cover - stub
         ...
 
@@ -152,12 +155,18 @@ def _replace_placeholders(
 class MarkdownCommandGenerator:
     """Generator for Markdown-format slash commands."""
 
-    def generate(self, prompt: MarkdownPrompt, agent: AgentConfig) -> str:
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> str:
         """Generate a Markdown-formatted command file.
 
         Args:
             prompt: The source prompt to generate from
             agent: The agent configuration
+            source_metadata: Optional source metadata (local or GitHub)
 
         Returns:
             Complete markdown file content
@@ -178,7 +187,7 @@ class MarkdownCommandGenerator:
                 }
                 for arg in arguments
             ],
-            "meta": self._build_meta(prompt, agent),
+            "meta": self._build_meta(prompt, agent, source_metadata),
         }
 
         # Replace placeholders in body
@@ -194,7 +203,12 @@ class MarkdownCommandGenerator:
         prefix = prompt.meta.get("command_prefix", "") if prompt.meta else ""
         return f"{prefix}{prompt.name}"
 
-    def _build_meta(self, prompt: MarkdownPrompt, agent: AgentConfig) -> dict:
+    def _build_meta(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> dict:
         """Build metadata section for the command."""
         meta = prompt.meta.copy() if prompt.meta else {}
         meta.update(
@@ -211,13 +225,23 @@ class MarkdownCommandGenerator:
                 "updated_at": datetime.now(UTC).isoformat(),
             }
         )
+
+        # Add source tracking metadata if provided
+        if source_metadata:
+            meta.update(source_metadata)
+
         return meta
 
 
 class TomlCommandGenerator:
     """Generator for TOML-format slash commands (Gemini CLI spec)."""
 
-    def generate(self, prompt: MarkdownPrompt, agent: AgentConfig) -> str:
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> str:
         """Generate a TOML-formatted command file following Gemini CLI spec.
 
         According to https://geminicli.com/docs/cli/custom-commands/:
@@ -228,6 +252,7 @@ class TomlCommandGenerator:
         Args:
             prompt: The source prompt to generate from
             agent: The agent configuration
+            source_metadata: Optional source metadata (local or GitHub)
 
         Returns:
             Complete TOML file content
@@ -252,6 +277,10 @@ class TomlCommandGenerator:
             "source_prompt": prompt.name,
             "agent": agent.key,
         }
+
+        # Add source tracking metadata if provided
+        if source_metadata:
+            toml_data["meta"].update(source_metadata)
 
         # Convert to TOML format
         output = self._dict_to_toml(toml_data)

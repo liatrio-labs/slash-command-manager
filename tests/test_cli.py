@@ -985,3 +985,160 @@ def test_old_command_no_longer_available():
         entry_points = pkg_resources.iter_entry_points("console_scripts")
         old_commands = [ep for ep in entry_points if ep.name == "slash-command-manager"]
         assert len(old_commands) == 0, "Old entry point 'slash-command-manager' should be removed"
+
+
+def test_cli_github_flags_validation():
+    """Test that CLI help shows new GitHub flags and validates successful flag parsing."""
+    runner = CliRunner()
+    result = runner.invoke(app, ["generate", "--help"])
+
+    assert result.exit_code == 0
+    # Strip ANSI escape codes for comparison (Rich formats help output)
+    output = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--github-repo" in output
+    assert "--github-branch" in output
+    assert "--github-path" in output
+
+
+def test_validate_github_repo_invalid_format():
+    """Test that invalid repository format produces clear error message."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-repo",
+            "invalid-format",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    output = result.stdout + result.stderr
+    assert "Repository must be in format owner/repo" in output
+    assert "liatrio-labs/spec-driven-workflow" in output
+
+
+def test_cli_github_flags_missing_required():
+    """Test that missing required GitHub flags produce clear error message."""
+    runner = CliRunner()
+
+    # Test missing --github-branch
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-repo",
+            "owner/repo",
+            "--github-path",
+            "prompts",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    output = result.stdout + result.stderr
+    assert "All GitHub flags must be provided together" in output
+    assert "--github-branch" in output
+
+    # Test missing --github-path
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-repo",
+            "owner/repo",
+            "--github-branch",
+            "main",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    output = result.stdout + result.stderr
+    assert "All GitHub flags must be provided together" in output
+    assert "--github-path" in output
+
+    # Test missing --github-repo
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--agent",
+            "claude-code",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    output = result.stdout + result.stderr
+    assert "All GitHub flags must be provided together" in output
+    assert "--github-repo" in output
+
+
+def test_cli_github_and_local_mutually_exclusive(mock_prompts_dir, tmp_path):
+    """Test that mutual exclusivity error is raised when both --prompts-dir and GitHub flags are provided."""
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--github-repo",
+            "owner/repo",
+            "--github-branch",
+            "main",
+            "--github-path",
+            "prompts",
+            "--target-path",
+            str(tmp_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 2  # Validation error
+    output = result.stdout + result.stderr
+    assert "Cannot specify both --prompts-dir and GitHub repository flags" in output
+    assert "--github-repo" in output
+    assert "--github-branch" in output
+    assert "--github-path" in output
+
+
+def test_documentation_github_examples():
+    """Test that GitHub examples from README.md execute successfully (validation only)."""
+    runner = CliRunner()
+
+    # Test that help shows GitHub flags (validates examples are accurate)
+    result = runner.invoke(app, ["generate", "--help"])
+    assert result.exit_code == 0
+    # Strip ANSI escape codes for comparison (Rich formats help output)
+    output = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+    assert "--github-repo" in output
+    assert "--github-branch" in output
+    assert "--github-path" in output
+
+    # Test that main help shows all subcommands
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    assert "generate" in result.stdout
+    assert "cleanup" in result.stdout
+    assert "mcp" in result.stdout
+
+    # Test that cleanup help works
+    result = runner.invoke(app, ["cleanup", "--help"])
+    assert result.exit_code == 0
