@@ -69,7 +69,7 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 1.9 Verify existing metadata fields are preserved by running existing generator tests and confirming no regressions
 - [x] 1.10 Create CLI transcript proof artifact: run `slash-man generate` with test prompts, then `cat` generated file to show `managed_by: slash-man` in frontmatter/TOML
 
-### [ ] 2.0 Implement Prompt Discovery and Filtering Logic
+### [~] 2.0 Implement Prompt Discovery and Filtering Logic
 
 #### 2.0 Demo Criteria
 
@@ -98,16 +98,16 @@ This command should be used whenever GitHub source metadata display or handling 
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Create new file `slash_commands/list_discovery.py` with function `discover_managed_prompts(base_path: Path, agents: list[str]) -> list[dict[str, Any]]` that takes base_path and agents list, and returns list of dicts with prompt metadata. Each dict should contain: `name` (str), `agent` (str), `agent_display_name` (str), `file_path` (Path), `meta` (dict), `format` (str). Function signature: `def discover_managed_prompts(base_path: Path, agents: list[str]) -> list[dict[str, Any]]:`
-- [ ] 2.2 Write failing unit test `test_discover_managed_prompts_finds_files_with_managed_by()` in `tests/test_list_discovery.py` that verifies files with `managed_by: slash-man` are discovered
-- [ ] 2.3 Implement `discover_managed_prompts()` to scan agent command directories, parse frontmatter/TOML, and filter for files with `meta.managed_by == "slash-man"`
-- [ ] 2.4 Run test to verify it passes, then commit with message: `feat(list): implement managed prompt discovery`
-- [ ] 2.5 Write failing unit test `test_discover_managed_prompts_excludes_files_without_managed_by()` verifying files without `managed_by` field are excluded from managed results
-- [ ] 2.6 Update `discover_managed_prompts()` to exclude files without `managed_by` field, run test to verify it passes
-- [ ] 2.7 Write failing unit test `test_discover_managed_prompts_handles_markdown_format()` and `test_discover_managed_prompts_handles_toml_format()` verifying both formats are handled correctly
-- [ ] 2.8 Update discovery logic to handle both Markdown (using `parse_frontmatter()`) and TOML (using `tomllib`) formats. Handle parsing errors gracefully: catch `yaml.YAMLError` and `tomllib.TOMLDecodeError`, skip malformed files silently (per spec assumption), run tests to verify they pass
-- [ ] 2.9 Write failing unit test `test_discover_managed_prompts_excludes_backup_files()` verifying backup files matching pattern `*.{extension}.{timestamp}.bak` (e.g., `command.md.20250115-123456.bak`) are excluded
-- [ ] 2.10 Update discovery logic to exclude backup files, run test to verify it passes, then commit with message: `feat(list): exclude backup files from discovery`
+- [x] 2.1 Create new file `slash_commands/list_discovery.py` with function `discover_managed_prompts(base_path: Path, agents: list[str]) -> list[dict[str, Any]]` that takes base_path and agents list, and returns list of dicts with prompt metadata. Each dict should contain: `name` (str), `agent` (str), `agent_display_name` (str), `file_path` (Path), `meta` (dict), `format` (str). Function signature: `def discover_managed_prompts(base_path: Path, agents: list[str]) -> list[dict[str, Any]]:`
+- [x] 2.2 Write failing unit test `test_discover_managed_prompts_finds_files_with_managed_by()` in `tests/test_list_discovery.py` that verifies files with `managed_by: slash-man` are discovered
+- [x] 2.3 Implement `discover_managed_prompts()` to scan agent command directories, parse frontmatter/TOML, and filter for files with `meta.managed_by == "slash-man"`
+- [x] 2.4 Run test to verify it passes, then commit with message: `feat(list): implement managed prompt discovery`
+- [x] 2.5 Write failing unit test `test_discover_managed_prompts_excludes_files_without_managed_by()` verifying files without `managed_by` field are excluded from managed results
+- [x] 2.6 Update `discover_managed_prompts()` to exclude files without `managed_by` field, run test to verify it passes
+- [x] 2.7 Write failing unit test `test_discover_managed_prompts_handles_markdown_format()` and `test_discover_managed_prompts_handles_toml_format()` verifying both formats are handled correctly
+- [x] 2.8 Update discovery logic to handle both Markdown (using `parse_frontmatter()`) and TOML (using `tomllib`) formats. Handle parsing errors gracefully: catch `yaml.YAMLError` and `tomllib.TOMLDecodeError`, skip malformed files silently (per spec assumption), run tests to verify they pass
+- [x] 2.9 Write failing unit test `test_discover_managed_prompts_excludes_backup_files()` verifying backup files matching pattern `*.{extension}.{timestamp}.bak` (e.g., `command.md.20250115-123456.bak`) are excluded
+- [x] 2.10 Update discovery logic to exclude backup files, run test to verify it passes, then commit with message: `feat(list): exclude backup files from discovery`
 - [ ] 2.11 Write failing unit test `test_discover_managed_prompts_handles_empty_directories()` verifying empty directories are handled gracefully
 - [ ] 2.12 Update discovery logic to handle empty directories, run test to verify it passes
 - [ ] 2.13 Write failing unit test `test_discover_managed_prompts_handles_multiple_agents()` verifying multiple agents are discovered correctly
