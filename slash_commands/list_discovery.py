@@ -150,3 +150,52 @@ def _parse_toml_file(file_path: Path, content: str, agent: AgentConfig) -> dict[
         }
     except tomllib.TOMLDecodeError:
         return None
+
+
+def count_unmanaged_prompts(base_path: Path, agents: list[str]) -> dict[str, int]:
+    """Count unmanaged prompt files in agent command directories.
+
+    Counts valid prompt files that don't have `managed_by: slash-man` metadata.
+    Excludes backup files and managed files.
+
+    Args:
+        base_path: Base directory for searching agent command directories
+        agents: List of agent keys to search
+
+    Returns:
+        Dict mapping agent keys to counts of unmanaged prompts
+    """
+    unmanaged_counts: dict[str, int] = {}
+
+    for agent_key in agents:
+        agent = get_agent_config(agent_key)
+        command_dir = base_path / agent.command_dir
+
+        if not command_dir.exists():
+            unmanaged_counts[agent_key] = 0
+            continue
+
+        count = 0
+        # Scan for files matching agent's command_file_extension
+        for file_path in command_dir.glob(f"*{agent.command_file_extension}"):
+            # Skip backup files
+            if _is_backup_file(file_path):
+                continue
+
+            # Attempt to parse as valid prompt file
+            try:
+                prompt_data = _parse_command_file(file_path, agent)
+                # If parsing succeeds, check if it's managed
+                if prompt_data:
+                    # Skip managed files
+                    if prompt_data.get("meta", {}).get("managed_by") == "slash-man":
+                        continue
+                    # Valid prompt file without managed_by - count it
+                    count += 1
+            except (yaml.YAMLError, tomllib.TOMLDecodeError, UnicodeDecodeError, PermissionError):
+                # Skip invalid/malformed files silently per spec assumption
+                continue
+
+        unmanaged_counts[agent_key] = count
+
+    return unmanaged_counts

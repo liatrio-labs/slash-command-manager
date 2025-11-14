@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from slash_commands.list_discovery import discover_managed_prompts
+from slash_commands.list_discovery import count_unmanaged_prompts, discover_managed_prompts
 
 
 def test_discover_managed_prompts_finds_files_with_managed_by(tmp_path: Path):
@@ -246,3 +246,142 @@ meta:
     agents = {r["agent"] for r in result}
     assert "cursor" in agents
     assert "claude-code" in agents
+
+
+def test_count_unmanaged_prompts_counts_valid_prompts_without_managed_by(tmp_path: Path):
+    """Test that valid prompt files without managed_by are counted."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create unmanaged prompt file (valid but no managed_by)
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+description: Unmanaged command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Count unmanaged prompts
+    result = count_unmanaged_prompts(tmp_path, ["cursor"])
+
+    # Verify unmanaged file is counted
+    assert result["cursor"] == 1
+
+
+def test_count_unmanaged_prompts_excludes_backup_files(tmp_path: Path):
+    """Test that backup files are excluded from unmanaged counts."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create unmanaged prompt file
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create backup file (should be excluded)
+    backup_file = cursor_dir / "unmanaged-command.md.20250115-123456.bak"
+    backup_file.write_text("backup content", encoding="utf-8")
+
+    # Count unmanaged prompts
+    result = count_unmanaged_prompts(tmp_path, ["cursor"])
+
+    # Verify only unmanaged file is counted (backup excluded)
+    assert result["cursor"] == 1
+
+
+def test_count_unmanaged_prompts_excludes_managed_files(tmp_path: Path):
+    """Test that managed files are excluded from unmanaged counts."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed prompt file (should be excluded)
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+  version: 1.0.0
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create unmanaged prompt file
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Count unmanaged prompts
+    result = count_unmanaged_prompts(tmp_path, ["cursor"])
+
+    # Verify only unmanaged file is counted
+    assert result["cursor"] == 1
+
+
+def test_count_unmanaged_prompts_excludes_invalid_files(tmp_path: Path):
+    """Test that invalid files (not valid prompts) are excluded from counts."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create unmanaged prompt file (valid)
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create invalid file (not a valid prompt - malformed frontmatter)
+    invalid_file = cursor_dir / "invalid-command.md"
+    invalid_file.write_text(
+        """---
+name: invalid-command
+invalid yaml: [unclosed
+---
+# Invalid Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create another invalid file (not a prompt at all)
+    not_prompt_file = cursor_dir / "not-a-prompt.md"
+    not_prompt_file.write_text("This is not a prompt file", encoding="utf-8")
+
+    # Count unmanaged prompts
+    result = count_unmanaged_prompts(tmp_path, ["cursor"])
+
+    # Verify only valid unmanaged file is counted
+    assert result["cursor"] == 1
