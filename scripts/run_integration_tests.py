@@ -16,7 +16,6 @@ from pathlib import Path
 
 # Docker configuration - can be overridden via environment variables
 DOCKER_WORKDIR = os.environ.get("DOCKER_WORKDIR", "/app")
-DOCKER_PYTHON_PATH = os.environ.get("DOCKER_PYTHON_PATH", "/usr/local/bin/python")
 
 
 def check_docker_available() -> bool:
@@ -69,7 +68,7 @@ def run_integration_tests() -> int:
 
     # Run integration tests (override ENTRYPOINT from Dockerfile)
     print("Running integration tests in Docker container...")
-    test_cmd = f"cd {DOCKER_WORKDIR} && {DOCKER_PYTHON_PATH} -m uv run pytest tests/integration/ -v -m integration"
+    test_cmd = f"cd {DOCKER_WORKDIR} && uv run pytest tests/integration/ -v -m integration"
     test_result = subprocess.run(
         [
             docker_cmd,
