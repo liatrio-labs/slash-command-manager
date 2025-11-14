@@ -325,3 +325,70 @@ def test_generate_creates_backup_files(temp_test_dir, test_prompts_dir):
     # Verify backup content matches original
     backup_content = backup_file.read_text(encoding="utf-8")
     assert backup_content == original_content
+
+
+def test_generate_creates_managed_by_field(temp_test_dir, test_prompts_dir):
+    """Test that generated files contain managed_by field in metadata."""
+    import tomllib
+
+    import yaml
+
+    # Test Markdown format
+    cmd_md = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_md = subprocess.run(
+        cmd_md,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_md.returncode == 0
+    generated_md_file = temp_test_dir / ".claude" / "commands" / "test-prompt-1.md"
+    assert generated_md_file.exists()
+
+    md_content = generated_md_file.read_text(encoding="utf-8")
+    # Parse frontmatter
+    parts = md_content.split("---")
+    assert len(parts) >= 3
+    frontmatter_text = parts[1]
+    frontmatter = yaml.safe_load(frontmatter_text)
+    assert "meta" in frontmatter
+    assert "managed_by" in frontmatter["meta"]
+    assert frontmatter["meta"]["managed_by"] == "slash-man"
+
+    # Test TOML format
+    cmd_toml = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "gemini-cli",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_toml = subprocess.run(
+        cmd_toml,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_toml.returncode == 0
+    generated_toml_file = temp_test_dir / ".gemini" / "commands" / "test-prompt-1.toml"
+    assert generated_toml_file.exists()
+
+    toml_content = generated_toml_file.read_text(encoding="utf-8")
+    toml_data = tomllib.loads(toml_content)
+    assert "meta" in toml_data
+    assert "managed_by" in toml_data["meta"]
+    assert toml_data["meta"]["managed_by"] == "slash-man"

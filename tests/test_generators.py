@@ -304,3 +304,27 @@ def test_prompt_metadata_no_source_metadata(sample_prompt):
     # But should still have other metadata
     assert "source_prompt" in meta
     assert "agent" in meta
+
+
+def test_build_meta_includes_managed_by(sample_prompt):
+    """Test that _build_meta includes managed_by field."""
+    agent = get_agent_config("claude-code")
+    generator = MarkdownCommandGenerator()
+
+    meta = generator._build_meta(sample_prompt, agent, None)
+    assert "managed_by" in meta
+    assert meta["managed_by"] == "slash-man"
+
+
+def test_toml_generator_includes_managed_by(sample_prompt):
+    """Test that TOML generator includes managed_by field in meta section."""
+    agent = get_agent_config("gemini-cli")
+    generator = TomlCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent, None)
+    data = _parse_toml(generated)
+
+    assert "meta" in data
+    meta = data["meta"]
+    assert "managed_by" in meta
+    assert meta["managed_by"] == "slash-man"

@@ -39,7 +39,7 @@ This command should be used whenever GitHub source metadata display or handling 
 - Adhere to identified quality gates and pre-commit hooks (`pre-commit run --all-files`)
 - Execute implementation with strict TDD workflow: write failing tests first, implement only enough code to make them pass, iterate until all acceptance criteria are covered, and refactor while keeping tests green
 
-### [ ] 1.0 Add `managed_by: slash-man` Metadata Field to Generated Command Files
+### [x] 1.0 Add `managed_by: slash-man` Metadata Field to Generated Command Files
 
 #### 1.0 Demo Criteria
 
@@ -58,16 +58,16 @@ This command should be used whenever GitHub source metadata display or handling 
 
 #### 1.0 Tasks
 
-- [ ] 1.1 Write failing unit test `test_build_meta_includes_managed_by()` in `tests/test_generators.py` that verifies `MarkdownCommandGenerator._build_meta()` includes `managed_by: slash-man` in returned metadata dict
-- [ ] 1.2 Modify `MarkdownCommandGenerator._build_meta()` in `slash_commands/generators.py` to add `managed_by: slash-man` to the metadata dict before returning it
-- [ ] 1.3 Run test to verify it passes, then commit with message: `feat(generators): add managed_by field to Markdown generator metadata`
-- [ ] 1.4 Write failing unit test `test_toml_generator_includes_managed_by()` in `tests/test_generators.py` that verifies `TomlCommandGenerator.generate()` includes `managed_by: slash-man` in the `meta` section of generated TOML
-- [ ] 1.5 Modify `TomlCommandGenerator.generate()` in `slash_commands/generators.py` to add `managed_by: slash-man` to the `meta` dict before converting to TOML
-- [ ] 1.6 Run test to verify it passes, then commit with message: `feat(generators): add managed_by field to TOML generator metadata`
-- [ ] 1.7 Write failing integration test `test_generate_creates_managed_by_field()` in `tests/integration/test_generate_command.py` that runs `slash-man generate` and verifies generated files contain `managed_by: slash-man` in metadata (test both Markdown and TOML formats)
-- [ ] 1.8 Run integration test to verify it passes, then commit with message: `test(integration): verify generate command creates managed_by field`
-- [ ] 1.9 Verify existing metadata fields are preserved by running existing generator tests and confirming no regressions
-- [ ] 1.10 Create CLI transcript proof artifact: run `slash-man generate` with test prompts, then `cat` generated file to show `managed_by: slash-man` in frontmatter/TOML
+- [x] 1.1 Write failing unit test `test_build_meta_includes_managed_by()` in `tests/test_generators.py` that verifies `MarkdownCommandGenerator._build_meta()` includes `managed_by: slash-man` in returned metadata dict
+- [x] 1.2 Modify `MarkdownCommandGenerator._build_meta()` in `slash_commands/generators.py` to add `managed_by: slash-man` to the metadata dict before returning it
+- [x] 1.3 Run test to verify it passes, then commit with message: `feat(generators): add managed_by field to Markdown generator metadata`
+- [x] 1.4 Write failing unit test `test_toml_generator_includes_managed_by()` in `tests/test_generators.py` that verifies `TomlCommandGenerator.generate()` includes `managed_by: slash-man` in the `meta` section of generated TOML
+- [x] 1.5 Modify `TomlCommandGenerator.generate()` in `slash_commands/generators.py` to add `managed_by: slash-man` to the `meta` dict before converting to TOML
+- [x] 1.6 Run test to verify it passes, then commit with message: `feat(generators): add managed_by field to TOML generator metadata`
+- [x] 1.7 Write failing integration test `test_generate_creates_managed_by_field()` in `tests/integration/test_generate_command.py` that runs `slash-man generate` and verifies generated files contain `managed_by: slash-man` in metadata (test both Markdown and TOML formats)
+- [x] 1.8 Run integration test to verify it passes, then commit with message: `test(integration): verify generate command creates managed_by field`
+- [x] 1.9 Verify existing metadata fields are preserved by running existing generator tests and confirming no regressions
+- [x] 1.10 Create CLI transcript proof artifact: run `slash-man generate` with test prompts, then `cat` generated file to show `managed_by: slash-man` in frontmatter/TOML
 
 ### [ ] 2.0 Implement Prompt Discovery and Filtering Logic
 
