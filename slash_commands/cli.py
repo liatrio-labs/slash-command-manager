@@ -12,6 +12,8 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
+from rich.tree import Tree
 
 from mcp_server import create_app
 from slash_commands import (
@@ -47,7 +49,182 @@ def version_callback(
     """Slash Command Manager - Generate and manage slash commands for AI code assistants."""
 
 
-console = Console()
+console = Console(width=120)
+
+
+def _display_local_path(path: Path) -> str:
+    """Return a path relative to the current working directory or project root."""
+    candidates = [Path.cwd(), Path(__file__).resolve().parent.parent]
+    for candidate in candidates:
+        try:
+            return str(path.resolve().relative_to(candidate.resolve()))
+        except ValueError:
+            continue
+    return str(path.resolve())
+
+
+def _build_summary_data(
+    *,
+    result: dict[str, Any] | None,
+    detected_agents: list[str],
+    selected_agents: list[str],
+    safe_mode: bool,
+    dry_run: bool,
+    source_info: dict[str, Any],
+    output_base: str,
+) -> dict[str, Any]:
+    """Build structured data describing generation results."""
+    prompts_loaded = result["prompts_loaded"] if result else 0
+    files_written = result["files_written"] if result else 0
+    planned_files = len(result["files"]) if result else 0
+    files_by_agent: dict[str, dict[str, Any]] = {}
+    prompt_entries: list[dict[str, str]] = []
+    base_path = Path(output_base)
+    repo_root = Path(__file__).resolve().parent.parent
+    cwd = Path.cwd()
+    source_candidates = [cwd, repo_root]
+
+    def _relative_to_candidates(path_str: str, candidates: list[Path]) -> str:
+        file_path = Path(path_str)
+        for candidate in candidates:
+            try:
+                return str(file_path.resolve().relative_to(candidate.resolve()))
+            except (ValueError, FileNotFoundError):
+                continue
+        return str(file_path)
+
+    if result:
+        for file_info in result["files"]:
+            agent_key = file_info["agent"]
+            agent_entry = files_by_agent.setdefault(
+                agent_key,
+                {
+                    "display_name": file_info["agent_display_name"],
+                    "paths": [],
+                },
+            )
+            file_path = Path(file_info["path"])
+            rel_path = file_info["path"]
+            try:
+                rel_path = str(file_path.resolve().relative_to(base_path.resolve()))
+            except (ValueError, FileNotFoundError):
+                rel_path = str(file_path)
+            agent_entry["paths"].append(rel_path)
+
+        for entry in files_by_agent.values():
+            entry["count"] = len(entry["paths"])
+
+    def _relative_backup(path: str) -> str:
+        file_path = Path(path)
+        try:
+            return str(file_path.resolve().relative_to(base_path.resolve()))
+        except (ValueError, FileNotFoundError):
+            return path
+
+    backups_created = (
+        [_relative_backup(path) for path in result["backups_created"]] if result else []
+    )
+    backups_pending = (
+        [_relative_backup(path) for path in result["backups_pending"]] if result else []
+    )
+
+    if result:
+        for prompt in result["prompts"]:
+            prompt_entries.append(
+                {
+                    "name": prompt["name"],
+                    "path": _relative_to_candidates(prompt["path"], source_candidates),
+                }
+            )
+
+    return {
+        "mode": "dry-run" if dry_run else "generation",
+        "safe_mode": safe_mode,
+        "prompts_loaded": prompts_loaded,
+        "files_written": files_written,
+        "files_planned": planned_files,
+        "agents": {
+            "detected": detected_agents,
+            "selected": selected_agents,
+        },
+        "files": files_by_agent,
+        "backups": {
+            "created": backups_created,
+            "pending": backups_pending,
+        },
+        "source": source_info,
+        "prompts": prompt_entries,
+        "output_base": output_base,
+    }
+
+
+def _render_rich_summary(summary: dict[str, Any], *, record: bool = False) -> str | None:
+    """Render the structured summary using Rich."""
+    target_console = console if not record else Console(record=True, width=120)
+    mode_label = "DRY RUN" if summary["mode"] == "dry-run" else "Generation"
+    mode_text = f"{mode_label} (safe mode)" if summary["safe_mode"] else mode_label
+
+    root = Tree(f"{mode_text} Summary")
+
+    counts = root.add("Counts")
+    counts.add(f"Prompts loaded: {summary['prompts_loaded']}")
+    counts.add(f"Files planned: {summary['files_planned']}")
+    counts.add(f"Files written: {summary['files_written']}")
+
+    agents_branch = root.add("Agents")
+    detected = agents_branch.add("Detected")
+    for agent in summary["agents"]["detected"] or ["None"]:
+        detected.add(agent)
+    selected = agents_branch.add("Selected")
+    for agent in summary["agents"]["selected"] or ["None"]:
+        selected.add(agent)
+
+    source_branch = root.add("Source")
+    if summary["source"]["type"] == "github":
+        gh = summary["source"]
+        source_branch.add(Text(f"Repository: {gh['display']}", overflow="fold"))
+    else:
+        source_branch.add(Text(f"Directory: {summary['source']['display']}", overflow="fold"))
+
+    output_branch = root.add("Output")
+    output_branch.add(Text(f"Directory: {summary['output_base']}", overflow="fold"))
+
+    backups_branch = root.add("Backups")
+    created = summary["backups"]["created"]
+    pending = summary["backups"]["pending"]
+    created_branch = backups_branch.add(f"Created: {len(created)}")
+    if created:
+        for path in created:
+            created_branch.add(path)
+    pending_branch = backups_branch.add(f"Pending: {len(pending)}")
+    if pending:
+        for path in pending:
+            pending_branch.add(path)
+
+    files_branch = root.add("Files")
+    if summary["files"]:
+        for agent_key, info in summary["files"].items():
+            display = info.get("display_name", agent_key)
+            count = info.get("count", 0)
+            agent_branch = files_branch.add(f"{display} ({agent_key}) • {count} file(s)")
+            for path in info.get("paths", []):
+                agent_branch.add(Text(path, overflow="fold"))
+    else:
+        files_branch.add("None")
+
+    prompts_branch = root.add("Prompts")
+    if summary["prompts"]:
+        for prompt in summary["prompts"]:
+            prompts_branch.add(Text(f"{prompt['name']}: {prompt['path']}", overflow="fold"))
+    else:
+        prompts_branch.add("None")
+
+    panel = Panel(root, title="Generation Summary", border_style="cyan")
+    target_console.print(panel)
+
+    if record:
+        return target_console.export_text(clear=False)
+    return None
 
 
 def version_callback_impl(value: bool) -> None:
@@ -260,6 +437,8 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         return
 
     # Detect agents if not specified
+    detected_agent_keys: list[str] = []
+
     if agents is None or len(agents) == 0:
         # Use detection_path if specified, otherwise target_path, otherwise home directory
         detection_dir = (
@@ -296,8 +475,10 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             # If --yes is used, auto-select all detected agents
             agents = [agent.key for agent in detected]
             print(f"Detected agents: {', '.join(agents)}")
+        detected_agent_keys = [agent.key for agent in detected]
     else:
         print(f"Selected agents: {', '.join(agents)}")
+        detected_agent_keys = agents.copy()
 
     safe_mode = bool(yes)
     if safe_mode:
@@ -326,6 +507,25 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         github_path=github_path,
     )
 
+    if github_repo and github_branch and github_path:
+        source_info: dict[str, Any] = {
+            "type": "github",
+            "repo": github_repo,
+            "branch": github_branch,
+            "path": github_path,
+            "display": f"{github_repo}@{github_branch}:{github_path}",
+        }
+    else:
+        resolved_prompts = actual_prompts_dir.resolve()
+        display_dir = _display_local_path(resolved_prompts)
+        source_info = {
+            "type": "local",
+            "path": str(resolved_prompts),
+            "display": display_dir,
+        }
+
+    selected_agent_keys = agents.copy()
+
     # Generate commands
     try:
         result = writer.generate()
@@ -348,13 +548,16 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         raise typer.Exit(code=3) from None  # I/O error
     except NoPromptsDiscoveredError as e:
         print(str(e), file=sys.stderr)
-        console.print(
-            Panel(
-                "Prompts loaded: 0\nFiles written: 0\nBackups created: 0",
-                title="Generation Summary",
-                border_style="yellow",
-            )
+        summary_data = _build_summary_data(
+            result=None,
+            detected_agents=detected_agent_keys or selected_agent_keys,
+            selected_agents=selected_agent_keys,
+            safe_mode=safe_mode,
+            dry_run=dry_run,
+            source_info=source_info,
+            output_base=str(actual_target_path.resolve()),
         )
+        _render_rich_summary(summary_data)
         raise typer.Exit(code=1) from None
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -403,29 +606,16 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             raise typer.Exit(code=1) from None  # User cancellation
         raise
 
-    # Print summary
-    mode = "DRY RUN" if dry_run else "Generation"
-    print(f"\n{mode} complete:")
-    print(f"  Prompts loaded: {result['prompts_loaded']}")
-    print(f"  Files {'would be' if dry_run else ''} written: {result['files_written']}")
-
-    backups_created = result.get("backups_created") or []
-    backups_pending = result.get("backups_pending") or []
-
-    if backups_created:
-        print(f"  Backups created: {len(backups_created)}")
-        for backup in backups_created:
-            print(f"    - {backup}")
-
-    if backups_pending:
-        verb = "would be created" if dry_run else "pending"
-        print(f"  Backups {verb}: {len(backups_pending)}")
-        for pending in backups_pending:
-            print(f"    - {pending}")
-    print("\nFiles:")
-    for file_info in result["files"]:
-        print(f"  - {file_info['path']}")
-        print(f"    Agent: {file_info['agent_display_name']} ({file_info['agent']})")
+    summary_data = _build_summary_data(
+        result=result,
+        detected_agents=detected_agent_keys or selected_agent_keys,
+        selected_agents=selected_agent_keys,
+        safe_mode=safe_mode,
+        dry_run=dry_run,
+        source_info=source_info,
+        output_base=str(actual_target_path.resolve()),
+    )
+    _render_rich_summary(summary_data)
 
 
 @app.command()

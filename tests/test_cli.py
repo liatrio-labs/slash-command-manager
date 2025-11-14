@@ -110,7 +110,7 @@ def test_cli_dry_run_reports_pending_backups(mock_prompts_dir, tmp_path):
 
     assert result.exit_code == 0
     lower_output = result.stdout.lower()
-    assert "backups would be created" in lower_output or "pending backups" in lower_output
+    assert "pending: 1" in lower_output or "backups pending" in lower_output
 
 
 def test_cli_yes_flag_injects_backup_action(mock_prompts_dir, tmp_path):

@@ -80,7 +80,7 @@
 - [x] 3.3 Update the Rich summary builder to surface the zero-prompt condition (e.g., show `Prompts loaded: 0` plus guidance) without suppressing the failing exit code.
 - [x] 3.4 Execute the empty-dir scenario inside the Docker container to capture stderr/stdout proving the guidance text and non-zero exit status.
 
-### [ ] 4.0 Deliver Rich YAML-Style Summary With Accurate Metrics
+### [x] 4.0 Deliver Rich YAML-Style Summary With Accurate Metrics
 
 #### 4.0 Demo Criteria
 
@@ -96,8 +96,8 @@
 
 #### 4.0 Tasks
 
-- [ ] 4.1 Draft snapshot-focused tests (unit or integration) that describe the target Rich YAML tree (detected vs selected agents, file counts, backup indicators, `--yes` flag visibility).
-- [ ] 4.2 Implement a dedicated summary builder (e.g., helper in `slash_commands/cli.py`) that produces structured data which the Rich Tree/Table renders; ensure data shape matches tests before coding the Rich output.
-- [ ] 4.3 Add tests verifying counts stay accurate for dry-run vs real run and that backup indicators reflect the new metadata from Task 1.0.
-- [ ] 4.4 Generate and store Rich snapshot artifacts/fixtures for regression checks (e.g., using `pytest-approvaltests` style or string compare).
-- [ ] 4.5 Capture both dry-run and real-run Rich output from the Docker container (screenshots or text logs) for inclusion in proofs.
+- [x] 4.1 Draft snapshot-focused tests (unit or integration) that describe the target Rich YAML tree (detected vs selected agents, file counts, backup indicators, `--yes` flag visibility).
+- [x] 4.2 Implement a dedicated summary builder (e.g., helper in `slash_commands/cli.py`) that produces structured data which the Rich Tree/Table renders; ensure data shape matches tests before coding the Rich output.
+- [x] 4.3 Add tests verifying counts stay accurate for dry-run vs real run and that backup indicators reflect the new metadata from Task 1.0.
+- [x] 4.4 Generate and store Rich snapshot artifacts/fixtures for regression checks (e.g., using `pytest-approvaltests` style or string compare).
+- [x] 4.5 Capture both dry-run and real-run Rich output from the Docker container (screenshots or text logs) for inclusion in proofs.
