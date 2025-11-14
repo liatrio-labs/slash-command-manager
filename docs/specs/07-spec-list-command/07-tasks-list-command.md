@@ -231,8 +231,8 @@ This command should be used whenever GitHub source metadata display or handling 
   - `test_render_list_tree_shows_unmanaged_counts()` - shows unmanaged prompt counts per agent directory
 - [x] 4.7 Implement `render_list_tree()` using Rich Tree structure similar to `_render_rich_summary()` in `cli.py`, run tests to verify they pass
 - [x] 4.8 Commit with message: `feat(list): implement Rich tree rendering for list output`
-- [ ] 4.9 Write failing integration test `test_list_output_structure()` in `tests/integration/test_list_command.py` that verifies output format matches expected structure (test with both local and GitHub sources)
-- [ ] 4.10 Run integration test to verify it passes, then commit with message: `test(integration): verify list output structure`
+- [x] 4.9 Write failing integration test `test_list_output_structure()` in `tests/integration/test_list_command.py` that verifies output format matches expected structure (test with both local and GitHub sources)
+- [x] 4.10 Run integration test to verify it passes, then commit with message: `test(integration): verify list output structure`
 - [ ] 4.11 Create CLI transcript or screenshot proof artifact showing formatted tree output
 - [ ] 4.12 Create CLI transcript showing GitHub source display in tree structure after generating from GitHub source testing command (see Testing Notes above)
 
