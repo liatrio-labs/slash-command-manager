@@ -15,6 +15,7 @@ from rich.table import Table
 
 from mcp_server import create_app
 from slash_commands import (
+    NoPromptsDiscoveredError,
     SlashCommandWriter,
     detect_agents,
     get_agent_config,
@@ -345,6 +346,16 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         print("  - Check your internet connection", file=sys.stderr)
         print("  - Verify GitHub API is accessible", file=sys.stderr)
         raise typer.Exit(code=3) from None  # I/O error
+    except NoPromptsDiscoveredError as e:
+        print(str(e), file=sys.stderr)
+        console.print(
+            Panel(
+                "Prompts loaded: 0\nFiles written: 0\nBackups created: 0",
+                title="Generation Summary",
+                border_style="yellow",
+            )
+        )
+        raise typer.Exit(code=1) from None
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         print("\nTo fix this:", file=sys.stderr)

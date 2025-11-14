@@ -21,6 +21,10 @@ from slash_commands.generators import CommandGenerator
 from slash_commands.github_utils import _download_github_prompts_to_temp_dir
 
 
+class NoPromptsDiscoveredError(RuntimeError):
+    """Raised when no prompts can be found from the configured sources."""
+
+
 def _find_package_prompts_dir() -> Path | None:
     """Find the prompts directory in the installed package.
 
@@ -177,6 +181,8 @@ class SlashCommandWriter:
         """
         # Load prompts
         prompts = self._load_prompts()
+        if not prompts:
+            raise NoPromptsDiscoveredError(self._build_no_prompts_message())
 
         # Get agent configs
         agent_configs = [get_agent_config(key) for key in self.agents]
@@ -210,6 +216,28 @@ class SlashCommandWriter:
             "backups_created": self._backups_created,
             "backups_pending": self._backups_pending,
         }
+
+    def _build_no_prompts_message(self) -> str:
+        """Construct an actionable error message for zero-prompt scenarios."""
+        lines = ["Error: No prompts were discovered."]
+        if self.github_repo and self.github_branch and self.github_path:
+            lines.append(
+                f"Source: GitHub {self.github_repo}@{self.github_branch}/{self.github_path}"
+            )
+        else:
+            source_dir = self.prompts_dir.resolve()
+            lines.append(f"Source directory: {source_dir}")
+
+        lines.extend(
+            [
+                "",
+                "To fix this:",
+                "  - Ensure the prompts directory contains .md files",
+                "  - Provide --prompts-dir pointing to a populated directory",
+                "  - Or use --github-repo/--github-branch/--github-path to pull prompts",
+            ]
+        )
+        return "\n".join(lines)
 
     def _load_prompts(self) -> list[MarkdownPrompt]:
         """Load all prompts from the prompts directory or GitHub repository."""

@@ -59,7 +59,7 @@
 - [x] 2.4 Ensure questionary menu options label the skip-backups path clearly and log the selection for auditability.
 - [x] 2.5 Capture containerized CLI help/output demonstrating the updated messaging for proof artifacts (no local file changes).
 
-### [ ] 3.0 Guard Against Missing Prompts With Actionable Errors
+### [x] 3.0 Guard Against Missing Prompts With Actionable Errors
 
 #### 3.0 Demo Criteria
 
@@ -75,10 +75,10 @@
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Add failing tests in `tests/integration/test_prompt_discovery.py` (and GitHub-focused fixtures) that expect a zero-prompt run to exit with code 1 and actionable messaging.
-- [ ] 3.2 Extend `slash_commands/writer.py` (or discovery helpers) to raise a descriptive exception when no prompts are loaded, including hints about `--prompts-dir` and GitHub flags; wire this into the CLI error pathway.
-- [ ] 3.3 Update the Rich summary builder to surface the zero-prompt condition (e.g., show `Prompts loaded: 0` plus guidance) without suppressing the failing exit code.
-- [ ] 3.4 Execute the empty-dir scenario inside the Docker container to capture stderr/stdout proving the guidance text and non-zero exit status.
+- [x] 3.1 Add failing tests in `tests/integration/test_prompt_discovery.py` (and GitHub-focused fixtures) that expect a zero-prompt run to exit with code 1 and actionable messaging.
+- [x] 3.2 Extend `slash_commands/writer.py` (or discovery helpers) to raise a descriptive exception when no prompts are loaded, including hints about `--prompts-dir` and GitHub flags; wire this into the CLI error pathway.
+- [x] 3.3 Update the Rich summary builder to surface the zero-prompt condition (e.g., show `Prompts loaded: 0` plus guidance) without suppressing the failing exit code.
+- [x] 3.4 Execute the empty-dir scenario inside the Docker container to capture stderr/stdout proving the guidance text and non-zero exit status.
 
 ### [ ] 4.0 Deliver Rich YAML-Style Summary With Accurate Metrics
 
