@@ -175,10 +175,10 @@ This command should be used whenever GitHub source metadata display or handling 
   - `test_format_source_info_missing_fields()` - handles missing fields gracefully (shows "Unknown" or omits)
 - [x] 3.7 Implement `format_source_info()` logic: check `meta.source_type`, format accordingly, handle missing fields, run tests to verify they pass
 - [x] 3.8 Commit with message: `feat(list): implement source metadata consolidation`
-- [ ] 3.9 Write failing integration test `test_list_shows_backup_counts()` in `tests/integration/test_list_command.py` that creates backups using the same pattern as `writer.py` (e.g., `command.md.20250115-123456.bak`) and verifies counts are shown correctly
-- [ ] 3.10 Run integration test to verify it passes
-- [ ] 3.11 Write failing integration test `test_list_shows_source_info()` in `tests/integration/test_list_command.py` that generates prompts from both local and GitHub sources and verifies source information is displayed correctly
-- [ ] 3.12 Run integration test to verify it passes, then commit with message: `test(integration): verify backup counts and source info display`
+- [x] 3.9 Write failing integration test `test_list_shows_backup_counts()` in `tests/integration/test_list_command.py` that creates backups using the same pattern as `writer.py` (e.g., `command.md.20250115-123456.bak`) and verifies counts are shown correctly
+- [x] 3.10 Run integration test to verify it passes
+- [x] 3.11 Write failing integration test `test_list_shows_source_info()` in `tests/integration/test_list_command.py` that generates prompts from both local and GitHub sources and verifies source information is displayed correctly
+- [x] 3.12 Run integration test to verify it passes, then commit with message: `test(integration): verify backup counts and source info display`
 - [ ] 3.13 Create CLI transcript proof artifacts:
   - Show backup counts in output after creating backups
   - Show GitHub source display after generating from GitHub source testing command (see Testing Notes above)

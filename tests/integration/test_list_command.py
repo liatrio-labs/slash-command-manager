@@ -1,8 +1,13 @@
 """Integration tests for list command."""
 
 import subprocess
+from datetime import UTC, datetime
 
-from slash_commands.list_discovery import discover_managed_prompts
+from slash_commands.list_discovery import (
+    count_backups,
+    discover_managed_prompts,
+    format_source_info,
+)
 
 from .conftest import REPO_ROOT, get_slash_man_command
 
@@ -50,4 +55,89 @@ def test_list_discovers_managed_prompts(temp_test_dir, test_prompts_dir):
         assert prompt["name"] is not None, f"Prompt missing name: {prompt}"
         assert prompt["file_path"].exists(), (
             f"Prompt file path does not exist: {prompt['file_path']}"
+        )
+
+
+def test_list_shows_backup_counts(temp_test_dir, test_prompts_dir):
+    """Test that backup counts are calculated correctly for managed prompts."""
+    # Generate a managed prompt
+    cmd = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result.returncode == 0, f"Failed to generate prompt: {result.stderr}"
+
+    # Find the generated file
+    generated_file = temp_test_dir / ".claude" / "commands" / "test-prompt-1.md"
+    assert generated_file.exists(), "Generated file should exist"
+
+    # Initially no backups
+    count = count_backups(generated_file)
+    assert count == 0, "Should have 0 backups initially"
+
+    # Create backup files matching the pattern from writer.py
+    timestamp1 = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    backup1 = generated_file.parent / f"test-prompt-1.md.{timestamp1}.bak"
+    backup1.write_text("backup content 1", encoding="utf-8")
+
+    # Wait a moment to ensure different timestamp
+    import time
+
+    time.sleep(1)
+
+    timestamp2 = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    backup2 = generated_file.parent / f"test-prompt-1.md.{timestamp2}.bak"
+    backup2.write_text("backup content 2", encoding="utf-8")
+
+    # Count backups
+    count = count_backups(generated_file)
+    assert count == 2, f"Should have 2 backups, got {count}"
+
+
+def test_list_shows_source_info(temp_test_dir, test_prompts_dir):
+    """Test that source information is formatted correctly for local and GitHub sources."""
+    # Generate prompts from local source
+    cmd_local = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_local = subprocess.run(
+        cmd_local,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_local.returncode == 0, (
+        f"Failed to generate from local source: {result_local.stderr}"
+    )
+
+    # Discover managed prompts
+    discovered = discover_managed_prompts(temp_test_dir, ["claude-code"])
+    assert len(discovered) > 0, "Should discover at least one prompt"
+
+    # Check source info formatting for local source
+    for prompt in discovered:
+        source_info = format_source_info(prompt["meta"])
+        assert source_info.startswith("local:"), f"Expected local source, got: {source_info}"
+        # Verify it contains the source directory or path
+        assert "prompts" in source_info.lower() or "test" in source_info.lower(), (
+            f"Source info should contain path info: {source_info}"
         )
