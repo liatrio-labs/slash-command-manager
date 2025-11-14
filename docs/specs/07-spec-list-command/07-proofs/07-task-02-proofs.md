@@ -149,14 +149,38 @@ slash_commands/list_discovery.py
 7. ✅ Multiple agents are discovered correctly
 8. ✅ Error handling works for malformed files, Unicode errors, and permission errors
 
+### Integration Tests
+
+```bash
+pytest tests/integration/test_list_command.py::test_list_discovers_managed_prompts -v -m integration
+```
+
+Output:
+
+```text
+============================= test session starts ==============================
+platform linux -- Python 3.12.6, pytest-8.4.2, pluggy-1.5.0
+collecting ... collected 1 item
+
+tests/integration/test_list_command.py::test_list_discovers_managed_prompts PASSED [100%]
+
+============================== 1 passed in 2.09s ===============================
+```
+
+**Integration Test Verification:**
+
+- ✅ Creates managed prompts across multiple agent directories using `slash-man generate`
+- ✅ Verifies discovery function finds prompts from both agents (cursor and claude-code)
+- ✅ Confirms all discovered prompts have `managed_by: slash-man` field
+- ✅ Validates prompt metadata structure (name, file_path, agent, etc.)
+
 ## Pending Proof Artifacts
 
-The following proof artifacts require the CLI command implementation (Task 5.0):
+The following proof artifact requires the CLI command implementation (Task 5.0):
 
-- ⏳ **Integration Test**: `test_list_discovers_managed_prompts()` - Requires CLI command to be implemented
 - ⏳ **CLI Transcript**: Running `slash-man list` and showing discovery working - Requires CLI command to be implemented
 
-These will be completed once Task 5.0 (CLI command implementation) is finished.
+This will be completed once Task 5.0 (CLI command implementation) is finished.
 
 ## Notes
 

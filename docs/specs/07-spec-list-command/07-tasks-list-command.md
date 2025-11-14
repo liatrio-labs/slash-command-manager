@@ -69,7 +69,7 @@ This command should be used whenever GitHub source metadata display or handling 
 - [x] 1.9 Verify existing metadata fields are preserved by running existing generator tests and confirming no regressions
 - [x] 1.10 Create CLI transcript proof artifact: run `slash-man generate` with test prompts, then `cat` generated file to show `managed_by: slash-man` in frontmatter/TOML
 
-### [~] 2.0 Implement Prompt Discovery and Filtering Logic
+### [x] 2.0 Implement Prompt Discovery and Filtering Logic
 
 #### 2.0 Demo Criteria
 
@@ -120,8 +120,8 @@ This command should be used whenever GitHub source metadata display or handling 
   - `test_count_unmanaged_prompts_excludes_invalid_files()` - excludes files that aren't valid prompts
 - [x] 2.17 Implement `count_unmanaged_prompts()` logic: scan files matching agent's `command_file_extension`, exclude backups (matching pattern `*.{extension}.{timestamp}.bak`) and managed files, attempt to parse remaining files, count only valid prompt files. Handle parsing errors gracefully (skip malformed files silently per spec assumption)
 - [x] 2.18 Run tests to verify they pass, then commit with message: `feat(list): implement unmanaged prompt counting`
-- [ ] 2.19 Write failing integration test `test_list_discovers_managed_prompts()` in `tests/integration/test_list_command.py` that creates managed prompts across multiple agent directories and verifies discovery works
-- [ ] 2.20 Run integration test to verify it passes, then commit with message: `test(integration): verify list discovers managed prompts across agents`
+- [x] 2.19 Write failing integration test `test_list_discovers_managed_prompts()` in `tests/integration/test_list_command.py` that creates managed prompts across multiple agent directories and verifies discovery works
+- [x] 2.20 Run integration test to verify it passes, then commit with message: `test(integration): verify list discovers managed prompts across agents`
 - [x] 2.21 Write failing unit tests for error handling scenarios:
   - `test_discover_managed_prompts_handles_malformed_frontmatter()` - skips files with malformed frontmatter silently (per spec assumption)
   - `test_discover_managed_prompts_handles_permission_errors()` - handles permission errors gracefully (skip inaccessible files)
