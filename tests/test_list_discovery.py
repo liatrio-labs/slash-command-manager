@@ -637,7 +637,7 @@ meta:
 
 def test_format_source_info_local_source():
     """Test that format_source_info formats local source correctly."""
-    from slash_commands.list_discovery import format_source_info
+    from slash_commands.cli_utils import format_source_info
 
     # Test with source_dir
     meta_with_dir = {
@@ -667,7 +667,7 @@ def test_format_source_info_local_source():
 
 def test_format_source_info_github_source():
     """Test that format_source_info formats GitHub source correctly."""
-    from slash_commands.list_discovery import format_source_info
+    from slash_commands.cli_utils import format_source_info
 
     # Test with all GitHub fields
     meta_github = {
@@ -682,7 +682,7 @@ def test_format_source_info_github_source():
 
 def test_format_source_info_missing_fields():
     """Test that format_source_info handles missing fields gracefully."""
-    from slash_commands.list_discovery import format_source_info
+    from slash_commands.cli_utils import format_source_info
 
     # Test with missing source_type
     meta_no_type = {

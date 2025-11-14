@@ -14,6 +14,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 from mcp_server.prompt_utils import parse_frontmatter
+from slash_commands.cli_utils import format_source_info
 from slash_commands.config import AgentConfig, get_agent_config
 
 # Panel width matching generate command summary
@@ -241,50 +242,6 @@ def count_backups(file_path: Path) -> int:
             count += 1
 
     return count
-
-
-def format_source_info(meta: dict[str, Any]) -> str:
-    """Format source metadata into a single display line.
-
-    Consolidates source information from metadata:
-    - Local sources: "local: /path/to/prompts" (uses source_dir or source_path)
-    - GitHub sources: "github: owner/repo@branch:path"
-    - Missing fields: "Unknown"
-
-    Args:
-        meta: Metadata dict from command file
-
-    Returns:
-        Formatted source information string
-    """
-    source_type = meta.get("source_type", "")
-
-    if source_type == "local":
-        # Prefer source_dir, fallback to source_path
-        source_dir = meta.get("source_dir")
-        if source_dir:
-            return f"local: {source_dir}"
-        source_path = meta.get("source_path")
-        if source_path:
-            return f"local: {source_path}"
-        return "Unknown"
-
-    if source_type == "github":
-        source_repo = meta.get("source_repo")
-        source_branch = meta.get("source_branch", "")
-        source_path = meta.get("source_path", "")
-
-        if source_repo:
-            parts = [f"github: {source_repo}"]
-            if source_branch:
-                parts.append(f"@{source_branch}")
-            if source_path:
-                parts.append(f":{source_path}")
-            return "".join(parts)
-        return "Unknown"
-
-    # Unknown or missing source_type
-    return "Unknown"
 
 
 def build_list_data_structure(

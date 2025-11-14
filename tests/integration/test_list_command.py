@@ -3,10 +3,10 @@
 import subprocess
 from datetime import UTC, datetime
 
+from slash_commands.cli_utils import format_source_info
 from slash_commands.list_discovery import (
     count_backups,
     discover_managed_prompts,
-    format_source_info,
 )
 
 from .conftest import REPO_ROOT, get_slash_man_command

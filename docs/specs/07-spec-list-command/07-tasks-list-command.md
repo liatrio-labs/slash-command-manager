@@ -325,33 +325,33 @@ This command should be used whenever GitHub source metadata display or handling 
 
 #### 6.0 Tasks
 
-- [ ] 6.1 Analyze `slash_commands/cli.py` and `slash_commands/list_discovery.py` to identify shared functionality between `generate` and `list` commands. **Note:** Some utilities (e.g., path resolution) may be needed earlier by `list` command, but can be extracted incrementally during Task 6.0 refactoring:
+- [x] 6.1 Analyze `slash_commands/cli.py` and `slash_commands/list_discovery.py` to identify shared functionality between `generate` and `list` commands. **Note:** Some utilities (e.g., path resolution) may be needed earlier by `list` command, but can be extracted incrementally during Task 6.0 refactoring:
   - Agent detection and validation logic
   - Path resolution and display utilities (`_display_local_path()`, `_relative_to_candidates()`)
   - Rich rendering helpers (`_render_rich_summary()` patterns)
   - Frontmatter/TOML parsing utilities
   - Source metadata extraction and formatting
-- [ ] 6.2 Create new file `slash_commands/cli_utils.py` with shared utility functions
-- [ ] 6.3 Extract agent detection/validation utility function from `generate` command logic, place in `cli_utils.py`
-- [ ] 6.4 Write failing unit test `test_agent_detection_utility()` in `tests/test_cli_utils.py` verifying extracted utility works correctly
-- [ ] 6.5 Run test to verify it passes, update `generate` command to use shared utility, verify existing tests still pass
-- [ ] 6.6 Commit with message: `refactor(cli): extract agent detection utility`
-- [ ] 6.7 Extract path resolution utility functions (`_display_local_path()`, `_relative_to_candidates()`) from `cli.py` to `cli_utils.py`
-- [ ] 6.8 Write failing unit tests for path resolution utilities in `tests/test_cli_utils.py`
-- [ ] 6.9 Run tests to verify they pass, update `generate` and `list` commands to use shared utilities, verify existing tests still pass
-- [ ] 6.10 Commit with message: `refactor(cli): extract path resolution utilities`
-- [ ] 6.11 Extract Rich rendering helper functions (patterns from `_render_rich_summary()`) to `cli_utils.py`
-- [ ] 6.12 Write failing unit tests for Rich rendering utilities in `tests/test_cli_utils.py`
-- [ ] 6.13 Run tests to verify they pass, update `generate` and `list` commands to use shared utilities, verify existing tests still pass
-- [ ] 6.14 Commit with message: `refactor(cli): extract Rich rendering utilities`
-- [ ] 6.15 Extract frontmatter/TOML parsing utilities (may extend `mcp_server/prompt_utils.py` or create new utilities in `cli_utils.py`)
-- [ ] 6.16 Write failing unit tests for parsing utilities in `tests/test_cli_utils.py` or `tests/test_prompt_utils.py`
-- [ ] 6.17 Run tests to verify they pass, update `generate` and `list` commands to use shared utilities, verify existing tests still pass
-- [ ] 6.18 Commit with message: `refactor(cli): extract frontmatter/TOML parsing utilities`
-- [ ] 6.19 Extract source metadata formatting utility (`format_source_info()` or similar) to `cli_utils.py`
-- [ ] 6.20 Write failing unit tests for source metadata formatting utility in `tests/test_cli_utils.py`
-- [ ] 6.21 Run tests to verify they pass, update `generate` and `list` commands to use shared utility, verify existing tests still pass
-- [ ] 6.22 Commit with message: `refactor(cli): extract source metadata formatting utility`
+- [x] 6.2 Create new file `slash_commands/cli_utils.py` with shared utility functions
+- [x] 6.3 Extract agent detection/validation utility function from `generate` command logic, place in `cli_utils.py`
+- [x] 6.4 Write failing unit test `test_agent_detection_utility()` in `tests/test_cli_utils.py` verifying extracted utility works correctly
+- [x] 6.5 Run test to verify it passes, update `generate` command to use shared utility, verify existing tests still pass
+- [x] 6.6 Commit with message: `refactor(cli): extract agent detection utility`
+- [x] 6.7 Extract path resolution utility functions (`_display_local_path()`, `_relative_to_candidates()`) from `cli.py` to `cli_utils.py`
+- [x] 6.8 Write failing unit tests for path resolution utilities in `tests/test_cli_utils.py`
+- [x] 6.9 Run tests to verify they pass, update `generate` and `list` commands to use shared utilities, verify existing tests still pass
+- [x] 6.10 Commit with message: `refactor(cli): extract path resolution utilities`
+- [x] 6.11 Extract Rich rendering helper functions (patterns from `_render_rich_summary()`) to `cli_utils.py`
+- [x] 6.12 Write failing unit tests for Rich rendering utilities in `tests/test_cli_utils.py`
+- [x] 6.13 Run tests to verify they pass, update `generate` and `list` commands to use shared utilities, verify existing tests still pass
+- [x] 6.14 Commit with message: `refactor(cli): extract Rich rendering utilities`
+- [x] 6.15 Extract frontmatter/TOML parsing utilities (may extend `mcp_server/prompt_utils.py` or create new utilities in `cli_utils.py`)
+- [x] 6.16 Write failing unit tests for parsing utilities in `tests/test_cli_utils.py` or `tests/test_prompt_utils.py`
+- [x] 6.17 Run tests to verify they pass, update `generate` and `list` commands to use shared utilities, verify existing tests still pass
+- [x] 6.18 Commit with message: `refactor(cli): extract frontmatter/TOML parsing utilities`
+- [x] 6.19 Extract source metadata formatting utility (`format_source_info()` or similar) to `cli_utils.py`
+- [x] 6.20 Write failing unit tests for source metadata formatting utility in `tests/test_cli_utils.py`
+- [x] 6.21 Run tests to verify they pass, update `generate` and `list` commands to use shared utility, verify existing tests still pass
+- [x] 6.22 Commit with message: `refactor(cli): extract source metadata formatting utility`
 - [ ] 6.23 Run full test suite to verify both `generate` and `list` commands maintain existing functionality after refactoring
 - [ ] 6.24 Generate test coverage report and verify coverage remains >90% for refactored code
 - [ ] 6.25 Create code review diff showing extracted shared utilities and code reduction/consolidation
