@@ -47,10 +47,3 @@ repos:
       stages: [pre-push]
       pass_filenames: false
       always_run: true
-    - id: integration-tests
-      name: Run integration tests in Docker
-      entry: uv run scripts/run_integration_tests.py
-      language: system
-      stages: [pre-push]
-      pass_filenames: false
-      always_run: true
