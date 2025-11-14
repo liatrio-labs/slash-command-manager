@@ -3,10 +3,89 @@
 from __future__ import annotations
 
 import base64
+import re
 from pathlib import Path, PurePosixPath
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
+
+# GitHub allows alphanumeric, hyphens, underscores, and dots in owner/repo names
+# This regex matches valid GitHub repository identifiers (no slashes)
+_GITHUB_REPO_PATTERN = re.compile(r"^[a-zA-Z0-9._-]+$")
+
+# Branch names can contain slashes (e.g., 'refactor/improve-workflow')
+# This regex matches valid GitHub branch names
+_GITHUB_BRANCH_PATTERN = re.compile(r"^[a-zA-Z0-9._/\-]+$")
+
+
+def _validate_github_identifier(identifier: str, name: str) -> None:
+    """Validate a GitHub identifier (owner, repo) contains only safe characters.
+
+    Args:
+        identifier: The identifier to validate
+        name: Human-readable name for error messages (e.g., 'owner', 'repo')
+
+    Raises:
+        ValueError: If identifier contains invalid characters
+    """
+    if not identifier:
+        raise ValueError(f"{name} cannot be empty")
+    if not _GITHUB_REPO_PATTERN.match(identifier):
+        raise ValueError(
+            f"{name} contains invalid characters. "
+            f"Only alphanumeric characters, dots, hyphens, and underscores are allowed. "
+            f"Got: {identifier!r}"
+        )
+
+
+def _validate_github_branch(branch: str) -> None:
+    """Validate a GitHub branch name contains only safe characters.
+
+    Args:
+        branch: The branch name to validate
+
+    Raises:
+        ValueError: If branch contains invalid characters
+    """
+    if not branch:
+        raise ValueError("Branch cannot be empty")
+    if not _GITHUB_BRANCH_PATTERN.match(branch):
+        raise ValueError(
+            "Branch contains invalid characters. "
+            "Only alphanumeric characters, dots, slashes, hyphens, and underscores are allowed. "
+            f"Got: {branch!r}"
+        )
+
+
+def _validate_github_path(path: str) -> None:
+    """Validate a GitHub repository path doesn't contain path traversal or unsafe characters.
+
+    Args:
+        path: The path to validate
+
+    Raises:
+        ValueError: If path contains traversal sequences or unsafe characters
+    """
+    if not path:
+        raise ValueError("Path cannot be empty")
+
+    # Check for path traversal sequences
+    normalized_path = PurePosixPath(path)
+    if ".." in normalized_path.parts:
+        raise ValueError(f"Path cannot contain traversal segments (..). Got: {path!r}")
+
+    # Check for absolute paths
+    if normalized_path.is_absolute():
+        raise ValueError(f"Path must be relative, got absolute path: {path!r}")
+
+    # Check for unsafe characters that could be exploited in URL construction
+    # Allow alphanumeric, dots, slashes, hyphens, underscores, and spaces
+    if not re.match(r"^[a-zA-Z0-9._/\s-]+$", path):
+        raise ValueError(
+            f"Path contains invalid characters. "
+            f"Only alphanumeric characters, dots, slashes, hyphens, underscores, and spaces are allowed. "
+            f"Got: {path!r}"
+        )
 
 
 def validate_github_repo(repo: str) -> tuple[str, str]:
@@ -43,6 +122,10 @@ def validate_github_repo(repo: str) -> tuple[str, str]:
             f"Repository must be in format owner/repo, got: {repo!r}. Example: {example}"
         )
 
+    # Validate owner and repo contain only safe characters
+    _validate_github_identifier(owner, "Owner")
+    _validate_github_identifier(repo_name, "Repository")
+
     return (owner, repo_name)
 
 
@@ -63,9 +146,36 @@ def download_prompts_from_github(
     Raises:
         requests.exceptions.HTTPError: For GitHub API errors (404, 403, etc.)
         requests.exceptions.RequestException: For network errors
-        ValueError: If path points to a non-markdown file
+        ValueError: If path points to a non-markdown file or contains invalid characters
     """
-    api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
+    # Validate all inputs to prevent SSRF attacks
+    _validate_github_identifier(owner, "Owner")
+    _validate_github_identifier(repo, "Repository")
+    _validate_github_branch(branch)
+    _validate_github_path(path)
+
+    # Construct URL safely to prevent SSRF
+    # All inputs are validated above, so we can safely construct the URL
+    # Use urljoin with a fixed base URL to ensure we only target api.github.com
+    base_url = "https://api.github.com/"
+    # Construct path segments - owner and repo are validated, so safe to use
+    repo_segment = f"repos/{owner}/{repo}/contents/"
+    # Use urljoin to safely combine base URL with repo segment
+    api_url = urljoin(base_url, repo_segment)
+    # Append path - path is validated, so safe to append
+    # Ensure trailing slash for proper urljoin behavior
+    if not api_url.endswith("/"):
+        api_url += "/"
+    api_url = urljoin(api_url, path)
+
+    # Validate the final URL to ensure it only targets api.github.com
+    # This is a defense-in-depth measure to prevent SSRF attacks
+    parsed_url = urlparse(api_url)
+    if parsed_url.scheme != "https":
+        raise ValueError(f"API URL must use HTTPS scheme, got: {parsed_url.scheme}")
+    if parsed_url.netloc != "api.github.com":
+        raise ValueError(f"API URL must target api.github.com, got: {parsed_url.netloc}")
+
     headers = {"Accept": "application/vnd.github+json"}
     params = {"ref": branch}
 

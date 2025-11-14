@@ -65,6 +65,70 @@ def test_validate_github_repo_error_message_includes_example():
     assert "Example:" in str(exc_info.value)
 
 
+def test_validate_github_repo_rejects_invalid_characters():
+    """Test that validate_github_repo rejects invalid characters in owner/repo."""
+    # Owner with invalid characters
+    with pytest.raises(ValueError, match="invalid characters"):
+        validate_github_repo("owner@evil/repo")
+    with pytest.raises(ValueError, match="invalid characters"):
+        validate_github_repo("owner space/repo")
+    with pytest.raises(ValueError, match="invalid characters"):
+        validate_github_repo("owner/repo#tag")
+
+    # Valid characters should still work
+    assert validate_github_repo("owner-name/repo.name") == ("owner-name", "repo.name")
+    assert validate_github_repo("owner_name/repo_name") == ("owner_name", "repo_name")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_rejects_invalid_owner(mock_get):
+    """Test that invalid owner characters are rejected."""
+    with pytest.raises(ValueError, match="invalid characters"):
+        download_prompts_from_github("owner@evil", "repo", "main", "prompts")
+    with pytest.raises(ValueError, match="invalid characters"):
+        download_prompts_from_github("owner space", "repo", "main", "prompts")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_rejects_invalid_repo(mock_get):
+    """Test that invalid repo characters are rejected."""
+    with pytest.raises(ValueError, match="invalid characters"):
+        download_prompts_from_github("owner", "repo@evil", "main", "prompts")
+    with pytest.raises(ValueError, match="invalid characters"):
+        download_prompts_from_github("owner", "repo space", "main", "prompts")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_rejects_invalid_branch(mock_get):
+    """Test that invalid branch characters are rejected."""
+    with pytest.raises(ValueError, match="invalid characters"):
+        download_prompts_from_github("owner", "repo", "branch@evil", "prompts")
+    # But slashes should be allowed in branch names
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = []
+    directory_response.raise_for_status = MagicMock()
+    mock_get.return_value = directory_response
+    # This should not raise a validation error
+    download_prompts_from_github("owner", "repo", "feature/add-feature", "prompts")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_rejects_path_traversal(mock_get):
+    """Test that path traversal sequences are rejected."""
+    with pytest.raises(ValueError, match="traversal"):
+        download_prompts_from_github("owner", "repo", "main", "../etc/passwd")
+    with pytest.raises(ValueError, match="traversal"):
+        download_prompts_from_github("owner", "repo", "main", "prompts/../../etc")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_rejects_absolute_path(mock_get):
+    """Test that absolute paths are rejected."""
+    with pytest.raises(ValueError, match="relative"):
+        download_prompts_from_github("owner", "repo", "main", "/etc/passwd")
+
+
 @patch("slash_commands.github_utils.requests.get")
 def test_download_prompts_from_github_directory(mock_get):
     """Test downloading prompts from a GitHub directory."""
