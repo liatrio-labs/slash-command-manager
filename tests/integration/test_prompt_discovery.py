@@ -37,7 +37,7 @@ def test_zero_prompts_local_directory_fails(temp_test_dir: Path):
     combined = result.output.lower()
     assert "no prompts were discovered" in combined
     assert "prompts loaded: 0" in combined
-    assert "--prompts-dir" in combined or "github" in combined
+    assert "--prompts-dir" in combined
 
 
 @pytest.mark.integration

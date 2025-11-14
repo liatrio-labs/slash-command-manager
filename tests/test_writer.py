@@ -399,7 +399,7 @@ def test_writer_backs_up_existing_files(mock_prompt_load: Path, tmp_path):
 
 
 def test_writer_creates_backups_before_overwrite_by_default(mock_prompt_load: Path, tmp_path):
-    """Non-dry runs should back up files whenever overwrite action is backup."""
+    """Non-dry runs should back up existing files by default."""
     prompts_dir = mock_prompt_load
 
     output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
@@ -411,14 +411,20 @@ def test_writer_creates_backups_before_overwrite_by_default(mock_prompt_load: Pa
         agents=["claude-code"],
         dry_run=False,
         base_path=tmp_path,
-        overwrite_action="backup",
     )
 
     backup_path = output_path.with_suffix(".md.20250101-010101.bak")
-    with patch("slash_commands.writer.create_backup") as mock_backup:
+    with (
+        patch(
+            "slash_commands.writer.SlashCommandWriter._prompt_for_all_existing_files"
+        ) as mock_prompt,
+        patch("slash_commands.writer.create_backup") as mock_backup,
+    ):
+        mock_prompt.return_value = "backup"
         mock_backup.return_value = backup_path
         result = writer.generate()
 
+    mock_prompt.assert_called_once()
     mock_backup.assert_called_once_with(output_path)
     assert result["backups_created"] == [str(backup_path)]
     assert "Test Prompt" in output_path.read_text()

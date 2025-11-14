@@ -65,7 +65,9 @@ def test_skip_backups_only_route_without_backups(temp_test_dir: Path, test_promp
 
     # Move selection down to the skip-backups option and confirm.
     child.send("\x1b[B")
+    child.expect(r"» Create backups and overwrite all \(recommended\)")
     child.send("\x1b[B")
+    child.expect(r"» Skip backups and overwrite all \(NOT RECOMMENDED\)")
     child.send("\r")
 
     child.expect("WARNING: Skip backups selected", timeout=60)
