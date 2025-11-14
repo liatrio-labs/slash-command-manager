@@ -8,9 +8,16 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from rich.tree import Tree
 
 from mcp_server.prompt_utils import parse_frontmatter
 from slash_commands.config import AgentConfig, get_agent_config
+
+# Panel width matching generate command summary
+LIST_PANEL_WIDTH = 80
 
 
 def discover_managed_prompts(base_path: Path, agents: list[str]) -> list[dict[str, Any]]:
@@ -338,3 +345,81 @@ def build_list_data_structure(
         "prompts": prompts_dict,
         "unmanaged_counts": unmanaged_counts,
     }
+
+
+def render_list_tree(data_structure: dict[str, Any], *, record: bool = False) -> str | None:
+    """Render the list data structure using Rich Tree format.
+
+    Similar to `_render_rich_summary()` in cli.py, but organized by prompt name.
+
+    Args:
+        data_structure: Dict from build_list_data_structure() containing prompts and unmanaged_counts
+        record: If True, record output and return as string instead of printing
+
+    Returns:
+        Rendered text if record=True, None otherwise
+    """
+    target_console = (
+        Console(record=True, width=LIST_PANEL_WIDTH) if record else Console(width=LIST_PANEL_WIDTH)
+    )
+
+    root = Tree("Managed Prompts")
+
+    prompts = data_structure.get("prompts", {})
+    unmanaged_counts = data_structure.get("unmanaged_counts", {})
+
+    # Add prompts grouped by name
+    if prompts:
+        prompts_branch = root.add("Prompts")
+        for prompt_name, prompt_data in sorted(prompts.items()):
+            prompt_branch = prompts_branch.add(prompt_name)
+
+            # Add source info
+            source_info = prompt_data.get("source_info", "Unknown")
+            prompt_branch.add(f"Source: {source_info}")
+
+            # Add updated timestamp
+            updated_at = prompt_data.get("updated_at", "Unknown")
+            prompt_branch.add(f"Updated: {updated_at}")
+
+            # Add agents
+            agents = prompt_data.get("agents", [])
+            if agents:
+                agents_branch = prompt_branch.add(f"Agents ({len(agents)})")
+                for agent_info in agents:
+                    agent_key = agent_info.get("agent", "unknown")
+                    display_name = agent_info.get("display_name", agent_key)
+                    file_path = agent_info.get("file_path", Path())
+                    backup_count = agent_info.get("backup_count", 0)
+
+                    # Format agent entry: "Display Name (agent-key) • X backup(s)"
+                    backup_text = f"{backup_count} backup" + ("s" if backup_count != 1 else "")
+                    agent_entry = f"{display_name} ({agent_key}) • {backup_text}"
+
+                    agent_node = agents_branch.add(agent_entry)
+                    # Add file path as child
+                    agent_node.add(Text(str(file_path), overflow="fold"))
+            else:
+                prompt_branch.add("No agents")
+    else:
+        root.add("No managed prompts found")
+
+    # Add unmanaged counts
+    if unmanaged_counts:
+        unmanaged_branch = root.add("Unmanaged Prompts")
+        for agent_key, count in sorted(unmanaged_counts.items()):
+            if count > 0:
+                unmanaged_branch.add(f"{agent_key}: {count}")
+
+    panel = Panel(
+        root,
+        title="List Summary",
+        border_style="cyan",
+        width=LIST_PANEL_WIDTH,
+        expand=False,
+    )
+    target_console.print(panel)
+
+    if record:
+        return target_console.export_text(clear=False)
+    return None

@@ -219,8 +219,8 @@ This command should be used whenever GitHub source metadata display or handling 
   - `test_build_list_data_structure_includes_all_fields()` - includes agent keys, display names, file paths, backup counts, source info, timestamps
 - [x] 4.3 Implement `build_list_data_structure()` to group by prompt name, aggregate agent info, include all required fields, run tests to verify they pass
 - [x] 4.4 Commit with message: `feat(list): implement data structure building for list output`
-- [ ] 4.5 Create function `render_list_tree()` in `slash_commands/list_discovery.py` that takes data structure and renders Rich tree format similar to `generate` command summary
-- [ ] 4.6 Write failing unit tests for Rich rendering:
+- [x] 4.5 Create function `render_list_tree()` in `slash_commands/list_discovery.py` that takes data structure and renders Rich tree format similar to `generate` command summary
+- [x] 4.6 Write failing unit tests for Rich rendering:
   - `test_render_list_tree_creates_tree_structure()` - creates Rich Tree with correct structure
   - `test_render_list_tree_groups_by_prompt_name()` - groups output by prompt name
   - `test_render_list_tree_shows_agent_info()` - shows agent(s) where installed
@@ -229,8 +229,8 @@ This command should be used whenever GitHub source metadata display or handling 
   - `test_render_list_tree_shows_source_info()` - shows consolidated source information
   - `test_render_list_tree_shows_timestamps()` - shows last updated timestamp
   - `test_render_list_tree_shows_unmanaged_counts()` - shows unmanaged prompt counts per agent directory
-- [ ] 4.7 Implement `render_list_tree()` using Rich Tree structure similar to `_render_rich_summary()` in `cli.py`, run tests to verify they pass
-- [ ] 4.8 Commit with message: `feat(list): implement Rich tree rendering for list output`
+- [x] 4.7 Implement `render_list_tree()` using Rich Tree structure similar to `_render_rich_summary()` in `cli.py`, run tests to verify they pass
+- [x] 4.8 Commit with message: `feat(list): implement Rich tree rendering for list output`
 - [ ] 4.9 Write failing integration test `test_list_output_structure()` in `tests/integration/test_list_command.py` that verifies output format matches expected structure (test with both local and GitHub sources)
 - [ ] 4.10 Run integration test to verify it passes, then commit with message: `test(integration): verify list output structure`
 - [ ] 4.11 Create CLI transcript or screenshot proof artifact showing formatted tree output

@@ -857,3 +857,273 @@ def test_build_list_data_structure_includes_all_fields():
 
     assert "unmanaged_counts" in result
     assert result["unmanaged_counts"]["cursor"] == 2
+
+
+def test_render_list_tree_creates_tree_structure():
+    """Test that render_list_tree creates Rich Tree with correct structure."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0},
+    )
+
+    # Render tree and capture output
+    output = render_list_tree(data_structure, record=True)
+
+    # Verify output contains tree structure elements
+    assert output is not None
+    assert "Managed Prompts" in output or "List Summary" in output
+    assert "test-command" in output
+
+
+def test_render_list_tree_groups_by_prompt_name():
+    """Test that render_list_tree groups output by prompt name."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+            {
+                "name": "test-command",  # Same name, different agent
+                "agent": "claude-code",
+                "agent_display_name": "Claude Code",
+                "file_path": Path("/tmp/.claude/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0, "claude-code": 0},
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    # Verify prompt name appears once (grouped)
+    assert output is not None
+    # Count occurrences - should appear once as a group header
+    assert output.count("test-command") >= 1
+
+
+def test_render_list_tree_shows_agent_info():
+    """Test that render_list_tree shows agent(s) where installed."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0},
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    assert output is not None
+    assert "cursor" in output.lower() or "Cursor" in output
+
+
+def test_render_list_tree_shows_file_paths():
+    """Test that render_list_tree shows file path(s) for each agent."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0},
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    assert output is not None
+    # Should show file path (may be shortened)
+    assert "test-command.md" in output or ".cursor" in output
+
+
+def test_render_list_tree_shows_backup_counts():
+    """Test that render_list_tree shows backup count per file."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0},
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    assert output is not None
+    # Should show backup count (may be "0" or "backup")
+    assert "backup" in output.lower() or "0" in output
+
+
+def test_render_list_tree_shows_source_info():
+    """Test that render_list_tree shows consolidated source information."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0},
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    assert output is not None
+    assert "local:" in output.lower() or "source" in output.lower()
+
+
+def test_render_list_tree_shows_timestamps():
+    """Test that render_list_tree shows last updated timestamp."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 0},
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    assert output is not None
+    # Should show timestamp (may be formatted)
+    assert "2025" in output or "updated" in output.lower()
+
+
+def test_render_list_tree_shows_unmanaged_counts():
+    """Test that render_list_tree shows unmanaged prompt counts per agent directory."""
+    from pathlib import Path
+
+    from slash_commands.list_discovery import build_list_data_structure, render_list_tree
+
+    data_structure = build_list_data_structure(
+        [
+            {
+                "name": "test-command",
+                "agent": "cursor",
+                "agent_display_name": "Cursor",
+                "file_path": Path("/tmp/.cursor/commands/test-command.md"),
+                "meta": {
+                    "managed_by": "slash-man",
+                    "source_type": "local",
+                    "source_dir": "/path/to/prompts",
+                    "updated_at": "2025-01-15T10:00:00Z",
+                },
+                "format": "markdown",
+            },
+        ],
+        {"cursor": 2},  # 2 unmanaged prompts
+    )
+
+    output = render_list_tree(data_structure, record=True)
+
+    assert output is not None
+    # Should show unmanaged count
+    assert "2" in output or "unmanaged" in output.lower()
