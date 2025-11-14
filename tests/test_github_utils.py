@@ -134,6 +134,60 @@ def test_download_prompts_from_github_directory(mock_get):
 
 
 @patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_directory_rejects_non_raw_host(mock_get):
+    """Ensure download URLs must point to raw.githubusercontent.com."""
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
+        {
+            "type": "file",
+            "name": "prompt1.md",
+            "path": "prompts/prompt1.md",
+            "download_url": "https://evil.com/raw.githubusercontent.com/owner/repo/main/prompts/prompt1.md",
+            "size": 100,
+        }
+    ]
+    directory_response.raise_for_status = MagicMock()
+
+    def fake_get(url, *args, **kwargs):
+        if "contents/prompts" in url:
+            return directory_response
+        pytest.fail(f"Unexpected download attempt to {url}")
+
+    mock_get.side_effect = fake_get
+
+    with pytest.raises(ValueError, match="raw\\.githubusercontent\\.com"):
+        download_prompts_from_github("owner", "repo", "main", "prompts")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_directory_rejects_non_https(mock_get):
+    """Ensure download URLs must use HTTPS."""
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
+        {
+            "type": "file",
+            "name": "prompt1.md",
+            "path": "prompts/prompt1.md",
+            "download_url": "http://raw.githubusercontent.com/owner/repo/main/prompts/prompt1.md",
+            "size": 100,
+        }
+    ]
+    directory_response.raise_for_status = MagicMock()
+
+    def fake_get(url, *args, **kwargs):
+        if "contents/prompts" in url:
+            return directory_response
+        pytest.fail(f"Unexpected download attempt to {url}")
+
+    mock_get.side_effect = fake_get
+
+    with pytest.raises(ValueError, match="HTTPS"):
+        download_prompts_from_github("owner", "repo", "main", "prompts")
+
+
+@patch("slash_commands.github_utils.requests.get")
 def test_download_prompts_from_github_single_file(mock_get):
     """Test downloading a single prompt file from GitHub."""
     # Mock single file response

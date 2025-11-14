@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import base64
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from urllib.parse import urlparse
 
 import requests
 
@@ -124,13 +125,14 @@ def download_prompts_from_github(
                         if not download_url:
                             continue
 
+                        _validate_raw_github_download_url(download_url)
                         try:
                             # Fetch file content from download_url
                             file_response = requests.get(download_url, timeout=30)
                             file_response.raise_for_status()
                             content = file_response.text
                             prompts.append((filename, content))
-                        except Exception:
+                        except requests.exceptions.RequestException:
                             # Skip files that can't be downloaded
                             continue
                 # Skip subdirectories (do not recursively process)
@@ -158,6 +160,25 @@ def download_prompts_from_github(
             f"Network error while accessing GitHub API: {e}. "
             "Check your internet connection and try again."
         ) from e
+
+
+def _validate_raw_github_download_url(download_url: str) -> None:
+    """Ensure download URLs only target raw.githubusercontent.com over HTTPS."""
+    parsed = urlparse(download_url)
+
+    if parsed.scheme != "https":
+        raise ValueError(f"GitHub download URLs must use HTTPS, got scheme: {parsed.scheme}")
+
+    if parsed.netloc != "raw.githubusercontent.com":
+        raise ValueError(
+            f"GitHub download URLs must use host raw.githubusercontent.com, got: {parsed.netloc}"
+        )
+
+    normalized_path = PurePosixPath(parsed.path)
+    if ".." in normalized_path.parts:
+        raise ValueError(
+            f"GitHub download URL path cannot contain traversal segments: {parsed.path}"
+        )
 
 
 def _download_github_prompts_to_temp_dir(
