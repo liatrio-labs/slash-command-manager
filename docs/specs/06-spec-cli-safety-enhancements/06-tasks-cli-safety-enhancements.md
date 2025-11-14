@@ -15,7 +15,7 @@
 
 > **Execution Note:** Run every manual demo, CLI proof, and artifact capture inside the project’s Docker test container (e.g., `docker run --rm slash-man-test …`) so local files remain untouched.
 
-### [ ] 1.0 Enforce Backup-First Writes Across Generators
+### [x] 1.0 Enforce Backup-First Writes Across Generators
 
 #### 1.0 Demo Criteria
 
@@ -31,11 +31,11 @@
 
 #### 1.0 Tasks
 
-- [ ] 1.1 Add failing unit tests in `tests/test_writer.py` that expect non-dry-run writes (including `--yes`) to call `create_backup` before overwriting and to record paths in `backups_created`.
-- [ ] 1.2 Add failing CLI/dry-run tests (e.g., in `tests/test_cli.py`) asserting the output explicitly states backups *would* be created even when no files are touched.
-- [ ] 1.3 Update `slash_commands/writer.py` to make backups the default overwrite action (unless interactive skip selected), ensure dry-run metadata exposes pending backups, and keep logic TDD-aligned by only writing code needed for the new tests.
-- [ ] 1.4 Propagate backup counts/paths into the CLI summary payload so later Rich rendering can display them accurately.
-- [ ] 1.5 From inside the Docker test container, run `slash-man generate --agents claude-code --yes` against seeded prompts to capture proof of `.bak` creation plus corresponding `ls -l` output.
+- [x] 1.1 Add failing unit tests in `tests/test_writer.py` that expect non-dry-run writes (including `--yes`) to call `create_backup` before overwriting and to record paths in `backups_created`.
+- [x] 1.2 Add failing CLI/dry-run tests (e.g., in `tests/test_cli.py`) asserting the output explicitly states backups *would* be created even when no files are touched.
+- [x] 1.3 Update `slash_commands/writer.py` to make backups the default overwrite action (unless interactive skip selected), ensure dry-run metadata exposes pending backups, and keep logic TDD-aligned by only writing code needed for the new tests.
+- [x] 1.4 Propagate backup counts/paths into the CLI summary payload so later Rich rendering can display them accurately.
+- [x] 1.5 From inside the Docker test container, run `slash-man generate --agents claude-code --yes` against seeded prompts to capture proof of `.bak` creation plus corresponding `ls -l` output.
 
 ### [ ] 2.0 Align `--yes` and Interactive Choices With Safety Policy
 

@@ -308,7 +308,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
     actual_prompts_dir = prompts_dir if prompts_dir is not None else Path("prompts")
 
     # Create writer
-    overwrite_action = "overwrite" if yes else None
+    overwrite_action = "backup" if yes else None
     writer = SlashCommandWriter(
         prompts_dir=actual_prompts_dir,
         agents=agents,
@@ -393,10 +393,20 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
     print(f"\n{mode} complete:")
     print(f"  Prompts loaded: {result['prompts_loaded']}")
     print(f"  Files {'would be' if dry_run else ''} written: {result['files_written']}")
-    if result.get("backups_created"):
-        print(f"  Backups created: {len(result['backups_created'])}")
-        for backup in result["backups_created"]:
+
+    backups_created = result.get("backups_created") or []
+    backups_pending = result.get("backups_pending") or []
+
+    if backups_created:
+        print(f"  Backups created: {len(backups_created)}")
+        for backup in backups_created:
             print(f"    - {backup}")
+
+    if backups_pending:
+        verb = "would be created" if dry_run else "pending"
+        print(f"  Backups {verb}: {len(backups_pending)}")
+        for pending in backups_pending:
+            print(f"    - {pending}")
     print("\nFiles:")
     for file_info in result["files"]:
         print(f"  - {file_info['path']}")

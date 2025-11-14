@@ -86,6 +86,33 @@ def test_cli_dry_run_flag(mock_prompts_dir, tmp_path):
     assert not (tmp_path / ".claude" / "commands" / "test-prompt.md").exists()
 
 
+def test_cli_dry_run_reports_pending_backups(mock_prompts_dir, tmp_path):
+    """Dry runs should state when backups would be created."""
+    output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("existing content")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "generate",
+            "--prompts-dir",
+            str(mock_prompts_dir),
+            "--agent",
+            "claude-code",
+            "--dry-run",
+            "--target-path",
+            str(tmp_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0
+    lower_output = result.stdout.lower()
+    assert "backups would be created" in lower_output or "pending backups" in lower_output
+
+
 def test_cli_generates_files_for_single_agent(mock_prompts_dir, tmp_path):
     """Test that CLI generates files for a single agent."""
     runner = CliRunner()

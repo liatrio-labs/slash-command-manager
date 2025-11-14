@@ -145,7 +145,8 @@ class SlashCommandWriter:
         self.github_branch = github_branch
         self.github_path = github_path
         self._global_overwrite = False  # Track if user chose "overwrite-all"
-        self._backups_created = []  # Track backup files created
+        self._backups_created: list[str] = []  # Track backup files created
+        self._backups_pending: list[str] = []  # Track backups that would be created in dry-run
 
         # Determine source metadata
         self._source_metadata: dict[str, Any] | None = None
@@ -207,6 +208,7 @@ class SlashCommandWriter:
             "files": files,
             "prompts": [{"name": p.name, "path": str(p.path)} for p in prompts],
             "backups_created": self._backups_created,
+            "backups_pending": self._backups_pending,
         }
 
     def _load_prompts(self) -> list[MarkdownPrompt]:
@@ -346,13 +348,16 @@ class SlashCommandWriter:
         output_path = self.base_path / agent.command_dir / filename
 
         # Handle existing files
-        if output_path.exists() and not self.dry_run:
+        if output_path.exists():
             action = self._handle_existing_file(output_path)
             if action == "cancel":
                 raise RuntimeError("Cancelled by user")
-            elif action == "backup":
-                backup_path = create_backup(output_path)
-                self._backups_created.append(str(backup_path))
+            if action == "backup":
+                if self.dry_run:
+                    self._backups_pending.append(str(output_path))
+                else:
+                    backup_path = create_backup(output_path)
+                    self._backups_created.append(str(backup_path))
 
         # Create parent directories if needed
         if not self.dry_run:
@@ -379,11 +384,15 @@ class SlashCommandWriter:
             OverwriteAction to apply
         """
         # Use global action if set (it should always be set after our upfront check)
+        if self.dry_run:
+            # Default to backup during dry-run to surface pending backups
+            return self.overwrite_action or "backup"
+
         if self.overwrite_action:
             return self.overwrite_action
 
         # This should not happen anymore, but keep as fallback
-        return "overwrite"
+        return "backup"
 
     def find_generated_files(
         self, agents: list[str] | None = None, include_backups: bool = True

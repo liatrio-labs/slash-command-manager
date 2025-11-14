@@ -398,6 +398,53 @@ def test_writer_backs_up_existing_files(mock_prompt_load: Path, tmp_path):
             assert "Test Prompt" in output_path.read_text()
 
 
+def test_writer_creates_backups_before_overwrite_by_default(mock_prompt_load: Path, tmp_path):
+    """Non-dry runs should back up files whenever overwrite action is backup."""
+    prompts_dir = mock_prompt_load
+
+    output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("original content")
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=["claude-code"],
+        dry_run=False,
+        base_path=tmp_path,
+        overwrite_action="backup",
+    )
+
+    backup_path = output_path.with_suffix(".md.20250101-010101.bak")
+    with patch("slash_commands.writer.create_backup") as mock_backup:
+        mock_backup.return_value = backup_path
+        result = writer.generate()
+
+    mock_backup.assert_called_once_with(output_path)
+    assert result["backups_created"] == [str(backup_path)]
+    assert "Test Prompt" in output_path.read_text()
+
+
+def test_writer_reports_pending_backups_in_dry_run(mock_prompt_load: Path, tmp_path):
+    """Dry runs should report which files would get backups without creating them."""
+    prompts_dir = mock_prompt_load
+
+    output_path = tmp_path / ".claude" / "commands" / "test-prompt.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("original content")
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=["claude-code"],
+        dry_run=True,
+        base_path=tmp_path,
+    )
+
+    result = writer.generate()
+
+    assert result["backups_created"] == []
+    assert result["backups_pending"] == [str(output_path)]
+
+
 def test_writer_applies_overwrite_globally(mock_prompt_load: Path, tmp_path):
     """Test that writer can apply overwrite decision globally."""
     prompts_dir = mock_prompt_load
