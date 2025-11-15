@@ -139,15 +139,10 @@ def _parse_toml_file(file_path: Path, content: str, agent: AgentConfig) -> dict[
         if not isinstance(data, dict):
             return None
 
-        # Extract name from prompt field or use filename
-        name = data.get("prompt", "")
-        if not name:
-            name = file_path.stem
-        else:
-            # Extract name from prompt content or use filename
-            name = file_path.stem
-
         meta = data.get("meta") or {}
+
+        # Extract name from meta.source_prompt (where generator stores it) or use filename
+        name = meta.get("source_prompt") or file_path.stem
 
         return {
             "name": name,

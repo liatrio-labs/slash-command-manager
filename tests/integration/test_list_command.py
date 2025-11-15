@@ -5,8 +5,11 @@ from datetime import UTC, datetime
 
 from slash_commands.cli_utils import format_source_info
 from slash_commands.list_discovery import (
+    build_list_data_structure,
     count_backups,
+    count_unmanaged_prompts,
     discover_managed_prompts,
+    render_list_tree,
 )
 
 from .conftest import REPO_ROOT, get_slash_man_command
@@ -107,7 +110,7 @@ def test_list_shows_backup_counts(temp_test_dir, test_prompts_dir):
 
 
 def test_list_shows_source_info(temp_test_dir, test_prompts_dir):
-    """Test that source information is formatted correctly for local and GitHub sources."""
+    """Test that source information is formatted correctly for local sources."""
     # Generate prompts from local source
     cmd_local = get_slash_man_command() + [
         "generate",
@@ -145,13 +148,6 @@ def test_list_shows_source_info(temp_test_dir, test_prompts_dir):
 
 def test_list_output_structure(temp_test_dir, test_prompts_dir):
     """Test that list output structure matches expected format."""
-    from slash_commands.list_discovery import (
-        build_list_data_structure,
-        count_unmanaged_prompts,
-        discover_managed_prompts,
-        render_list_tree,
-    )
-
     # Generate prompts for multiple agents
     agents = ["cursor", "claude-code"]
 

@@ -2,9 +2,11 @@
 
 import re
 import subprocess
+import tomllib
 from datetime import UTC, datetime
 
 import pytest
+import yaml
 
 from .conftest import REPO_ROOT, get_slash_man_command
 
@@ -329,10 +331,6 @@ def test_generate_creates_backup_files(temp_test_dir, test_prompts_dir):
 
 def test_generate_creates_managed_by_field(temp_test_dir, test_prompts_dir):
     """Test that generated files contain managed_by field in metadata."""
-    import tomllib
-
-    import yaml
-
     # Test Markdown format
     cmd_md = get_slash_man_command() + [
         "generate",
