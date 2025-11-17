@@ -79,7 +79,8 @@ def _is_backup_file(file_path: Path) -> bool:
         return False
 
     timestamp = parts[-2]
-    if len(timestamp) != 15 or not timestamp.replace("-", "").isdigit():
+    # Strict validation: exactly 8 digits, hyphen, 6 digits
+    if not re.match(r"^\d{8}-\d{6}$", timestamp):
         return False
 
     return True
