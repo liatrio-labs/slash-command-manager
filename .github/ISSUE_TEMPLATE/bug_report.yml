@@ -1,0 +1,86 @@
+name: Bug report
+description: Report a bug or regression with clear repro steps and environment details.
+labels:
+  - bug
+  - needs-triage
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out a bug report!
+        Please provide as much detail as possible so we can reproduce and fix the issue.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Short summary of the bug.
+      placeholder: A brief description of the problem
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: Provide step-by-step instructions to reproduce the problem.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Output
+      description: Relevant logs or command output (mask secrets). Attach files if helpful.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Project version, language/runtime version, or commit SHA
+      placeholder: e.g., v1.2.3, Node.js 20.x, Python 3.11, Go 1.21
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: e.g., Ubuntu 22.04, macOS 14.6, Windows 11
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or information that might be relevant.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-Submission Checks
+      options:
+        - label: I searched existing issues for duplicates
+          required: true
+        - label: I included clear reproduction steps
+          required: true

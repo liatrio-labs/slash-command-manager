@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/schemas/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 2,
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "🤖 Dependency Dashboard",
+  "labels": ["dependencies"],
+  "automerge": false,
+  "automergeType": "pr",
+  "ignorePresets": [
+    ":automergeMinor"
+  ],
+  "updateNotScheduled": false,
+  "schedule": ["before 3am on monday"],
+  "timezone": "America/Los_Angeles",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": "major dependency updates",
+      "labels": ["dependencies", "breaking-change"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "dependency updates",
+      "labels": ["dependencies"]
+    }
+  ],
+  "reviewers": ["@liatrio-labs/liatrio-labs-maintainers"],
+  "assignees": ["@liatrio-labs/liatrio-labs-maintainers"]
+}
