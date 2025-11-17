@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import logging
 import re
 from pathlib import Path, PurePosixPath
 from urllib.parse import urljoin, urlparse
@@ -232,10 +233,44 @@ def download_prompts_from_github(
                     else:
                         # Directory listings don't include content, use download_url
                         download_url = item.get("download_url")
-                        if not download_url:
+                        file_path = item.get("path")
+
+                        if not download_url or not file_path:
                             continue
 
+                        # Validate original download_url for safety (defense in depth)
                         _validate_raw_github_download_url(download_url)
+
+                        # Preserve original download_url for error logging
+                        original_download_url = download_url
+
+                        # Validate and normalize file_path before constructing URL
+                        try:
+                            normalized_file_path = _validate_and_normalize_file_path(file_path)
+                        except ValueError as e:
+                            # Log warning and skip this file (matches decode/download error handling)
+                            logger = logging.getLogger(__name__)
+                            logger.warning(
+                                f"Skipping {filename}: Invalid file path: {e}. "
+                                f"Original download_url: {original_download_url}"
+                            )
+                            continue
+
+                        # Construct URL from known components instead of parsing
+                        # This handles branches with slashes correctly and avoids parsing bugs
+                        try:
+                            download_url = _construct_raw_github_url(
+                                owner, repo, branch, normalized_file_path
+                            )
+                        except ValueError as e:
+                            # Log warning and skip this file (matches decode/download error handling)
+                            logger = logging.getLogger(__name__)
+                            logger.warning(
+                                f"Skipping {filename}: Failed to construct download URL: {e}. "
+                                f"Original download_url: {original_download_url}"
+                            )
+                            continue
+
                         try:
                             # Fetch file content from download_url
                             file_response = requests.get(download_url, timeout=30)
@@ -289,6 +324,152 @@ def _validate_raw_github_download_url(download_url: str) -> None:
         raise ValueError(
             f"GitHub download URL path cannot contain traversal segments: {parsed.path}"
         )
+
+
+def _validate_and_normalize_file_path(file_path: str) -> str:
+    """Validate and normalize a file path from GitHub API.
+
+    This function ensures file paths are safe before being used to construct URLs.
+    It validates against path traversal, absolute paths, null bytes, and suspicious characters.
+
+    Args:
+        file_path: File path from GitHub API (may have leading slash)
+
+    Returns:
+        Normalized file path (leading slashes removed, validated)
+
+    Raises:
+        ValueError: If path is invalid (empty, absolute, contains traversal, null bytes, etc.)
+    """
+    if not file_path:
+        raise ValueError("File path cannot be empty")
+
+    # Check for null bytes
+    if "\x00" in file_path:
+        raise ValueError("File path cannot contain null bytes")
+
+    # Strip leading slashes first (GitHub API may return paths with leading slashes)
+    clean_path = file_path.lstrip("/")
+
+    # Ensure path is non-empty after normalization (check this first)
+    if not clean_path:
+        raise ValueError("File path cannot be empty after normalization")
+
+    # Check for absolute paths - reject if it's a system path
+    # After stripping leading slashes, check if original was a dangerous absolute path
+    if file_path.startswith("/"):
+        # Reject known system paths (defense against /etc/passwd, /usr/bin, etc.)
+        first_segment = clean_path.split("/")[0]
+        system_paths = {
+            "etc",
+            "usr",
+            "var",
+            "sys",
+            "proc",
+            "dev",
+            "bin",
+            "sbin",
+            "lib",
+            "lib64",
+            "opt",
+            "root",
+            "home",
+            "tmp",
+        }
+        if first_segment in system_paths:
+            raise ValueError(f"File path cannot be absolute: {file_path}")
+
+    # Normalize using PurePosixPath (after stripping leading slashes)
+    normalized_path = PurePosixPath(clean_path)
+
+    # Reject paths containing traversal segments
+    if ".." in normalized_path.parts:
+        raise ValueError(f"File path cannot contain traversal segments: {file_path}")
+
+    # Validate allowed characters: letters, numbers, dots, dashes, underscores, slashes
+    # This is a whitelist approach for security
+    allowed_chars_pattern = re.compile(r"^[a-zA-Z0-9._/\-]+$")
+    if not allowed_chars_pattern.match(clean_path):
+        raise ValueError(
+            f"File path contains invalid characters. "
+            f"Only letters, numbers, dots, dashes, underscores, and slashes are allowed. "
+            f"Got: {file_path!r}"
+        )
+
+    return clean_path
+
+
+def _construct_raw_github_url(owner: str, repo: str, branch: str, file_path: str) -> str:
+    """Construct a raw.githubusercontent.com URL from components.
+
+    This function constructs URLs directly from known components instead of parsing
+    existing URLs, which avoids issues with branch names containing slashes.
+
+    Args:
+        owner: Repository owner (already validated)
+        repo: Repository name (already validated)
+        branch: Branch name (will be validated)
+        file_path: File path from GitHub API (relative, may have leading slash)
+                   Should be validated with _validate_and_normalize_file_path first
+
+    Returns:
+        URL in format: https://raw.githubusercontent.com/owner/repo/branch/file_path
+
+    Raises:
+        ValueError: If branch is invalid (empty or contains invalid characters)
+    """
+    _validate_github_branch(branch)
+    # Path should already be normalized, but strip leading slash as defense in depth
+    clean_path = file_path.lstrip("/")
+    return f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{clean_path}"
+
+
+def _fix_branch_in_download_url(download_url: str, requested_branch: str) -> str:
+    """Replace the branch name in a GitHub download URL with the requested branch.
+
+    DEPRECATED: This function is deprecated in favor of _construct_raw_github_url()
+    which constructs URLs from known components instead of parsing URLs.
+
+    GitHub API may return download_url values pointing to the default branch (main)
+    even when requesting a different branch. This function ensures the URL uses
+    the correct branch name.
+
+    Args:
+        download_url: GitHub download URL in format
+            https://raw.githubusercontent.com/owner/repo/branch/path/to/file.md
+        requested_branch: The branch name that should be used in the URL
+
+    Returns:
+        URL with branch name replaced to match requested_branch
+
+    Raises:
+        ValueError: If URL format is unexpected
+
+    Note:
+        This function has a bug: it fails when the original download_url contains
+        a branch name with slashes because it assumes the branch is always at
+        path_parts[2]. Use _construct_raw_github_url() instead.
+    """
+    parsed = urlparse(download_url)
+
+    # Validate URL structure
+    if parsed.netloc != "raw.githubusercontent.com":
+        raise ValueError(f"Expected raw.githubusercontent.com, got: {parsed.netloc}")
+
+    # Parse path: /owner/repo/branch/path/to/file.md
+    path_parts = parsed.path.strip("/").split("/")
+    if len(path_parts) < 4:
+        raise ValueError(
+            f"Unexpected download URL format. Expected /owner/repo/branch/path, got: {parsed.path}"
+        )
+
+    # Replace branch (3rd element, index 2) with requested branch
+    # path_parts = [owner, repo, branch, ...rest of path]
+    path_parts[2] = requested_branch
+
+    # Reconstruct URL
+    new_path = "/" + "/".join(path_parts)
+    return f"{parsed.scheme}://{parsed.netloc}{new_path}"
 
 
 def _download_github_prompts_to_temp_dir(
