@@ -361,7 +361,7 @@ def test_download_prompts_from_github_directory_fixes_branch_in_download_url(moc
         requested_urls.append(url)
         if "contents/prompts" in url:
             return directory_response
-        elif "raw.githubusercontent.com" in url:
+        elif url.startswith("https://raw.githubusercontent.com/"):
             return file_response
         pytest.fail(f"Unexpected URL: {url}")
 
@@ -384,9 +384,9 @@ def test_download_prompts_from_github_directory_fixes_branch_in_download_url(moc
 
     # Verify file download URL was corrected to use requested branch
     file_download_url = mock_get.call_args_list[1][0][0]
+    assert file_download_url.startswith("https://raw.githubusercontent.com/")
     assert f"/{requested_branch}/" in file_download_url
     assert "/main/" not in file_download_url
-    assert "raw.githubusercontent.com" in file_download_url
 
 
 @patch("slash_commands.github_utils.requests.get")
