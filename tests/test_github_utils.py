@@ -10,6 +10,7 @@ import requests
 
 from slash_commands.github_utils import (
     _download_github_prompts_to_temp_dir,
+    _fix_branch_in_download_url,
     download_prompts_from_github,
     validate_github_repo,
 )
@@ -249,6 +250,197 @@ def test_download_prompts_from_github_directory_rejects_non_https(mock_get):
 
     with pytest.raises(ValueError, match="HTTPS"):
         download_prompts_from_github("owner", "repo", "main", "prompts")
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_directory_fixes_branch_in_download_url(mock_get):
+    """Test that download_url branch is corrected when requesting non-default branch.
+
+    This test reproduces the bug where GitHub API returns download_url values
+    pointing to the default branch (main) even when requesting a different branch.
+    The code should replace the branch name in download_url with the requested branch.
+    """
+    # Request a non-main branch
+    requested_branch = "damien-test"
+
+    # Mock directory response with download_url pointing to wrong branch (main)
+    # This simulates the bug where GitHub returns main branch URLs even when
+    # requesting a different branch
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
+        {
+            "type": "file",
+            "name": "generate_spec.md",
+            "path": "prompts/generate_spec.md",
+            # download_url incorrectly points to 'main' branch
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/generate_spec.md",
+            "size": 100,
+        }
+    ]
+    directory_response.raise_for_status = MagicMock()
+
+    # Mock file download response with content from the correct branch
+    file_response = MagicMock()
+    file_response.status_code = 200
+    file_response.text = "THIS IS A TEST"
+    file_response.raise_for_status = MagicMock()
+
+    # Track the URLs that are actually requested
+    requested_urls = []
+
+    def capture_urls(url, *args, **kwargs):
+        requested_urls.append(url)
+        if "contents/prompts" in url:
+            return directory_response
+        elif "raw.githubusercontent.com" in url:
+            return file_response
+        pytest.fail(f"Unexpected URL: {url}")
+
+    mock_get.side_effect = capture_urls
+
+    prompts = download_prompts_from_github("owner", "repo", requested_branch, "prompts")
+
+    # Verify correct content was downloaded
+    assert len(prompts) == 1
+    assert prompts[0][0] == "generate_spec.md"
+    assert prompts[0][1] == "THIS IS A TEST"
+
+    # Verify API calls: 1 for directory + 1 for file
+    assert mock_get.call_count == 2
+
+    # Verify directory listing was requested with correct branch
+    directory_call = mock_get.call_args_list[0]
+    assert directory_call[1]["params"]["ref"] == requested_branch
+    assert "contents/prompts" in directory_call[0][0]
+
+    # Verify file download URL was corrected to use requested branch
+    file_download_url = mock_get.call_args_list[1][0][0]
+    assert f"/{requested_branch}/" in file_download_url
+    assert "/main/" not in file_download_url
+    assert "raw.githubusercontent.com" in file_download_url
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_directory_handles_branch_with_slash(mock_get):
+    """Test that branch names with slashes are correctly handled in download URLs."""
+    # Request a branch with a slash (e.g., feature/add-feature)
+    requested_branch = "feature/add-feature"
+
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
+        {
+            "type": "file",
+            "name": "prompt.md",
+            "path": "prompts/prompt.md",
+            # download_url incorrectly points to 'main' branch
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt.md",
+            "size": 100,
+        }
+    ]
+    directory_response.raise_for_status = MagicMock()
+
+    file_response = MagicMock()
+    file_response.status_code = 200
+    file_response.text = "Content from feature branch"
+    file_response.raise_for_status = MagicMock()
+
+    mock_get.side_effect = [directory_response, file_response]
+
+    prompts = download_prompts_from_github("owner", "repo", requested_branch, "prompts")
+
+    assert len(prompts) == 1
+    assert prompts[0][1] == "Content from feature branch"
+
+    # Verify file download URL was corrected to use requested branch with slash
+    file_download_url = mock_get.call_args_list[1][0][0]
+    assert f"/{requested_branch}/" in file_download_url
+    assert "/main/" not in file_download_url
+
+
+@patch("slash_commands.github_utils.requests.get")
+def test_download_prompts_from_github_directory_preserves_correct_branch(mock_get):
+    """Test that download_url with correct branch is not modified."""
+    # Request main branch
+    requested_branch = "main"
+
+    directory_response = MagicMock()
+    directory_response.status_code = 200
+    directory_response.json.return_value = [
+        {
+            "type": "file",
+            "name": "prompt.md",
+            "path": "prompts/prompt.md",
+            # download_url correctly points to 'main' branch
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt.md",
+            "size": 100,
+        }
+    ]
+    directory_response.raise_for_status = MagicMock()
+
+    file_response = MagicMock()
+    file_response.status_code = 200
+    file_response.text = "Content from main"
+    file_response.raise_for_status = MagicMock()
+
+    mock_get.side_effect = [directory_response, file_response]
+
+    prompts = download_prompts_from_github("owner", "repo", requested_branch, "prompts")
+
+    assert len(prompts) == 1
+    # Verify URL still contains main branch (should be preserved)
+    file_download_url = mock_get.call_args_list[1][0][0]
+    assert "/main/" in file_download_url
+
+
+def test_fix_branch_in_download_url_replaces_branch():
+    """Test that _fix_branch_in_download_url correctly replaces branch name."""
+    download_url = "https://raw.githubusercontent.com/owner/repo/main/prompts/file.md"
+    requested_branch = "damien-test"
+
+    fixed_url = _fix_branch_in_download_url(download_url, requested_branch)
+
+    assert fixed_url == "https://raw.githubusercontent.com/owner/repo/damien-test/prompts/file.md"
+    assert "/main/" not in fixed_url
+    assert f"/{requested_branch}/" in fixed_url
+
+
+def test_fix_branch_in_download_url_handles_branch_with_slash():
+    """Test that _fix_branch_in_download_url handles branch names with slashes."""
+    download_url = "https://raw.githubusercontent.com/owner/repo/main/prompts/file.md"
+    requested_branch = "feature/add-feature"
+
+    fixed_url = _fix_branch_in_download_url(download_url, requested_branch)
+
+    assert (
+        fixed_url
+        == "https://raw.githubusercontent.com/owner/repo/feature/add-feature/prompts/file.md"
+    )
+    assert "/main/" not in fixed_url
+    assert f"/{requested_branch}/" in fixed_url
+
+
+def test_fix_branch_in_download_url_preserves_path():
+    """Test that _fix_branch_in_download_url preserves the full file path."""
+    download_url = "https://raw.githubusercontent.com/owner/repo/main/path/to/nested/file.md"
+    requested_branch = "test-branch"
+
+    fixed_url = _fix_branch_in_download_url(download_url, requested_branch)
+
+    assert (
+        fixed_url
+        == "https://raw.githubusercontent.com/owner/repo/test-branch/path/to/nested/file.md"
+    )
+    assert "/path/to/nested/file.md" in fixed_url
+
+
+def test_fix_branch_in_download_url_rejects_invalid_host():
+    """Test that _fix_branch_in_download_url rejects non-GitHub URLs."""
+    download_url = "https://evil.com/owner/repo/main/file.md"
+
+    with pytest.raises(ValueError, match="raw\\.githubusercontent\\.com"):
+        _fix_branch_in_download_url(download_url, "test-branch")
 
 
 @patch("slash_commands.github_utils.requests.get")

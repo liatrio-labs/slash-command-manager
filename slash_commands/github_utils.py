@@ -236,6 +236,9 @@ def download_prompts_from_github(
                             continue
 
                         _validate_raw_github_download_url(download_url)
+                        # Fix branch name in download_url - GitHub may return URLs pointing
+                        # to the default branch even when requesting a different branch
+                        download_url = _fix_branch_in_download_url(download_url, branch)
                         try:
                             # Fetch file content from download_url
                             file_response = requests.get(download_url, timeout=30)
@@ -289,6 +292,46 @@ def _validate_raw_github_download_url(download_url: str) -> None:
         raise ValueError(
             f"GitHub download URL path cannot contain traversal segments: {parsed.path}"
         )
+
+
+def _fix_branch_in_download_url(download_url: str, requested_branch: str) -> str:
+    """Replace the branch name in a GitHub download URL with the requested branch.
+
+    GitHub API may return download_url values pointing to the default branch (main)
+    even when requesting a different branch. This function ensures the URL uses
+    the correct branch name.
+
+    Args:
+        download_url: GitHub download URL in format
+            https://raw.githubusercontent.com/owner/repo/branch/path/to/file.md
+        requested_branch: The branch name that should be used in the URL
+
+    Returns:
+        URL with branch name replaced to match requested_branch
+
+    Raises:
+        ValueError: If URL format is unexpected
+    """
+    parsed = urlparse(download_url)
+
+    # Validate URL structure
+    if parsed.netloc != "raw.githubusercontent.com":
+        raise ValueError(f"Expected raw.githubusercontent.com, got: {parsed.netloc}")
+
+    # Parse path: /owner/repo/branch/path/to/file.md
+    path_parts = parsed.path.strip("/").split("/")
+    if len(path_parts) < 4:
+        raise ValueError(
+            f"Unexpected download URL format. Expected /owner/repo/branch/path, got: {parsed.path}"
+        )
+
+    # Replace branch (3rd element, index 2) with requested branch
+    # path_parts = [owner, repo, branch, ...rest of path]
+    path_parts[2] = requested_branch
+
+    # Reconstruct URL
+    new_path = "/" + "/".join(path_parts)
+    return f"{parsed.scheme}://{parsed.netloc}{new_path}"
 
 
 def _download_github_prompts_to_temp_dir(
