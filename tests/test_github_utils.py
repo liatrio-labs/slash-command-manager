@@ -12,6 +12,7 @@ from slash_commands.github_utils import (
     _construct_raw_github_url,
     _download_github_prompts_to_temp_dir,
     _fix_branch_in_download_url,
+    _validate_and_normalize_file_path,
     download_prompts_from_github,
     validate_github_repo,
 )
@@ -80,6 +81,72 @@ def test_validate_github_repo_rejects_invalid_characters():
     # Valid characters should still work
     assert validate_github_repo("owner-name/repo.name") == ("owner-name", "repo.name")
     assert validate_github_repo("owner_name/repo_name") == ("owner_name", "repo_name")
+
+
+def test_validate_and_normalize_file_path_valid_paths():
+    """Test that _validate_and_normalize_file_path accepts valid file paths."""
+    assert _validate_and_normalize_file_path("prompts/prompt.md") == "prompts/prompt.md"
+    assert _validate_and_normalize_file_path("/prompts/prompt.md") == "prompts/prompt.md"
+    assert _validate_and_normalize_file_path("prompt.md") == "prompt.md"
+    assert (
+        _validate_and_normalize_file_path("prompts/subdir/prompt.md") == "prompts/subdir/prompt.md"
+    )
+    assert _validate_and_normalize_file_path("prompt-name.md") == "prompt-name.md"
+    assert _validate_and_normalize_file_path("prompt_name.md") == "prompt_name.md"
+    assert _validate_and_normalize_file_path("prompt.name.md") == "prompt.name.md"
+
+
+def test_validate_and_normalize_file_path_rejects_empty():
+    """Test that _validate_and_normalize_file_path rejects empty paths."""
+    with pytest.raises(ValueError, match="cannot be empty"):
+        _validate_and_normalize_file_path("")
+    with pytest.raises(ValueError, match="cannot be empty"):
+        _validate_and_normalize_file_path("/")
+    with pytest.raises(ValueError, match="cannot be empty"):
+        _validate_and_normalize_file_path("///")
+
+
+def test_validate_and_normalize_file_path_rejects_absolute():
+    """Test that _validate_and_normalize_file_path rejects dangerous absolute paths."""
+    # Reject system paths
+    with pytest.raises(ValueError, match="cannot be absolute"):
+        _validate_and_normalize_file_path("/etc/passwd")
+    with pytest.raises(ValueError, match="cannot be absolute"):
+        _validate_and_normalize_file_path("/usr/bin/script")
+    with pytest.raises(ValueError, match="cannot be absolute"):
+        _validate_and_normalize_file_path("/var/log/file")
+
+
+def test_validate_and_normalize_file_path_rejects_traversal():
+    """Test that _validate_and_normalize_file_path rejects path traversal."""
+    with pytest.raises(ValueError, match="cannot contain traversal"):
+        _validate_and_normalize_file_path("../prompt.md")
+    with pytest.raises(ValueError, match="cannot contain traversal"):
+        _validate_and_normalize_file_path("prompts/../../etc/passwd")
+    with pytest.raises(ValueError, match="cannot contain traversal"):
+        _validate_and_normalize_file_path("prompts/../other/prompt.md")
+
+
+def test_validate_and_normalize_file_path_rejects_null_bytes():
+    """Test that _validate_and_normalize_file_path rejects null bytes."""
+    with pytest.raises(ValueError, match="cannot contain null bytes"):
+        _validate_and_normalize_file_path("prompt\x00.md")
+    with pytest.raises(ValueError, match="cannot contain null bytes"):
+        _validate_and_normalize_file_path("prompts/\x00prompt.md")
+
+
+def test_validate_and_normalize_file_path_rejects_invalid_characters():
+    """Test that _validate_and_normalize_file_path rejects invalid characters."""
+    with pytest.raises(ValueError, match="invalid characters"):
+        _validate_and_normalize_file_path("prompt@evil.md")
+    with pytest.raises(ValueError, match="invalid characters"):
+        _validate_and_normalize_file_path("prompt space.md")
+    with pytest.raises(ValueError, match="invalid characters"):
+        _validate_and_normalize_file_path("prompt#tag.md")
+    with pytest.raises(ValueError, match="invalid characters"):
+        _validate_and_normalize_file_path("prompt$var.md")
+    with pytest.raises(ValueError, match="invalid characters"):
+        _validate_and_normalize_file_path("prompt<script>.md")
 
 
 @patch("slash_commands.github_utils.requests.get")
@@ -584,16 +651,15 @@ def test_download_prompts_from_github_handles_original_url_with_branch_slash(moc
 
 
 @patch("slash_commands.github_utils.requests.get")
-def test_download_prompts_from_github_handles_url_construction_error(mock_get, caplog):
+@patch("slash_commands.github_utils._construct_raw_github_url")
+def test_download_prompts_from_github_handles_url_construction_error(
+    mock_construct_url, mock_get, caplog
+):
     """Test that download_prompts_from_github handles URL construction errors gracefully.
 
-    This tests Issue 2: error handling should skip files and continue processing.
-    We need to simulate a case where URL construction fails but branch validation passes.
-    This is difficult to achieve naturally, so we'll test the error handling path by
-    using a valid branch but ensuring the error handling code path is covered.
+    This tests that when URL construction fails, the file is skipped and an error is logged,
+    allowing processing to continue with other files.
     """
-    # Use a valid branch - the error handling is tested via missing/empty path cases
-    # which are more realistic scenarios
     directory_response = MagicMock()
     directory_response.status_code = 200
     directory_response.json.return_value = [
@@ -604,19 +670,44 @@ def test_download_prompts_from_github_handles_url_construction_error(mock_get, c
             "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt1.md",
             "size": 100,
         },
+        {
+            "type": "file",
+            "name": "prompt2.md",
+            "path": "prompts/prompt2.md",
+            "download_url": "https://raw.githubusercontent.com/owner/repo/main/prompts/prompt2.md",
+            "size": 100,
+        },
     ]
     directory_response.raise_for_status = MagicMock()
 
     file_response = MagicMock()
     file_response.status_code = 200
-    file_response.text = "Content"
+    file_response.text = "Content from prompt2"
     file_response.raise_for_status = MagicMock()
 
+    # Mock _construct_raw_github_url to raise ValueError for first file, succeed for second
+    def construct_url_side_effect(owner, repo, branch, file_path):
+        if file_path == "prompts/prompt1.md":
+            raise ValueError("Invalid branch format")
+        return f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{file_path}"
+
+    mock_construct_url.side_effect = construct_url_side_effect
     mock_get.side_effect = [directory_response, file_response]
 
-    # This should work fine - error handling is tested via missing path cases
+    # Process prompts - prompt1 should be skipped due to URL construction error
     prompts = download_prompts_from_github("owner", "repo", "main", "prompts")
+
+    # Should only have prompt2, prompt1 was skipped
     assert len(prompts) == 1
+    assert prompts[0][0] == "prompt2.md"
+    assert prompts[0][1] == "Content from prompt2"
+
+    # Verify error was logged for prompt1
+    assert len(caplog.records) == 1
+    assert "prompt1.md" in caplog.records[0].message
+    assert "Failed to construct download URL" in caplog.records[0].message
+    assert "Original download_url" in caplog.records[0].message
+    assert caplog.records[0].levelname == "WARNING"
 
 
 @patch("slash_commands.github_utils.requests.get")
