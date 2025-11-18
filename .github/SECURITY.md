@@ -17,7 +17,7 @@ We take the security of our software seriously. If you believe you have found a 
 Instead, please report them via one of the following methods:
 
 1. **Private Vulnerability Reporting** (Preferred): Use GitHub's [Private Vulnerability Reporting](https://github.com/liatrio-labs/slash-command-manager/security/advisories/new) feature
-2. **Email**: Contact the maintainer team at `@liatrio-labs/liatrio-labs-maintainers`
+2. **Email**: Contact the maintainer team at `labs@liatrio.com`
 
 ### What to Include
 
