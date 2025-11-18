@@ -19,12 +19,23 @@ venv/
 env/
 ENV/
 
-# IDE
-.vscode/
-.idea/
+# Temporary files
+temp/
+tmp/
+*.tmp
 *.swp
 *.swo
 *~
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.iml
 
 # Testing
 .pytest_cache/
@@ -32,7 +43,18 @@ ENV/
 htmlcov/
 .tox/
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
-temp
+Desktop.ini
+
+# Logs
+*.log
+logs/
+log/
+
+# Environment variables
+# Note: Uncomment if you want to ignore .env files
+# .env
+# .env.local
+# .env.*.local

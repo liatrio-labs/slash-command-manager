@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/liatrio-labs/slash-command-manager#readme
+    about: Refer to the README and documentation for setup and usage guidance.
+  - name: Development Guide
+    url: https://github.com/liatrio-labs/slash-command-manager/blob/main/CONTRIBUTING.md
+    about: Local development setup, testing, and contribution guidelines.
