@@ -186,13 +186,13 @@ To prevent this bug from recurring, the test suite should include:
 1. Build the Docker image:
 
 ```bash
-docker build -t slash-command-manager .
+docker build -t slash-man .
 ```
 
 1. Run the command with `damien-test` branch:
 
 ```bash
-docker run --rm slash-command-manager bash -c "
+docker run --rm slash-man bash -c "
   uv run slash-man generate \
     --github-repo liatrio-labs/spec-driven-workflow \
     --github-branch damien-test \
@@ -205,7 +205,7 @@ docker run --rm slash-command-manager bash -c "
 1. Check the content of the downloaded file:
 
 ```bash
-docker run --rm slash-command-manager bash -c "
+docker run --rm slash-man bash -c "
   cat /tmp/test-output/claude-code/generate_spec.md
 "
 ```
@@ -213,7 +213,7 @@ docker run --rm slash-command-manager bash -c "
 1. Compare with the `main` branch:
 
 ```bash
-docker run --rm slash-command-manager bash -c "
+docker run --rm slash-man bash -c "
   uv run slash-man generate \
     --github-repo liatrio-labs/spec-driven-workflow \
     --github-branch main \
@@ -224,7 +224,7 @@ docker run --rm slash-command-manager bash -c "
 ```
 
 ```bash
-docker run --rm slash-command-manager bash -c "
+docker run --rm slash-man bash -c "
   cat /tmp/test-output-main/claude-code/generate_spec.md
 "
 ```
@@ -278,8 +278,8 @@ uv run pytest tests/test_github_utils.py::test_download_prompts_from_github_dire
 
 Follow the `Testing in Clean Environment (Docker)` section of the README.md:
 
-1. Build Docker image: `docker build -t slash-command-manager .`
-2. Run interactively: `docker run -it --rm slash-command-manager bash`
+1. Build Docker image: `docker build -t slash-man .`
+2. Run interactively: `docker run -it --rm slash-man bash`
 3. Execute the failing command inside the container
 4. Verify the content of `generate_spec.md` matches the expected branch content
 

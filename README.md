@@ -250,13 +250,13 @@ Build the Docker image and run it interactively:
 
 ```bash
 # Build the Docker image
-docker build -t slash-command-manager .
+docker build -t slash-man .
 
 # Run interactively with shell access
-docker run -it --rm slash-command-manager bash
+docker run -it --rm slash-man bash
 
 # Or run directly with the CLI
-docker run -it --rm slash-command-manager slash-man generate --list-agents
+docker run -it --rm slash-man slash-man generate --list-agents
 ```
 
 ### Running Tests

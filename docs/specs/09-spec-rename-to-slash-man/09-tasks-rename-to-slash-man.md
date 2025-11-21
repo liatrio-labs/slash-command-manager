@@ -38,7 +38,7 @@
 - [x] 1.6 Verify package builds: Run `uv run python -m build --wheel --sdist` to ensure build succeeds with new package name
 - [x] 1.7 Verify no old references remain: Run `grep -r "slash-command-manager" slash_commands/ mcp_server/ --include="*.py"` and confirm no results
 
-### [ ] 2.0 Update User-Facing Documentation
+### [x] 2.0 Update User-Facing Documentation
 
 #### 2.0 Proof Artifact(s)
 
@@ -48,18 +48,18 @@
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Update `README.md` line 253: Change Docker image name from `slash-command-manager` to `slash-man` in the `docker build` command example
-- [ ] 2.2 Update `README.md` line 256: Change Docker image name from `slash-command-manager` to `slash-man` in the `docker run` command example
-- [ ] 2.3 Update `README.md` line 259: Change Docker image name from `slash-command-manager` to `slash-man` in the `docker run` command example
-- [ ] 2.4 Update `docs/operations.md` line 101: Change MCP server name from `"slash-command-manager"` to `"slash-man"` in the Claude Desktop configuration example
-- [ ] 2.5 Update `docs/operations.md` line 103: Update the path comment to reference `slash-man` instead of `slash-command-manager` (if applicable)
-- [ ] 2.6 Update `docs/operations.md` line 117: Change MCP server name from `"slash-command-manager"` to `"slash-man"` in the VS Code MCP plugin configuration example
-- [ ] 2.7 Update `docs/operations.md` line 119: Update the path comment to reference `slash-man` instead of `slash-command-manager` (if applicable)
-- [ ] 2.8 Update `docs/operations.md` line 231: Change Docker image name from `slash-command-manager` to `slash-man` in the Docker deployment example
-- [ ] 2.9 Update `docs/GitHub_Branch_Download_Bug.md` line 189: Change Docker image name from `slash-command-manager` to `slash-man` in the Docker build example
-- [ ] 2.10 Update `docs/GitHub_Branch_Download_Bug.md` line 195: Change Docker image name from `slash-command-manager` to `slash-man` in the Docker run example (if present)
-- [ ] 2.11 Verify documentation updates: Run `grep -i "slash-command-manager" README.md` and confirm no user-facing references remain (repository URLs are acceptable)
-- [ ] 2.12 Verify docs directory: Run `grep -r "slash-command-manager" docs/*.md` and confirm only historical/contextual references remain (repository URLs are acceptable)
+- [x] 2.1 Update `README.md` line 253: Change Docker image name from `slash-command-manager` to `slash-man` in the `docker build` command example
+- [x] 2.2 Update `README.md` line 256: Change Docker image name from `slash-command-manager` to `slash-man` in the `docker run` command example
+- [x] 2.3 Update `README.md` line 259: Change Docker image name from `slash-command-manager` to `slash-man` in the `docker run` command example
+- [x] 2.4 Update `docs/operations.md` line 101: Change MCP server name from `"slash-command-manager"` to `"slash-man"` in the Claude Desktop configuration example
+- [x] 2.5 Update `docs/operations.md` line 103: Update the path comment to reference `slash-man` instead of `slash-command-manager` (if applicable)
+- [x] 2.6 Update `docs/operations.md` line 117: Change MCP server name from `"slash-command-manager"` to `"slash-man"` in the VS Code MCP plugin configuration example
+- [x] 2.7 Update `docs/operations.md` line 119: Update the path comment to reference `slash-man` instead of `slash-command-manager` (if applicable)
+- [x] 2.8 Update `docs/operations.md` line 231: Change Docker image name from `slash-command-manager` to `slash-man` in the Docker deployment example
+- [x] 2.9 Update `docs/GitHub_Branch_Download_Bug.md` line 189: Change Docker image name from `slash-command-manager` to `slash-man` in the Docker build example
+- [x] 2.10 Update `docs/GitHub_Branch_Download_Bug.md` line 195: Change Docker image name from `slash-command-manager` to `slash-man` in the Docker run example (if present)
+- [x] 2.11 Verify documentation updates: Run `grep -i "slash-command-manager" README.md` and confirm no user-facing references remain (repository URLs are acceptable)
+- [x] 2.12 Verify docs directory: Run `grep -r "slash-command-manager" docs/*.md` and confirm only historical/contextual references remain (repository URLs are acceptable)
 
 ### [ ] 3.0 Update GitHub Workflows and Configuration Files
 
