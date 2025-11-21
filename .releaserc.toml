@@ -9,8 +9,12 @@ version_toml = ["pyproject.toml:project.version"]
 # Generate changelog and commit version bumps
 # Ensure uv.lock stays in sync with version changes and is committed
 # pyproject.toml is automatically committed when updated via version_toml
+# build_command runs after version is updated in pyproject.toml to refresh uv.lock
+build_command = """
+uv lock --upgrade-package "$PACKAGE_NAME"
+git add uv.lock
+"""
 assets = ["uv.lock"]
-# Note: build_command removed - handle build steps in workflow if needed
 
 [semantic_release.changelog]
 # Generate CHANGELOG.md in Markdown
@@ -19,6 +23,8 @@ default_templates = { changelog_file = "CHANGELOG.md", output_format = "md" }
 [semantic_release.branches]
 # Release from the main branch
 main = { match = "main" }
+# Allow prereleases from feature branches (for dev-release job testing)
+dev = { match = "^(feat|fix|perf)/.+", prerelease = true, prerelease_token = "dev" }
 
 [semantic_release.remote]
 # Use GitHub token from environment variable

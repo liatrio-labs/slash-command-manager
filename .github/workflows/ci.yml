@@ -250,6 +250,12 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Update uv.lock after version change
+        run: |
+          # Update uv.lock to reflect the new version in pyproject.toml
+          # This ensures the lock file includes the updated package version
+          uv lock --upgrade-package slash-man
+
       - name: Verify version was generated
         run: |
           VERSION="${{ steps.dev-version.outputs.version }}"
