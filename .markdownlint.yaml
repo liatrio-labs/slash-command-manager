@@ -18,3 +18,6 @@ MD034:  false
 
 # First line in file must be a top-level heading
 MD041:  false
+
+# Link fragments (GitHub handles emoji removal in heading IDs automatically)
+MD051:  false

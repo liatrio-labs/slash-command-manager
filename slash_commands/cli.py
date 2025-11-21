@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -25,7 +24,20 @@ from slash_commands import (
     list_agent_keys,
 )
 from slash_commands.__version__ import __version_with_commit__
+from slash_commands.cli_utils import (
+    display_local_path,
+    find_project_root,
+    relative_to_candidates,
+)
 from slash_commands.github_utils import validate_github_repo
+from slash_commands.list_discovery import (
+    build_list_data_structure,
+    count_unmanaged_prompts,
+    discover_all_files,
+    discover_managed_prompts,
+    render_all_files_tables,
+    render_list_tree,
+)
 
 app = typer.Typer(
     name="slash-man",
@@ -61,56 +73,10 @@ console = Console(width=120)
 SUMMARY_PANEL_WIDTH = 80
 
 
-def _find_project_root() -> Path:
-    """Find the project root directory using a robust strategy.
-
-    Strategy:
-    1. Check PROJECT_ROOT environment variable first
-    2. Walk upward from Path.cwd() and Path(__file__) looking for marker files/directories
-       (.git directory, pyproject.toml, setup.py)
-    3. Fall back to Path.cwd() if no marker is found
-
-    Returns:
-        Resolved Path to the project root directory
-    """
-    # Check environment variable first
-    env_root = os.getenv("PROJECT_ROOT")
-    if env_root:
-        return Path(env_root).resolve()
-
-    # Marker files/directories that indicate a project root
-    marker_files = [".git", "pyproject.toml", "setup.py"]
-
-    # Start from current working directory and __file__ location
-    start_paths = [Path.cwd(), Path(__file__).resolve().parent]
-
-    for start_path in start_paths:
-        current = start_path.resolve()
-        # Walk upward looking for marker files
-        for _ in range(10):  # Limit depth to prevent infinite loops
-            # Check if any marker file exists in current directory
-            if any((current / marker).exists() for marker in marker_files):
-                return current
-            # Stop at filesystem root
-            parent = current.parent
-            if parent == current:
-                break
-            current = parent
-
-    # Fall back to current working directory
-    return Path.cwd().resolve()
-
-
-def _display_local_path(path: Path) -> str:
-    """Return a path relative to the current working directory or project root."""
-    resolved_path = path.resolve()
-    candidates = [Path.cwd().resolve(), _find_project_root()]
-    for candidate in candidates:
-        try:
-            return str(resolved_path.relative_to(candidate))
-        except ValueError:
-            continue
-    return str(resolved_path)
+# Path resolution utilities moved to cli_utils.py
+# Imported above for backward compatibility
+_find_project_root = find_project_root
+_display_local_path = display_local_path
 
 
 def _resolve_detected_agents(detected: list[str] | None, selected: list[str]) -> list[str]:
@@ -139,14 +105,8 @@ def _build_summary_data(
     cwd = Path.cwd().resolve()
     source_candidates = [cwd, repo_root]
 
-    def _relative_to_candidates(path_str: str, candidates: list[Path]) -> str:
-        file_path = Path(path_str)
-        for candidate in candidates:
-            try:
-                return str(file_path.resolve().relative_to(candidate.resolve()))
-            except (ValueError, FileNotFoundError):
-                continue
-        return str(file_path)
+    # Use shared utility function
+    _relative_to_candidates = relative_to_candidates
 
     if result:
         for file_info in result["files"]:
@@ -822,6 +782,123 @@ def cleanup(
             border_style="green" if not result.get("errors") else "red",
         )
     )
+
+
+@app.command(name="list")
+def list_cmd(
+    agents: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--agent",
+            "-a",
+            help="Agent key to list prompts for (can be specified multiple times)",
+        ),
+    ] = None,
+    target_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--target-path",
+            "-t",
+            help="Target directory for searching agent command directories (defaults to home directory)",
+        ),
+    ] = None,
+    detection_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--detection-path",
+            "-d",
+            help="Directory to search for agent configurations (defaults to home directory)",
+        ),
+    ] = None,
+    all_files: Annotated[
+        bool,
+        typer.Option(
+            "--all-files",
+            help="List all prompt files in agent command directories",
+        ),
+    ] = False,
+) -> None:
+    """List managed slash commands (or, with `--all-files`, all prompt files)."""
+    # Determine paths (default to home directory)
+    actual_target_path = target_path if target_path is not None else Path.home()
+    # Use detection_path if specified, otherwise target_path, otherwise home directory
+    actual_detection_path = (
+        detection_path
+        if detection_path is not None
+        else (target_path if target_path is not None else Path.home())
+    )
+
+    # Detect agents if not specified
+    if agents is None:
+        detected_agent_configs = detect_agents(actual_detection_path)
+        if not detected_agent_configs:
+            console.print(
+                "[yellow]No agents detected. Use --agent to specify agents manually.[/yellow]"
+            )
+            raise typer.Exit(code=0)
+        selected_agents = [agent.key for agent in detected_agent_configs]
+    else:
+        selected_agents = agents
+
+    # Handle --all-files flag
+    if all_files:
+        try:
+            # Discover all files (managed, unmanaged, backup, other)
+            discovery_result = discover_all_files(actual_target_path, selected_agents)
+            discovered_files = discovery_result["files"]
+            directory_status = discovery_result["directory_status"]
+
+            # Group files by agent (include agents with empty directories)
+            files_by_agent: dict[str, list[dict[str, Any]]] = {}
+            for agent_key in selected_agents:
+                files_by_agent[agent_key] = []
+
+            for file_info in discovered_files:
+                agent_key = file_info["agent"]
+                files_by_agent[agent_key].append(file_info)
+
+            # Render table output (pass directory_status for empty state handling)
+            render_all_files_tables(
+                files_by_agent, actual_target_path, directory_status=directory_status
+            )
+        except KeyError as e:
+            print(f"Error: Invalid agent key: {e}", file=sys.stderr)
+            print("\nTo fix this:", file=sys.stderr)
+            print("  - Use --list-agents to see all supported agents", file=sys.stderr)
+            print("  - Ensure agent keys are spelled correctly", file=sys.stderr)
+            valid_keys = ", ".join(list_agent_keys())
+            print(f"  - Valid agent keys: {valid_keys}", file=sys.stderr)
+            raise typer.Exit(code=2) from None  # Validation error (invalid agent key)
+    else:
+        # Standard mode: discover managed prompts only
+        try:
+            discovered = discover_managed_prompts(actual_target_path, selected_agents)
+
+            # Handle empty state
+            if not discovered:
+                console.print(
+                    "\n[yellow]No managed prompts found.[/yellow]\n"
+                    "Only files with `managed_by: slash-man` metadata are detected.\n"
+                    "Files generated by older versions won't appear until regenerated.\n"
+                )
+                raise typer.Exit(code=0)
+
+            # Count unmanaged prompts
+            unmanaged_counts = count_unmanaged_prompts(actual_target_path, selected_agents)
+        except KeyError as e:
+            print(f"Error: Invalid agent key: {e}", file=sys.stderr)
+            print("\nTo fix this:", file=sys.stderr)
+            print("  - Use --list-agents to see all supported agents", file=sys.stderr)
+            print("  - Ensure agent keys are spelled correctly", file=sys.stderr)
+            valid_keys = ", ".join(list_agent_keys())
+            print(f"  - Valid agent keys: {valid_keys}", file=sys.stderr)
+            raise typer.Exit(code=2) from None  # Validation error (invalid agent key)
+
+        # Build data structure
+        data_structure = build_list_data_structure(discovered, unmanaged_counts)
+
+        # Render output
+        render_list_tree(data_structure)
 
 
 @app.command()

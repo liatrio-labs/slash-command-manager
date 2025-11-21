@@ -223,6 +223,7 @@ class MarkdownCommandGenerator:
                 "source_path": prompt.path.name,
                 "version": __version__,
                 "updated_at": datetime.now(UTC).isoformat(),
+                "managed_by": "slash-man",
             }
         )
 
@@ -276,6 +277,7 @@ class TomlCommandGenerator:
             "updated_at": datetime.now(UTC).isoformat(),
             "source_prompt": prompt.name,
             "agent": agent.key,
+            "managed_by": "slash-man",
         }
 
         # Add source tracking metadata if provided
