@@ -356,31 +356,39 @@ def classify_file_type(file_path: Path, agent: AgentConfig) -> str:
     return "other"
 
 
-def discover_all_files(base_path: Path, agents: list[str]) -> list[dict[str, Any]]:
+def discover_all_files(base_path: Path, agents: list[str]) -> dict[str, Any]:
     """Discover all files in agent command directories and classify them.
 
     Scans all files matching `command_file_extension` pattern for each agent,
     including backup files, classifies each file by type (managed, unmanaged,
-    backup, other), and returns a list of file information.
+    backup, other), and returns file information along with directory status.
 
     Args:
         base_path: Base directory for searching agent command directories
         agents: List of agent keys to search (e.g., ["cursor", "claude-code"])
 
     Returns:
-        List of dicts, each containing:
-        - file_path: Absolute path to file (Path)
-        - type: Classification string ("managed", "unmanaged", "backup", "other")
-        - agent: Agent key (str)
-        - agent_display_name: Agent display name (str)
+        Dict containing:
+        - files: List of dicts, each containing:
+          - file_path: Absolute path to file (Path)
+          - type: Classification string ("managed", "unmanaged", "backup", "other")
+          - agent: Agent key (str)
+          - agent_display_name: Agent display name (str)
+        - directory_status: Dict mapping agent keys to {"exists": bool}
     """
     discovered: list[dict[str, Any]] = []
+    directory_status: dict[str, dict[str, bool]] = {}
 
     for agent_key in agents:
         agent = get_agent_config(agent_key)
         command_dir = base_path / agent.command_dir
 
-        if not command_dir.exists():
+        # Track directory existence status for each agent
+        directory_exists = command_dir.exists()
+        directory_status[agent_key] = {"exists": directory_exists}
+
+        if not directory_exists:
+            # Directory doesn't exist - continue to next agent
             continue
 
         # Track files we've already processed to avoid duplicates
@@ -417,34 +425,30 @@ def discover_all_files(base_path: Path, agents: list[str]) -> list[dict[str, Any
                     )
                     processed_files.add(file_path)
 
-    return discovered
+    return {"files": discovered, "directory_status": directory_status}
 
 
 def _build_agent_summary_panel(
-    agent: AgentConfig, files: list[dict[str, Any]], target_path: Path
+    agent: AgentConfig,
+    files: list[dict[str, Any]],
+    target_path: Path,
+    *,
+    directory_exists: bool = True,
 ) -> Panel:
     """Build Rich Panel with agent summary information.
 
     Shows agent display name, agent key, command directory path (relative to target_path),
-    total file count, and breakdown by type.
+    total file count, and breakdown by type. Handles empty and missing directories.
 
     Args:
         agent: Agent configuration
         files: List of file dicts for this agent
         target_path: Base path for relative path calculation
+        directory_exists: Whether the command directory exists
 
     Returns:
         Rich Panel with summary information
     """
-    # Count files by type
-    type_counts: dict[str, int] = {"managed": 0, "unmanaged": 0, "backup": 0, "other": 0}
-    for file_info in files:
-        file_type = file_info.get("type", "other")
-        if file_type in type_counts:
-            type_counts[file_type] += 1
-
-    total_files = len(files)
-
     # Get command directory path relative to target_path
     command_dir = target_path / agent.command_dir
     from slash_commands.cli_utils import relative_to_candidates
@@ -455,14 +459,32 @@ def _build_agent_summary_panel(
     summary_lines = [
         f"Agent: {agent.display_name} ({agent.key})",
         f"Directory: {relative_dir}",
-        f"Total Files: {total_files}",
-        "",
-        "Breakdown:",
-        f"  Managed: {type_counts['managed']}",
-        f"  Unmanaged: {type_counts['unmanaged']}",
-        f"  Backup: {type_counts['backup']}",
-        f"  Other: {type_counts['other']}",
     ]
+
+    # Handle empty or missing directory
+    if not directory_exists:
+        summary_lines.append("")
+        summary_lines.append("Directory does not exist")
+    elif len(files) == 0:
+        summary_lines.append("")
+        summary_lines.append("No files found")
+    else:
+        # Count files by type
+        type_counts: dict[str, int] = {"managed": 0, "unmanaged": 0, "backup": 0, "other": 0}
+        for file_info in files:
+            file_type = file_info.get("type", "other")
+            if file_type in type_counts:
+                type_counts[file_type] += 1
+
+        total_files = len(files)
+
+        summary_lines.append(f"Total Files: {total_files}")
+        summary_lines.append("")
+        summary_lines.append("Breakdown:")
+        summary_lines.append(f"  Managed: {type_counts['managed']}")
+        summary_lines.append(f"  Unmanaged: {type_counts['unmanaged']}")
+        summary_lines.append(f"  Backup: {type_counts['backup']}")
+        summary_lines.append(f"  Other: {type_counts['other']}")
 
     summary_text = "\n".join(summary_lines)
 
@@ -544,16 +566,19 @@ def render_all_files_tables(
     target_path: Path,
     *,
     record: bool = False,
+    directory_status: dict[str, dict[str, bool]] | None = None,
 ) -> str | None:
     """Render all files in Rich table format organized by agent.
 
     Creates a summary panel and table for each agent, displaying files
-    with proper sorting and color coding.
+    with proper sorting and color coding. Handles empty directories and
+    missing directories with appropriate messages.
 
     Args:
         files_by_agent: Dict mapping agent keys to lists of file dicts
         target_path: Base path for relative path calculation
         record: If True, record output and return as string instead of printing
+        directory_status: Dict mapping agent keys to {"exists": bool} for directory status
 
     Returns:
         Rendered text if record=True, None otherwise
@@ -567,13 +592,21 @@ def render_all_files_tables(
         files = files_by_agent[agent_key]
         agent = get_agent_config(agent_key)
 
-        # Build and print summary panel
-        summary_panel = _build_agent_summary_panel(agent, files, target_path)
+        # Check directory status
+        directory_exists = True
+        if directory_status and agent_key in directory_status:
+            directory_exists = directory_status[agent_key].get("exists", True)
+
+        # Build and print summary panel (handles empty state)
+        summary_panel = _build_agent_summary_panel(
+            agent, files, target_path, directory_exists=directory_exists
+        )
         target_console.print(summary_panel)
 
-        # Build and print file table
-        file_table = _build_agent_file_table(files, target_path)
-        target_console.print(file_table)
+        # Build and print file table (only if files exist)
+        if files:
+            file_table = _build_agent_file_table(files, target_path)
+            target_console.print(file_table)
 
         # Add spacing between agents
         target_console.print()

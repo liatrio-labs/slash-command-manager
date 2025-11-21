@@ -844,18 +844,23 @@ def list_cmd(
     if all_files:
         try:
             # Discover all files (managed, unmanaged, backup, other)
-            discovered_files = discover_all_files(actual_target_path, selected_agents)
+            discovery_result = discover_all_files(actual_target_path, selected_agents)
+            discovered_files = discovery_result["files"]
+            directory_status = discovery_result["directory_status"]
 
-            # Group files by agent
+            # Group files by agent (include agents with empty directories)
             files_by_agent: dict[str, list[dict[str, Any]]] = {}
+            for agent_key in selected_agents:
+                files_by_agent[agent_key] = []
+
             for file_info in discovered_files:
                 agent_key = file_info["agent"]
-                if agent_key not in files_by_agent:
-                    files_by_agent[agent_key] = []
                 files_by_agent[agent_key].append(file_info)
 
-            # Render table output
-            render_all_files_tables(files_by_agent, actual_target_path)
+            # Render table output (pass directory_status for empty state handling)
+            render_all_files_tables(
+                files_by_agent, actual_target_path, directory_status=directory_status
+            )
         except KeyError as e:
             print(f"Error: Invalid agent key: {e}", file=sys.stderr)
             print("\nTo fix this:", file=sys.stderr)

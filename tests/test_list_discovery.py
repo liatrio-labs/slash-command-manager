@@ -1283,11 +1283,12 @@ meta:
 
     # Discover all files
     result = discover_all_files(tmp_path, ["cursor"])
+    files = result["files"]
 
     # Verify all matching files are found (should find all .md files, including backups)
     # Note: backup files match the pattern but are classified separately
-    assert len(result) >= 3  # managed, unmanaged, backup, invalid
-    file_paths = {item["file_path"] for item in result}
+    assert len(files) >= 3  # managed, unmanaged, backup, invalid
+    file_paths = {item["file_path"] for item in files}
     assert managed_file in file_paths
     assert unmanaged_file in file_paths
     assert backup_file in file_paths
@@ -1317,9 +1318,10 @@ meta:
 
     # Discover all files
     result = discover_all_files(tmp_path, ["cursor"])
+    files = result["files"]
 
     # Find the managed file in results
-    managed_items = [item for item in result if item["file_path"] == managed_file]
+    managed_items = [item for item in files if item["file_path"] == managed_file]
     assert len(managed_items) == 1
     assert managed_items[0]["type"] == "managed"
     assert managed_items[0]["agent"] == "cursor"
@@ -1350,9 +1352,10 @@ meta:
 
     # Discover all files
     result = discover_all_files(tmp_path, ["cursor"])
+    files = result["files"]
 
     # Find the unmanaged file in results
-    unmanaged_items = [item for item in result if item["file_path"] == unmanaged_file]
+    unmanaged_items = [item for item in files if item["file_path"] == unmanaged_file]
     assert len(unmanaged_items) == 1
     assert unmanaged_items[0]["type"] == "unmanaged"
 
@@ -1371,9 +1374,10 @@ def test_discover_all_files_classifies_backup_files(tmp_path: Path):
 
     # Discover all files
     result = discover_all_files(tmp_path, ["cursor"])
+    files = result["files"]
 
     # Find the backup file in results
-    backup_items = [item for item in result if item["file_path"] == backup_file]
+    backup_items = [item for item in files if item["file_path"] == backup_file]
     assert len(backup_items) == 1
     assert backup_items[0]["type"] == "backup"
 
@@ -1404,10 +1408,11 @@ invalid yaml: [unclosed bracket
 
     # Discover all files
     result = discover_all_files(tmp_path, ["cursor"])
+    files = result["files"]
 
     # Find the invalid files in results
-    invalid_items = [item for item in result if item["file_path"] == invalid_file]
-    malformed_items = [item for item in result if item["file_path"] == malformed_file]
+    invalid_items = [item for item in files if item["file_path"] == invalid_file]
+    malformed_items = [item for item in files if item["file_path"] == malformed_file]
 
     assert len(invalid_items) == 1
     assert invalid_items[0]["type"] == "other"
@@ -1429,9 +1434,10 @@ def test_discover_all_files_handles_parsing_errors(tmp_path: Path):
 
     # Discover all files
     result = discover_all_files(tmp_path, ["cursor"])
+    files = result["files"]
 
     # Find the file with parsing error in results
-    error_items = [item for item in result if item["file_path"] == unicode_error_file]
+    error_items = [item for item in files if item["file_path"] == unicode_error_file]
     assert len(error_items) == 1
     assert error_items[0]["type"] == "other"
 
@@ -1464,7 +1470,8 @@ meta:
     # Discover files and group by agent
     from slash_commands.list_discovery import discover_all_files
 
-    all_files = discover_all_files(tmp_path, ["cursor"])
+    discovery_result = discover_all_files(tmp_path, ["cursor"])
+    all_files = discovery_result["files"]
     files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for file_info in all_files:
         files_by_agent[file_info["agent"]].append(file_info)
@@ -1520,7 +1527,8 @@ meta:
     backup_file.write_text("backup", encoding="utf-8")
 
     # Discover files and group by agent
-    all_files = discover_all_files(tmp_path, ["cursor"])
+    discovery_result = discover_all_files(tmp_path, ["cursor"])
+    all_files = discovery_result["files"]
     files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for file_info in all_files:
         files_by_agent[file_info["agent"]].append(file_info)
@@ -1588,7 +1596,8 @@ meta:
     backup_file.write_text("backup", encoding="utf-8")
 
     # Discover files and group by agent
-    all_files = discover_all_files(tmp_path, ["cursor"])
+    discovery_result = discover_all_files(tmp_path, ["cursor"])
+    all_files = discovery_result["files"]
     files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for file_info in all_files:
         files_by_agent[file_info["agent"]].append(file_info)
@@ -1642,7 +1651,8 @@ meta:
     backup_file.write_text("backup", encoding="utf-8")
 
     # Discover files and group by agent
-    all_files = discover_all_files(tmp_path, ["cursor"])
+    discovery_result = discover_all_files(tmp_path, ["cursor"])
+    all_files = discovery_result["files"]
     files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for file_info in all_files:
         files_by_agent[file_info["agent"]].append(file_info)
@@ -1681,7 +1691,8 @@ meta:
     )
 
     # Discover files and group by agent
-    all_files = discover_all_files(tmp_path, ["cursor"])
+    discovery_result = discover_all_files(tmp_path, ["cursor"])
+    all_files = discovery_result["files"]
     files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for file_info in all_files:
         files_by_agent[file_info["agent"]].append(file_info)
@@ -1694,3 +1705,95 @@ meta:
     assert "managed.md" in output
     # Should not contain the full tmp_path as absolute path
     assert str(tmp_path.resolve()) not in output or ".cursor" in output
+
+
+# Tests for empty state and directory handling (Task 4.0)
+
+
+def test_render_all_files_tables_handles_empty_directory(tmp_path: Path):
+    """Test that when directory exists but is empty, shows summary panel with 'No files found' message."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import render_all_files_tables
+
+    # Create empty cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create files_by_agent dict with empty list for cursor agent
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    files_by_agent["cursor"] = []  # Empty list
+
+    # Create directory_status indicating directory exists
+    directory_status = {"cursor": {"exists": True}}
+
+    # Render tables and capture output
+    output = render_all_files_tables(
+        files_by_agent, tmp_path, record=True, directory_status=directory_status
+    )
+
+    # Verify output contains directory info and "No files found" message
+    assert output is not None
+    assert "Cursor" in output or "cursor" in output  # Agent display name or key
+    assert ".cursor" in output or "commands" in output  # Command directory path
+    assert "No files found" in output or "no files" in output.lower()
+
+
+def test_render_all_files_tables_handles_missing_directory(tmp_path: Path):
+    """Test that when directory doesn't exist, shows summary panel with 'Directory does not exist' message."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import render_all_files_tables
+
+    # Don't create the directory - it should be missing
+    # Create files_by_agent dict with empty list for cursor agent
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    files_by_agent["cursor"] = []  # Empty list
+
+    # Create directory_status indicating directory does not exist
+    directory_status = {"cursor": {"exists": False}}
+
+    # Render tables and capture output
+    output = render_all_files_tables(
+        files_by_agent, tmp_path, record=True, directory_status=directory_status
+    )
+
+    # Verify output contains directory info and "Directory does not exist" message
+    assert output is not None
+    assert "Cursor" in output or "cursor" in output  # Agent display name or key
+    assert ".cursor" in output or "commands" in output  # Command directory path
+    assert "Directory does not exist" in output or "does not exist" in output.lower()
+
+
+def test_render_all_files_tables_shows_directory_info_for_all_agents(tmp_path: Path):
+    """Test that directory information is shown for each agent even when no files are found."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import render_all_files_tables
+
+    # Create empty directories for multiple agents
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    claude_dir = tmp_path / ".claude" / "commands"
+    claude_dir.mkdir(parents=True)
+
+    # Create files_by_agent dict with empty lists for both agents
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    files_by_agent["cursor"] = []  # Empty list
+    files_by_agent["claude-code"] = []  # Empty list
+
+    # Create directory_status indicating both directories exist
+    directory_status = {"cursor": {"exists": True}, "claude-code": {"exists": True}}
+
+    # Render tables and capture output
+    output = render_all_files_tables(
+        files_by_agent, tmp_path, record=True, directory_status=directory_status
+    )
+
+    # Verify output contains directory info for both agents
+    assert output is not None
+    assert "Cursor" in output or "cursor" in output  # Cursor agent info
+    assert "Claude" in output or "claude" in output.lower()  # Claude agent info
+    assert ".cursor" in output or "commands" in output  # Cursor directory path
+    assert ".claude" in output or "commands" in output  # Claude directory path

@@ -87,7 +87,7 @@
 - [x] 3.9 Test CLI help output: `slash-man list --help` should show `--all-files` flag documentation
 - [x] 3.10 Run `ruff check` and `ruff format` to ensure code quality
 
-### [ ] 4.0 Empty State and Directory Handling
+### [x] 4.0 Empty State and Directory Handling
 
 #### 4.0 Proof Artifact(s)
 
@@ -98,13 +98,13 @@
 
 #### 4.0 Tasks
 
-- [ ] 4.1 Write failing test `test_render_all_files_tables_handles_empty_directory()` in `tests/test_list_discovery.py` that verifies when directory exists but is empty, shows summary panel with "No files found" message
-- [ ] 4.2 Write failing test `test_render_all_files_tables_handles_missing_directory()` that verifies when directory doesn't exist, shows summary panel with "Directory does not exist" message and expected path
-- [ ] 4.3 Write failing test `test_render_all_files_tables_shows_directory_info_for_all_agents()` that verifies directory information is shown for each agent even when no files are found
-- [ ] 4.4 Modify `discover_all_files()` function to return directory existence status. Update return structure to include `{"directory_exists": bool}` for each agent
-- [ ] 4.5 Modify `render_all_files_tables()` function to handle empty file lists. When files list is empty, show summary panel with appropriate message ("No files found" if directory exists, "Directory does not exist" if missing)
-- [ ] 4.6 Ensure empty state handling works correctly when `--all-files` flag is used with empty or missing directories. Command should exit with code 0 (success, not error)
-- [ ] 4.7 Run tests and verify all empty state tests pass
-- [ ] 4.8 Test CLI output: `slash-man list --all-files` with empty directories should show directory info and appropriate messages
-- [ ] 4.9 Run `ruff check` and `ruff format` to ensure code quality
-- [ ] 4.10 Run full test suite (`pytest tests/`) to ensure no regressions
+- [x] 4.1 Write failing test `test_render_all_files_tables_handles_empty_directory()` in `tests/test_list_discovery.py` that verifies when directory exists but is empty, shows summary panel with "No files found" message
+- [x] 4.2 Write failing test `test_render_all_files_tables_handles_missing_directory()` that verifies when directory doesn't exist, shows summary panel with "Directory does not exist" message and expected path
+- [x] 4.3 Write failing test `test_render_all_files_tables_shows_directory_info_for_all_agents()` that verifies directory information is shown for each agent even when no files are found
+- [x] 4.4 Modify `discover_all_files()` function to return directory existence status. Update return structure to include `{"directory_exists": bool}` for each agent
+- [x] 4.5 Modify `render_all_files_tables()` function to handle empty file lists. When files list is empty, show summary panel with appropriate message ("No files found" if directory exists, "Directory does not exist" if missing)
+- [x] 4.6 Ensure empty state handling works correctly when `--all-files` flag is used with empty or missing directories. Command should exit with code 0 (success, not error)
+- [x] 4.7 Run tests and verify all empty state tests pass
+- [x] 4.8 Test CLI output: `slash-man list --all-files` with empty directories should show directory info and appropriate messages
+- [x] 4.9 Run `ruff check` and `ruff format` to ensure code quality
+- [x] 4.10 Run full test suite (`pytest tests/`) to ensure no regressions
