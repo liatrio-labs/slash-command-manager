@@ -17,7 +17,7 @@ def main() -> None:
     """Entry point for console script.
 
     This function is called when the package is installed and run via:
-        uvx slash-command-manager
+        uvx slash-man mcp
 
     It runs the MCP server using stdio transport by default, or http transport
     if --transport http is passed as an argument.
