@@ -33,7 +33,8 @@ def find_project_root() -> Path:
     for start_path in start_paths:
         current = start_path.resolve()
         # Walk upward looking for marker files
-        for _ in range(10):  # Limit depth to prevent infinite loops
+        # Loop until filesystem root (parent == current) provides natural termination
+        while True:
             # Check if any marker file exists in current directory
             if any((current / marker).exists() for marker in marker_files):
                 return current

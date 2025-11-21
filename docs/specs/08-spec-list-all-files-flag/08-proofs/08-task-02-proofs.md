@@ -70,11 +70,12 @@ $ ruff format slash_commands/list_discovery.py tests/test_list_discovery.py
 
 ### Functions Implemented
 
-1. **`_build_agent_summary_panel(agent: AgentConfig, files: list[dict[str, Any]], target_path: Path) -> Panel`**
+1. **`_build_agent_summary_panel(agent: AgentConfig, files: list[dict[str, Any]], target_path: Path, *, directory_exists: bool = True) -> Panel`**
    - Creates Rich Panel with agent summary information
    - Shows agent display name, agent key, command directory path (relative to target_path)
    - Displays total file count and breakdown by type (managed, unmanaged, backup, other)
    - Uses `relative_to_candidates()` for path resolution
+   - The `directory_exists` parameter influences messaging for empty vs missing directories
 
 2. **`_build_agent_file_table(files: list[dict[str, Any]], target_path: Path) -> Table`**
    - Creates Rich Table with "Type" and "File Path" columns
@@ -82,11 +83,12 @@ $ ruff format slash_commands/list_discovery.py tests/test_list_discovery.py
    - Applies color coding: green for managed, red for unmanaged/other, default for backup
    - Uses `relative_to_candidates()` for relative path display
 
-3. **`render_all_files_tables(files_by_agent: dict[str, list[dict[str, Any]]], target_path: Path, *, record: bool = False) -> str | None`**
+3. **`render_all_files_tables(files_by_agent: dict[str, list[dict[str, Any]]], target_path: Path, *, record: bool = False, directory_status: dict[str, dict[str, bool]] | None = None) -> str | None`**
    - Main rendering function that processes files grouped by agent
    - Creates summary panel and table for each agent
    - Prints output using Rich Console
    - Supports `record` parameter for testing (returns string instead of printing)
+   - The `directory_status` mapping drives handling of empty/non-existent directories and influences what the summary/table shows
 
 ### Code Location
 

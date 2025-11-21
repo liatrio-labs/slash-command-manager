@@ -126,7 +126,11 @@ def _parse_markdown_file(
             return None
 
         name = frontmatter.get("name") or file_path.stem
-        meta = frontmatter.get("meta") or {}
+        raw_meta = frontmatter.get("meta") or {}
+        if not isinstance(raw_meta, dict):
+            # Treat files with non-mapping meta as invalid prompts
+            return None
+        meta = raw_meta
 
         return {
             "name": name,
@@ -147,7 +151,11 @@ def _parse_toml_file(file_path: Path, content: str, agent: AgentConfig) -> dict[
         if not isinstance(data, dict):
             return None
 
-        meta = data.get("meta") or {}
+        raw_meta = data.get("meta") or {}
+        if not isinstance(raw_meta, dict):
+            # Treat files with non-table meta as invalid prompts
+            return None
+        meta = raw_meta
 
         # Extract name from meta.source_prompt (where generator stores it) or use filename
         name = meta.get("source_prompt") or file_path.stem

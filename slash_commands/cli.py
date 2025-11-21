@@ -818,7 +818,7 @@ def list_cmd(
         ),
     ] = False,
 ) -> None:
-    """List all managed slash commands."""
+    """List managed slash commands (or, with `--all-files`, all prompt files)."""
     # Determine paths (default to home directory)
     actual_target_path = target_path if target_path is not None else Path.home()
     # Use detection_path if specified, otherwise target_path, otherwise home directory

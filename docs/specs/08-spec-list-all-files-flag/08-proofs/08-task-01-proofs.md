@@ -70,10 +70,12 @@ $ ruff format slash_commands/list_discovery.py tests/test_list_discovery.py
    - Reuses existing `_parse_command_file()` and `_is_backup_file()` functions
    - Handles parsing errors gracefully
 
-2. **`discover_all_files(base_path: Path, agents: list[str]) -> list[dict[str, Any]]`**
+2. **`discover_all_files(base_path: Path, agents: list[str]) -> dict[str, Any]`**
    - Scans all files matching `command_file_extension` pattern for each agent
    - Includes backup files (pattern: `*{extension}.{timestamp}.bak`)
-   - Returns list of dicts with structure: `{"file_path": Path, "type": str, "agent": str, "agent_display_name": str}`
+   - Returns dict with structure:
+     - `"files"`: List of dicts, each containing `{"file_path": Path, "type": str, "agent": str, "agent_display_name": str}`
+     - `"directory_status"`: Dict mapping agent keys to `{"exists": bool}` containing per-directory metadata
 
 ### Code Location
 
