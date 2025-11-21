@@ -244,15 +244,10 @@ jobs:
       - name: Generate dev version
         id: dev-version
         run: |
-          VERSION=$(uv run semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata ${{ github.sha }} --no-push --no-vcs-release --no-commit --no-tag --print)
+          VERSION=$(uv run semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata $(git rev-parse --short HEAD) --no-changelog --no-vcs-release --no-commit --no-tag --print)
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Update uv.lock after version change
-        run: |
-          # Update uv.lock to reflect the new version in pyproject.toml
-          # This ensures the lock file includes the updated package version
-          uv lock --upgrade-package slash-man
 
       - name: Verify version was generated
         run: |
@@ -265,6 +260,14 @@ jobs:
             exit 1
           fi
           echo "✅ Version verified: $VERSION"
+
+      - name: Verify uv.lock and pyproject.toml were updated
+        run: |
+          if ! git diff --exit-code uv.lock pyproject.toml; then
+            echo "❌ uv.lock and pyproject.toml were not updated"
+            exit 1
+          fi
+          echo "✅ uv.lock and pyproject.toml were updated"
 
       - name: Build package
         run: uv run python -m build --wheel --sdist
