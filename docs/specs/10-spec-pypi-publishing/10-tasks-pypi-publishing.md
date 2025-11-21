@@ -87,7 +87,7 @@
 - [x] 3.9 Run `python -m build` locally to verify no metadata warnings are generated
 - [x] 3.10 Verify TOML syntax is valid and properly formatted
 
-### [ ] 4.0 Add Dev Release Job to CI Workflow for Test PyPI Publishing
+### [x] 4.0 Add Dev Release Job to CI Workflow for Test PyPI Publishing
 
 #### 4.0 Proof Artifact(s)
 
@@ -98,21 +98,21 @@
 
 #### 4.0 Tasks
 
-- [ ] 4.1 Open `.github/workflows/ci.yml` and locate the end of the existing jobs section
-- [ ] 4.2 Create new job named `dev-release` that runs on `ubuntu-latest`
-- [ ] 4.3 Add job condition combining pull request check and repository variable gate: `if: ${{ github.event_name == 'pull_request' && vars.RUN_DEV_RELEASE_JOBS == 'true' }}`
-- [ ] 4.5 Set job permissions: `id-token: write` and `contents: read` for OIDC Trusted Publishing
-- [ ] 4.6 Add checkout step using `actions/checkout@v4` with `fetch-depth: 0` and `fetch-tags: true`
-- [ ] 4.7 Add step to install uv using `astral-sh/setup-uv@v6` with cache enabled for `pyproject.toml` and `uv.lock`
-- [ ] 4.8 Add step to install Python 3.12 using `uv python install 3.12`
-- [ ] 4.9 Add step to sync dependencies using `uv sync --all-groups --extra dev --frozen`
-- [ ] 4.10 Add step to install python-semantic-release using `uv pip install --system "python-semantic-release>=10.0.0,<11.0.0"`
-- [ ] 4.11 Add step to install build package using `uv pip install --system build`
-- [ ] 4.12 Add step to generate dev version using semantic-release with output capture: create step with `id: dev-version` that runs `semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata ${{ github.sha }} --no-push --no-vcs-release --no-commit --no-tag --print`, captures output to `$GITHUB_OUTPUT` as `version`, and echoes the generated version (semantic-release updates `pyproject.toml` in-place even with `--no-commit` flag)
-- [ ] 4.13 Add step to verify version was generated correctly (check that `${{ steps.dev-version.outputs.version }}` contains dev prerelease token and SHA)
-- [ ] 4.14 Add step to build package using `uv run python -m build --wheel --sdist` with the generated dev version
-- [ ] 4.15 Add step to verify build artifacts exist (list `dist/` directory contents)
-- [ ] 4.16 Add step to publish to Test PyPI using `pypa/gh-action-pypi-publish@v1.13.0` action with `pypi-url: https://test.pypi.org/legacy/` and `packages-dir: dist/`
-- [ ] 4.17 Verify workflow YAML syntax is valid and follows existing workflow patterns
-- [ ] 4.18 Ensure job uses Trusted Publishing (OIDC) - no secrets required, only `id-token: write` permission
-- [ ] 4.19 Verify job is properly gated and will skip when `RUN_DEV_RELEASE_JOBS` variable is not set or set to false
+- [x] 4.1 Open `.github/workflows/ci.yml` and locate the end of the existing jobs section
+- [x] 4.2 Create new job named `dev-release` that runs on `ubuntu-latest`
+- [x] 4.3 Add job condition combining pull request check and repository variable gate: `if: ${{ github.event_name == 'pull_request' && vars.RUN_DEV_RELEASE_JOBS == 'true' }}`
+- [x] 4.5 Set job permissions: `id-token: write` and `contents: read` for OIDC Trusted Publishing
+- [x] 4.6 Add checkout step using `actions/checkout@v4` with `fetch-depth: 0` and `fetch-tags: true`
+- [x] 4.7 Add step to install uv using `astral-sh/setup-uv@v6` with cache enabled for `pyproject.toml` and `uv.lock`
+- [x] 4.8 Add step to install Python 3.12 using `uv python install 3.12`
+- [x] 4.9 Add step to sync dependencies using `uv sync --all-groups --extra dev --frozen`
+- [x] 4.10 Add step to install python-semantic-release using `uv pip install --system "python-semantic-release>=10.0.0,<11.0.0"`
+- [x] 4.11 Add step to install build package using `uv pip install --system build`
+- [x] 4.12 Add step to generate dev version using semantic-release with output capture: create step with `id: dev-version` that runs `semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata ${{ github.sha }} --no-push --no-vcs-release --no-commit --no-tag --print`, captures output to `$GITHUB_OUTPUT` as `version`, and echoes the generated version (semantic-release updates `pyproject.toml` in-place even with `--no-commit` flag)
+- [x] 4.13 Add step to verify version was generated correctly (check that `${{ steps.dev-version.outputs.version }}` contains dev prerelease token and SHA)
+- [x] 4.14 Add step to build package using `uv run python -m build --wheel --sdist` with the generated dev version
+- [x] 4.15 Add step to verify build artifacts exist (list `dist/` directory contents)
+- [x] 4.16 Add step to publish to Test PyPI using `pypa/gh-action-pypi-publish@v1.13.0` action with `pypi-url: https://test.pypi.org/legacy/` and `packages-dir: dist/`
+- [x] 4.17 Verify workflow YAML syntax is valid and follows existing workflow patterns
+- [x] 4.18 Ensure job uses Trusted Publishing (OIDC) - no secrets required, only `id-token: write` permission
+- [x] 4.19 Verify job is properly gated and will skip when `RUN_DEV_RELEASE_JOBS` variable is not set or set to false
