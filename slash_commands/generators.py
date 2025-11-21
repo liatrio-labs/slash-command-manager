@@ -15,7 +15,7 @@ except ImportError:
     from importlib.metadata import PackageNotFoundError, version
 
     try:
-        __version__ = version("slash-command-manager")
+        __version__ = version("slash-man")
     except PackageNotFoundError:
         __version__ = "0.0.0"
 

@@ -14,7 +14,7 @@ except ImportError:
     # Fallback for when installed as a package
     from importlib.metadata import version
 
-    __version__ = version("slash-command-manager")
+    __version__ = version("slash-man")
 
 from .config import config
 from .prompts_loader import register_prompts
@@ -27,7 +27,7 @@ def create_app() -> FastMCP:
         Configured FastMCP server instance
     """
     # Initialize FastMCP server
-    mcp = FastMCP(name="slash-command-manager-mcp")
+    mcp = FastMCP(name="slash-man-mcp")
 
     @mcp.custom_route("/health", methods=["GET"])
     async def health_check(request: Request) -> PlainTextResponse:
