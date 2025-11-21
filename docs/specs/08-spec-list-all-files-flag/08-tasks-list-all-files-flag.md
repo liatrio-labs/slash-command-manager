@@ -64,7 +64,7 @@
 - [x] 2.9 Run tests and verify all table rendering tests pass
 - [x] 2.10 Run `ruff check` and `ruff format` to ensure code quality
 
-### [ ] 3.0 Flag Integration and Output Replacement
+### [x] 3.0 Flag Integration and Output Replacement
 
 #### 3.0 Proof Artifact(s)
 
@@ -76,16 +76,16 @@
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Write failing test `test_list_cmd_with_all_files_flag()` in `tests/integration/test_list_command.py` that verifies `slash-man list --all-files` executes successfully and shows table output instead of tree output
-- [ ] 3.2 Write failing test `test_list_cmd_all_files_respects_agent_flag()` that verifies `slash-man list --all-files --agent cursor` shows only cursor files
-- [ ] 3.3 Write failing test `test_list_cmd_all_files_respects_target_path_flag()` that verifies `--target-path` flag works with `--all-files`
-- [ ] 3.4 Write failing test `test_list_cmd_all_files_respects_detection_path_flag()` that verifies `--detection-path` flag works with `--all-files`
-- [ ] 3.5 Add `all_files` parameter to `list_cmd()` function in `slash_commands/cli.py` using `typer.Option("--all-files", help="List all files in agent command directories, not just managed prompts")`
-- [ ] 3.6 Add conditional logic in `list_cmd()` to call `discover_all_files()` and `render_all_files_tables()` when `all_files` flag is True, otherwise use existing `discover_managed_prompts()` and `render_list_tree()` logic
-- [ ] 3.7 Ensure agent detection logic (using `detect_agents()` and filtering) works the same way for both standard and `--all-files` modes
-- [ ] 3.8 Run integration tests and verify all flag combination tests pass
-- [ ] 3.9 Test CLI help output: `slash-man list --help` should show `--all-files` flag documentation
-- [ ] 3.10 Run `ruff check` and `ruff format` to ensure code quality
+- [x] 3.1 Write failing test `test_list_cmd_with_all_files_flag()` in `tests/integration/test_list_command.py` that verifies `slash-man list --all-files` executes successfully and shows table output instead of tree output
+- [x] 3.2 Write failing test `test_list_cmd_all_files_respects_agent_flag()` that verifies `slash-man list --all-files --agent cursor` shows only cursor files
+- [x] 3.3 Write failing test `test_list_cmd_all_files_respects_target_path_flag()` that verifies `--target-path` flag works with `--all-files`
+- [x] 3.4 Write failing test `test_list_cmd_all_files_respects_detection_path_flag()` that verifies `--detection-path` flag works with `--all-files`
+- [x] 3.5 Add `all_files` parameter to `list_cmd()` function in `slash_commands/cli.py` using `typer.Option("--all-files", help="List all files in agent command directories, not just managed prompts")`
+- [x] 3.6 Add conditional logic in `list_cmd()` to call `discover_all_files()` and `render_all_files_tables()` when `all_files` flag is True, otherwise use existing `discover_managed_prompts()` and `render_list_tree()` logic
+- [x] 3.7 Ensure agent detection logic (using `detect_agents()` and filtering) works the same way for both standard and `--all-files` modes
+- [x] 3.8 Run integration tests and verify all flag combination tests pass
+- [x] 3.9 Test CLI help output: `slash-man list --help` should show `--all-files` flag documentation
+- [x] 3.10 Run `ruff check` and `ruff format` to ensure code quality
 
 ### [ ] 4.0 Empty State and Directory Handling
 

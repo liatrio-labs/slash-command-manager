@@ -472,3 +472,192 @@ def test_list_empty_state(temp_test_dir):
         "older versions" in result_list.stdout.lower()
         or "regenerated" in result_list.stdout.lower()
     )
+
+
+def test_list_cmd_with_all_files_flag(temp_test_dir, test_prompts_dir):
+    """Test that --all-files flag executes successfully and shows table output instead of tree output."""
+    # Generate a managed prompt first
+    cmd_generate = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_generate = subprocess.run(
+        cmd_generate,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_generate.returncode == 0, f"Failed to generate prompt: {result_generate.stderr}"
+
+    # Run list with --all-files flag
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--all-files",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    # Verify exit code is 0
+    assert result_list.returncode == 0, (
+        f"List command with --all-files failed with exit code {result_list.returncode}: {result_list.stderr}"
+    )
+
+    # Verify output contains table structure (not tree structure)
+    assert "Type" in result_list.stdout, "Output should contain 'Type' column header"
+    assert "File Path" in result_list.stdout, "Output should contain 'File Path' column header"
+    # Should NOT contain tree structure elements
+    assert "Managed Prompts" not in result_list.stdout, (
+        "Output should not contain tree structure when --all-files is used"
+    )
+
+
+def test_list_cmd_all_files_respects_agent_flag(temp_test_dir, test_prompts_dir):
+    """Test that --all-files respects --agent flag."""
+    # Generate prompts for multiple agents
+    agents = ["cursor", "claude-code"]
+
+    for agent in agents:
+        cmd_generate = get_slash_man_command() + [
+            "generate",
+            "--prompts-dir",
+            str(test_prompts_dir),
+            "--agent",
+            agent,
+            "--target-path",
+            str(temp_test_dir),
+            "--yes",
+        ]
+        result_generate = subprocess.run(
+            cmd_generate,
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+        assert result_generate.returncode == 0, (
+            f"Failed to generate for {agent}: {result_generate.stderr}"
+        )
+
+    # Run list with --all-files --agent cursor filter
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--all-files",
+        "--agent",
+        "cursor",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+    # Should only show cursor files
+    assert "cursor" in result_list.stdout.lower()
+    # Should show table structure
+    assert "Type" in result_list.stdout
+    assert "File Path" in result_list.stdout
+
+
+def test_list_cmd_all_files_respects_target_path_flag(temp_test_dir, test_prompts_dir):
+    """Test that --target-path flag works with --all-files."""
+    # Generate prompt in temp_test_dir
+    cmd_generate = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_generate = subprocess.run(
+        cmd_generate,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_generate.returncode == 0, f"Failed to generate: {result_generate.stderr}"
+
+    # Run list with --all-files --target-path pointing to temp_test_dir
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--all-files",
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+    assert "Type" in result_list.stdout
+    assert "File Path" in result_list.stdout
+
+
+def test_list_cmd_all_files_respects_detection_path_flag(temp_test_dir, test_prompts_dir):
+    """Test that --detection-path flag works with --all-files."""
+    # Generate prompt
+    cmd_generate = get_slash_man_command() + [
+        "generate",
+        "--prompts-dir",
+        str(test_prompts_dir),
+        "--agent",
+        "claude-code",
+        "--target-path",
+        str(temp_test_dir),
+        "--yes",
+    ]
+    result_generate = subprocess.run(
+        cmd_generate,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+    assert result_generate.returncode == 0, f"Failed to generate: {result_generate.stderr}"
+
+    # Run list with --all-files --detection-path pointing to temp_test_dir
+    cmd_list = get_slash_man_command() + [
+        "list",
+        "--all-files",
+        "--target-path",
+        str(temp_test_dir),
+        "--detection-path",
+        str(temp_test_dir),
+    ]
+    result_list = subprocess.run(
+        cmd_list,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert result_list.returncode == 0, f"List command failed: {result_list.stderr}"
+    assert "Type" in result_list.stdout
+    assert "File Path" in result_list.stdout
