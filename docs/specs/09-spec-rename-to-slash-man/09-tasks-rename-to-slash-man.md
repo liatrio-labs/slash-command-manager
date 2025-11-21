@@ -75,7 +75,7 @@
 - [x] 3.3 Verify `.github/ISSUE_TEMPLATE/config.yml`: Confirm it only contains repository URLs and no package-specific references that need updating
 - [x] 3.4 Run verification grep: Execute `grep -r "slash-command-manager" .github/ --include="*.yml" --include="*.yaml" --include="*.md"` and confirm only repository URL references remain
 
-### [ ] 4.0 Verify Package Builds and Tests Pass
+### [x] 4.0 Verify Package Builds and Tests Pass
 
 #### 4.0 Proof Artifact(s)
 
@@ -85,10 +85,10 @@
 
 #### 4.0 Tasks
 
-- [ ] 4.1 Run all unit tests: Execute `uv run pytest` and verify all tests pass
-- [ ] 4.2 Build package: Run `uv run python -m build --wheel --sdist` and verify build completes successfully
-- [ ] 4.3 Test package installation: Run `uv pip install dist/*.whl` and verify installation succeeds
-- [ ] 4.4 Test CLI execution: Run `slash-man --help` after installation and verify help output displays correctly
-- [ ] 4.5 Test Docker clean environment: Execute `docker run --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "pip install uv && uv sync && uv run slash-man --help"` and verify help output displays correctly
-- [ ] 4.6 Run pre-commit hooks: Execute `uv run pre-commit run --all-files` to ensure code quality standards are met
-- [ ] 4.7 Verify version detection: Run `slash-man --version` and verify version string displays correctly with new package name
+- [x] 4.1 Run all unit tests: Execute `uv run pytest` and verify all tests pass
+- [x] 4.2 Build package: Run `uv run python -m build --wheel --sdist` and verify build completes successfully
+- [x] 4.3 Test package installation: Run `uv pip install dist/*.whl` and verify installation succeeds
+- [x] 4.4 Test CLI execution: Run `slash-man --help` after installation and verify help output displays correctly
+- [x] 4.5 Test Docker clean environment: Execute `docker run --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "pip install uv && uv sync && uv run slash-man --help"` and verify help output displays correctly
+- [x] 4.6 Run pre-commit hooks: Execute `uv run pre-commit run --all-files` to ensure code quality standards are met
+- [x] 4.7 Verify version detection: Run `slash-man --version` and verify version string displays correctly with new package name
