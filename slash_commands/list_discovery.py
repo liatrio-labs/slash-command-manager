@@ -59,7 +59,13 @@ def discover_managed_prompts(base_path: Path, agents: list[str]) -> list[dict[st
                 prompt_data = _parse_command_file(file_path, agent)
                 if prompt_data and prompt_data.get("meta", {}).get("managed_by") == "slash-man":
                     discovered.append(prompt_data)
-            except (yaml.YAMLError, tomllib.TOMLDecodeError, UnicodeDecodeError, PermissionError):
+            except (
+                yaml.YAMLError,
+                tomllib.TOMLDecodeError,
+                UnicodeDecodeError,
+                PermissionError,
+                FileNotFoundError,
+            ):
                 # Skip malformed files silently per spec assumption
                 continue
 
@@ -98,7 +104,7 @@ def _parse_command_file(file_path: Path, agent: AgentConfig) -> dict[str, Any] |
     """
     try:
         content = file_path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, PermissionError):
+    except (UnicodeDecodeError, PermissionError, FileNotFoundError):
         return None
 
     if agent.command_format.value == "markdown":
@@ -197,7 +203,13 @@ def count_unmanaged_prompts(base_path: Path, agents: list[str]) -> dict[str, int
                         continue
                     # Valid prompt file without managed_by - count it
                     count += 1
-            except (yaml.YAMLError, tomllib.TOMLDecodeError, UnicodeDecodeError, PermissionError):
+            except (
+                yaml.YAMLError,
+                tomllib.TOMLDecodeError,
+                UnicodeDecodeError,
+                PermissionError,
+                FileNotFoundError,
+            ):
                 # Skip invalid/malformed files silently per spec assumption
                 continue
 

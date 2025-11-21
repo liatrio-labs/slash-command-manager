@@ -388,6 +388,58 @@ invalid yaml: [unclosed
     assert result["cursor"] == 1
 
 
+def test_count_unmanaged_prompts_handles_file_not_found_errors(tmp_path: Path):
+    """Test that FileNotFoundError is handled gracefully in count_unmanaged_prompts."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create unmanaged prompt file (valid)
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create a file path that will raise FileNotFoundError when read
+    missing_file = cursor_dir / "missing-command.md"
+    missing_file.write_text(
+        """---
+name: missing-command
+meta:
+  version: 1.0.0
+---
+# Missing Command
+""",
+        encoding="utf-8",
+    )
+
+    # Mock _parse_command_file to simulate FileNotFoundError for missing_file
+    from slash_commands import list_discovery
+
+    original_parse = list_discovery._parse_command_file
+
+    def mock_parse_command_file(file_path: Path, agent):
+        if file_path == missing_file:
+            raise FileNotFoundError(f"No such file or directory: '{file_path}'")
+        return original_parse(file_path, agent)
+
+    # Count unmanaged prompts with mocked FileNotFoundError
+    with patch(
+        "slash_commands.list_discovery._parse_command_file", side_effect=mock_parse_command_file
+    ):
+        result = count_unmanaged_prompts(tmp_path, ["cursor"])
+
+    # Verify only accessible unmanaged file is counted (missing file skipped)
+    assert result["cursor"] == 1
+
+
 def test_discover_managed_prompts_handles_malformed_frontmatter(tmp_path: Path):
     """Test that files with malformed frontmatter are skipped silently."""
     # Create cursor agent command directory
@@ -509,6 +561,60 @@ meta:
         result = discover_managed_prompts(tmp_path, ["cursor"])
 
     # Verify only accessible managed file is discovered (inaccessible file skipped)
+    assert len(result) == 1
+    assert result[0]["name"] == "managed-command"
+
+
+def test_discover_managed_prompts_handles_file_not_found_errors(tmp_path: Path):
+    """Test that FileNotFoundError is handled gracefully."""
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed command file (valid)
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create a file path that will raise FileNotFoundError when read
+    # This simulates a file found by glob() but deleted/missing when read
+    missing_file = cursor_dir / "missing-command.md"
+    missing_file.write_text(
+        """---
+name: missing-command
+meta:
+  managed_by: slash-man
+---
+# Missing Command
+""",
+        encoding="utf-8",
+    )
+
+    # Mock _parse_command_file to simulate FileNotFoundError for missing_file
+    from slash_commands import list_discovery
+
+    original_parse = list_discovery._parse_command_file
+
+    def mock_parse_command_file(file_path: Path, agent):
+        if file_path == missing_file:
+            raise FileNotFoundError(f"No such file or directory: '{file_path}'")
+        return original_parse(file_path, agent)
+
+    # Discover managed prompts with mocked FileNotFoundError
+    with patch(
+        "slash_commands.list_discovery._parse_command_file", side_effect=mock_parse_command_file
+    ):
+        result = discover_managed_prompts(tmp_path, ["cursor"])
+
+    # Verify only accessible managed file is discovered (missing file skipped)
     assert len(result) == 1
     assert result[0]["name"] == "managed-command"
 
