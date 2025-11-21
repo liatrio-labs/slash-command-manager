@@ -75,7 +75,7 @@ jobs:
           uv lock
           # Stage uv.lock so semantic-release can commit it as an asset
           # Note: semantic-release will automatically commit:
-          #   - pyproject.toml (version update via version_variables)
+          #   - pyproject.toml (version update via version_toml)
           #   - CHANGELOG.md (generated via changelog.default_templates)
           #   - uv.lock (listed in assets, so we stage it here)
           git add uv.lock

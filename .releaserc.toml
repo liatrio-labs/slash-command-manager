@@ -4,9 +4,11 @@ tag_format = "v{version}"
 # Allow 0.x.x versions (required for pre-1.0.0 releases)
 allow_zero_version = true
 # Update the version field in pyproject.toml
-version_variables = ["pyproject.toml:project.version"]
+# Use version_toml (not version_variables) for TOML files
+version_toml = ["pyproject.toml:project.version"]
 # Generate changelog and commit version bumps
 # Ensure uv.lock stays in sync with version changes and is committed
+# pyproject.toml is automatically committed when updated via version_toml
 assets = ["uv.lock"]
 # Note: build_command removed - handle build steps in workflow if needed
 
