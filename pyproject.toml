@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "slash-command-manager"
+name = "slash-man"
 version = "0.1.0"
 description = "Slash Command Generator and MCP Server for SDD Workflow"
 readme = "README.md"
