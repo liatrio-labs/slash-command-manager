@@ -587,6 +587,21 @@ def render_all_files_tables(
         Console(record=True, width=LIST_PANEL_WIDTH) if record else Console(width=LIST_PANEL_WIDTH)
     )
 
+    # Show informational note about file extension filtering
+    if files_by_agent:
+        # Collect unique extensions for all agents being shown
+        extensions = {
+            get_agent_config(agent_key).command_file_extension
+            for agent_key in files_by_agent.keys()
+        }
+        if len(extensions) == 1:
+            ext_text = f"*{extensions.pop()} pattern"
+        else:
+            ext_text = f"expected extension patterns ({', '.join(f'*{ext}' for ext in sorted(extensions))})"
+        extension_note = f"[dim]Note: Only files matching the {ext_text} are shown.[/dim]"
+        target_console.print(extension_note)
+        target_console.print()
+
     # Process each agent
     for agent_key in sorted(files_by_agent.keys()):
         files = files_by_agent[agent_key]
