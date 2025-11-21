@@ -814,7 +814,7 @@ def list_cmd(
         bool,
         typer.Option(
             "--all-files",
-            help="List all files in agent command directories, not just managed prompts",
+            help="List all prompt files in agent command directories",
         ),
     ] = False,
 ) -> None:
