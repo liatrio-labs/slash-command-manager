@@ -282,6 +282,42 @@ uv run python -m build
 pip install dist/*.whl
 ```
 
+## Building the Package
+
+The package can be built using the `python -m build` command, which creates distribution files for publishing to PyPI. The build process uses the `pyproject.toml` configuration file to determine package metadata and structure.
+
+### Build Process
+
+To build the package, run:
+
+```bash
+python -m build
+```
+
+This command creates both a wheel (`.whl`) and source distribution (`.tar.gz`) file in the `dist/` directory. The wheel file is the preferred distribution format for most users, while the source distribution provides the raw source code for users who need to build from source.
+
+### Manual Publishing
+
+To manually publish the built package to PyPI, use `twine`:
+
+```bash
+# Install twine if not already installed
+pip install twine
+
+# Upload to Test PyPI (for testing)
+twine upload --repository testpypi dist/*
+
+# Upload to Production PyPI
+twine upload dist/*
+```
+
+**Note:** Manual publishing requires PyPI credentials. You can use either:
+
+- An API token (recommended): Create one in your PyPI account settings
+- Username and password: Your PyPI account credentials
+
+For Test PyPI, use the `--repository testpypi` flag. For Production PyPI, omit the flag.
+
 ## SDD Workflow Integration
 
 This package was extracted from the [SDD Workflow](https://github.com/liatrio-labs/spec-driven-workflow) repository to enable independent versioning and release cycles.

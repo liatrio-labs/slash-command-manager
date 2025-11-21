@@ -16,7 +16,7 @@
 
 ## Tasks
 
-### [ ] 1.0 Add Build Documentation to README.md
+### [~] 1.0 Add Build Documentation to README.md
 
 #### 1.0 Proof Artifact(s)
 
@@ -25,16 +25,16 @@
 
 #### 1.0 Tasks
 
-- [ ] 1.1 Locate the appropriate section in `README.md` for build documentation (after the "Development" section, before "SDD Workflow Integration")
-- [ ] 1.2 Create a new "Building the Package" section header with appropriate markdown formatting
-- [ ] 1.3 Add build instructions explaining the `python -m build` command and its purpose (creates distribution files)
-- [ ] 1.4 Document that builds create both wheel (`.whl`) and source distribution (`.tar.gz`) files in the `dist/` directory
-- [ ] 1.5 Add manual publishing instructions using `twine upload dist/*` command
-- [ ] 1.6 Include note about PyPI credentials requirement for manual publishing (API token or username/password)
-- [ ] 1.7 Add note about Test PyPI vs Production PyPI for manual publishing (use `--repository testpypi` flag for Test PyPI, omit for Production)
-- [ ] 1.8 Reference the existing `pyproject.toml` configuration file in the build instructions
-- [ ] 1.9 Verify markdown formatting is correct and consistent with existing README.md style
-- [ ] 1.10 Run markdownlint to ensure formatting compliance
+- [x] 1.1 Locate the appropriate section in `README.md` for build documentation (after the "Development" section, before "SDD Workflow Integration")
+- [x] 1.2 Create a new "Building the Package" section header with appropriate markdown formatting
+- [x] 1.3 Add build instructions explaining the `python -m build` command and its purpose (creates distribution files)
+- [x] 1.4 Document that builds create both wheel (`.whl`) and source distribution (`.tar.gz`) files in the `dist/` directory
+- [x] 1.5 Add manual publishing instructions using `twine upload dist/*` command
+- [x] 1.6 Include note about PyPI credentials requirement for manual publishing (API token or username/password)
+- [x] 1.7 Add note about Test PyPI vs Production PyPI for manual publishing (use `--repository testpypi` flag for Test PyPI, omit for Production)
+- [x] 1.8 Reference the existing `pyproject.toml` configuration file in the build instructions
+- [x] 1.9 Verify markdown formatting is correct and consistent with existing README.md style
+- [x] 1.10 Run markdownlint to ensure formatting compliance
 
 ### [ ] 2.0 Create PyPI Publishing GitHub Actions Workflow
 
