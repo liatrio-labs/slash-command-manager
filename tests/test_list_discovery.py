@@ -1233,3 +1233,203 @@ def test_render_list_tree_shows_unmanaged_counts():
     assert output is not None
     # Should show unmanaged count
     assert "2" in output or "unmanaged" in output.lower()
+
+
+# Tests for discover_all_files and classify_file_type (Task 1.0)
+
+
+def test_discover_all_files_finds_all_matching_files(tmp_path: Path):
+    """Test that discover_all_files finds all files matching command_file_extension pattern."""
+    from slash_commands.list_discovery import discover_all_files
+
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed file
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create unmanaged file (valid prompt but no managed_by)
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Create backup file
+    backup_file = cursor_dir / "test-command.md.20250115-123456.bak"
+    backup_file.write_text("backup content", encoding="utf-8")
+
+    # Create invalid file (not a valid prompt)
+    invalid_file = cursor_dir / "invalid-command.md"
+    invalid_file.write_text("This is not a valid prompt file", encoding="utf-8")
+
+    # Discover all files
+    result = discover_all_files(tmp_path, ["cursor"])
+
+    # Verify all matching files are found (should find all .md files, including backups)
+    # Note: backup files match the pattern but are classified separately
+    assert len(result) >= 3  # managed, unmanaged, backup, invalid
+    file_paths = {item["file_path"] for item in result}
+    assert managed_file in file_paths
+    assert unmanaged_file in file_paths
+    assert backup_file in file_paths
+    assert invalid_file in file_paths
+
+
+def test_discover_all_files_classifies_managed_files(tmp_path: Path):
+    """Test that files with managed_by: slash-man are classified as 'managed'."""
+    from slash_commands.list_discovery import discover_all_files
+
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create managed file
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Discover all files
+    result = discover_all_files(tmp_path, ["cursor"])
+
+    # Find the managed file in results
+    managed_items = [item for item in result if item["file_path"] == managed_file]
+    assert len(managed_items) == 1
+    assert managed_items[0]["type"] == "managed"
+    assert managed_items[0]["agent"] == "cursor"
+    assert managed_items[0]["agent_display_name"] == "Cursor"
+
+
+def test_discover_all_files_classifies_unmanaged_files(tmp_path: Path):
+    """Test that valid prompt files without managed_by are classified as 'unmanaged'."""
+    from slash_commands.list_discovery import discover_all_files
+
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create unmanaged file (valid prompt but no managed_by)
+    unmanaged_file = cursor_dir / "unmanaged-command.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged-command
+description: Unmanaged command
+meta:
+  version: 1.0.0
+---
+# Unmanaged Command
+""",
+        encoding="utf-8",
+    )
+
+    # Discover all files
+    result = discover_all_files(tmp_path, ["cursor"])
+
+    # Find the unmanaged file in results
+    unmanaged_items = [item for item in result if item["file_path"] == unmanaged_file]
+    assert len(unmanaged_items) == 1
+    assert unmanaged_items[0]["type"] == "unmanaged"
+
+
+def test_discover_all_files_classifies_backup_files(tmp_path: Path):
+    """Test that files matching backup pattern are classified as 'backup'."""
+    from slash_commands.list_discovery import discover_all_files
+
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create backup file (matching pattern: filename.{extension}.{timestamp}.bak)
+    backup_file = cursor_dir / "test-command.md.20250115-123456.bak"
+    backup_file.write_text("backup content", encoding="utf-8")
+
+    # Discover all files
+    result = discover_all_files(tmp_path, ["cursor"])
+
+    # Find the backup file in results
+    backup_items = [item for item in result if item["file_path"] == backup_file]
+    assert len(backup_items) == 1
+    assert backup_items[0]["type"] == "backup"
+
+
+def test_discover_all_files_classifies_other_files(tmp_path: Path):
+    """Test that invalid/malformed files are classified as 'other'."""
+    from slash_commands.list_discovery import discover_all_files
+
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create invalid file (not a valid prompt - no frontmatter)
+    invalid_file = cursor_dir / "invalid-command.md"
+    invalid_file.write_text("This is not a valid prompt file", encoding="utf-8")
+
+    # Create malformed file (invalid YAML)
+    malformed_file = cursor_dir / "malformed-command.md"
+    malformed_file.write_text(
+        """---
+name: malformed-command
+invalid yaml: [unclosed bracket
+---
+# Malformed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Discover all files
+    result = discover_all_files(tmp_path, ["cursor"])
+
+    # Find the invalid files in results
+    invalid_items = [item for item in result if item["file_path"] == invalid_file]
+    malformed_items = [item for item in result if item["file_path"] == malformed_file]
+
+    assert len(invalid_items) == 1
+    assert invalid_items[0]["type"] == "other"
+    assert len(malformed_items) == 1
+    assert malformed_items[0]["type"] == "other"
+
+
+def test_discover_all_files_handles_parsing_errors(tmp_path: Path):
+    """Test that parsing errors are handled gracefully (files classified as 'other')."""
+    from slash_commands.list_discovery import discover_all_files
+
+    # Create cursor agent command directory
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create file with Unicode decode error (binary data)
+    unicode_error_file = cursor_dir / "unicode-error.md"
+    unicode_error_file.write_bytes(b"\xff\xfe\x00\x01\x02\x03")
+
+    # Discover all files
+    result = discover_all_files(tmp_path, ["cursor"])
+
+    # Find the file with parsing error in results
+    error_items = [item for item in result if item["file_path"] == unicode_error_file]
+    assert len(error_items) == 1
+    assert error_items[0]["type"] == "other"

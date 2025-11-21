@@ -312,6 +312,113 @@ def build_list_data_structure(
     }
 
 
+def classify_file_type(file_path: Path, agent: AgentConfig) -> str:
+    """Classify a file by type based on its content and metadata.
+
+    Classifies files as:
+    - "managed": Files with `meta.managed_by == "slash-man"`
+    - "unmanaged": Valid prompt files without `managed_by` metadata
+    - "backup": Files matching backup pattern `*.{extension}.{timestamp}.bak`
+    - "other": Invalid/malformed files or files that don't match above categories
+
+    Args:
+        file_path: Path to the file to classify
+        agent: Agent configuration
+
+    Returns:
+        Classification string: "managed", "unmanaged", "backup", or "other"
+    """
+    # Check if it's a backup file first
+    if _is_backup_file(file_path):
+        return "backup"
+
+    # Try to parse the file
+    try:
+        prompt_data = _parse_command_file(file_path, agent)
+        if prompt_data:
+            # Check if it's managed
+            if prompt_data.get("meta", {}).get("managed_by") == "slash-man":
+                return "managed"
+            # Valid prompt file but not managed
+            return "unmanaged"
+    except (
+        yaml.YAMLError,
+        tomllib.TOMLDecodeError,
+        UnicodeDecodeError,
+        PermissionError,
+        FileNotFoundError,
+    ):
+        # Parsing error - classify as "other"
+        pass
+
+    # Invalid/malformed file or parsing failed
+    return "other"
+
+
+def discover_all_files(base_path: Path, agents: list[str]) -> list[dict[str, Any]]:
+    """Discover all files in agent command directories and classify them.
+
+    Scans all files matching `command_file_extension` pattern for each agent,
+    including backup files, classifies each file by type (managed, unmanaged,
+    backup, other), and returns a list of file information.
+
+    Args:
+        base_path: Base directory for searching agent command directories
+        agents: List of agent keys to search (e.g., ["cursor", "claude-code"])
+
+    Returns:
+        List of dicts, each containing:
+        - file_path: Absolute path to file (Path)
+        - type: Classification string ("managed", "unmanaged", "backup", "other")
+        - agent: Agent key (str)
+        - agent_display_name: Agent display name (str)
+    """
+    discovered: list[dict[str, Any]] = []
+
+    for agent_key in agents:
+        agent = get_agent_config(agent_key)
+        command_dir = base_path / agent.command_dir
+
+        if not command_dir.exists():
+            continue
+
+        # Track files we've already processed to avoid duplicates
+        processed_files: set[Path] = set()
+
+        # Scan for all files matching agent's command_file_extension
+        for file_path in command_dir.glob(f"*{agent.command_file_extension}"):
+            if file_path not in processed_files:
+                file_type = classify_file_type(file_path, agent)
+                discovered.append(
+                    {
+                        "file_path": file_path,
+                        "type": file_type,
+                        "agent": agent.key,
+                        "agent_display_name": agent.display_name,
+                    }
+                )
+                processed_files.add(file_path)
+
+        # Also scan for backup files (pattern: *{extension}.{timestamp}.bak)
+        escaped_ext = re.escape(agent.command_file_extension)
+        backup_pattern = re.compile(rf".*{escaped_ext}\.\d{{8}}-\d{{6}}\.bak$")
+        for file_path in command_dir.iterdir():
+            if file_path.is_file() and backup_pattern.match(file_path.name):
+                if file_path not in processed_files:
+                    file_type = classify_file_type(file_path, agent)
+                    discovered.append(
+                        {
+                            "file_path": file_path,
+                            "type": file_type,
+                            "agent": agent.key,
+                            "agent_display_name": agent.display_name,
+                        }
+                    )
+                    processed_files.add(file_path)
+
+    return discovered
+
+
 def render_list_tree(data_structure: dict[str, Any], *, record: bool = False) -> str | None:
     """Render the list data structure using Rich Tree format.
 
