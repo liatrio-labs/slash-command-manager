@@ -238,15 +238,12 @@ jobs:
         run: uv sync --all-groups --extra dev --frozen
 
       - name: Install python-semantic-release
-        run: uv pip install --system "python-semantic-release>=10.0.0,<11.0.0"
-
-      - name: Install build package
-        run: uv pip install --system build
+        run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
 
       - name: Generate dev version
         id: dev-version
         run: |
-          VERSION=$(semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata ${{ github.sha }} --no-push --no-vcs-release --no-commit --no-tag --print)
+          VERSION=$(uv run semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata ${{ github.sha }} --no-push --no-vcs-release --no-commit --no-tag --print)
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
