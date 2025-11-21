@@ -36,7 +36,7 @@
 - [x] 1.9 Verify markdown formatting is correct and consistent with existing README.md style
 - [x] 1.10 Run markdownlint to ensure formatting compliance
 
-### [ ] 2.0 Create PyPI Publishing GitHub Actions Workflow
+### [~] 2.0 Create PyPI Publishing GitHub Actions Workflow
 
 #### 2.0 Proof Artifact(s)
 
@@ -45,23 +45,23 @@
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Create new file `.github/workflows/publish-to-pypi.yml` with workflow name "Publish to PyPI"
-- [ ] 2.2 Configure workflow trigger to run on `release: types: [published]` events
-- [ ] 2.3 Set workflow-level permissions: `id-token: write` and `contents: write` for OIDC Trusted Publishing and release asset uploads
-- [ ] 2.4 Create a single job named `publish` that runs on `ubuntu-latest`
-- [ ] 2.5 Add job-level permissions matching workflow-level permissions (`id-token: write`, `contents: write`)
-- [ ] 2.6 Add checkout step using `actions/checkout@v4` with `fetch-depth: 0` and `fetch-tags: true`
-- [ ] 2.7 Add step to install uv using `astral-sh/setup-uv@v6` with cache enabled for `pyproject.toml` and `uv.lock`
-- [ ] 2.8 Add step to install Python 3.12 using `uv python install 3.12`
-- [ ] 2.9 Add step to sync dependencies using `uv sync --all-groups --extra dev --frozen`
-- [ ] 2.10 Add step to install build package using `uv pip install --system build`
-- [ ] 2.11 Add step to build package using `uv run python -m build --wheel --sdist`
-- [ ] 2.12 Add step to verify build artifacts exist (list `dist/` directory contents)
-- [ ] 2.13 Add step to publish to Test PyPI using `pypa/gh-action-pypi-publish@v1.13.0` action with `pypi-url: https://test.pypi.org/legacy/` and `packages-dir: dist/`
-- [ ] 2.14 Add step to publish to Production PyPI using `pypa/gh-action-pypi-publish@v1.13.0` action with `packages-dir: dist/` (default PyPI URL)
-- [ ] 2.15 Add step to upload build artifacts (`.whl` and `.tar.gz` files) as GitHub release assets using `softprops/action-gh-release@v2` with `files` parameter set to `dist/*.whl` and `dist/*.tar.gz` (requires `contents: write` permission)
-- [ ] 2.16 Verify workflow YAML syntax is valid and follows existing workflow patterns
-- [ ] 2.17 Ensure workflow uses Trusted Publishing (OIDC) - no secrets required, only `id-token: write` permission
+- [x] 2.1 Create new file `.github/workflows/publish-to-pypi.yml` with workflow name "Publish to PyPI"
+- [x] 2.2 Configure workflow trigger to run on `release: types: [published]` events
+- [x] 2.3 Set workflow-level permissions: `id-token: write` and `contents: write` for OIDC Trusted Publishing and release asset uploads
+- [x] 2.4 Create a single job named `publish` that runs on `ubuntu-latest`
+- [x] 2.5 Add job-level permissions matching workflow-level permissions (`id-token: write`, `contents: write`)
+- [x] 2.6 Add checkout step using `actions/checkout@v4` with `fetch-depth: 0` and `fetch-tags: true`
+- [x] 2.7 Add step to install uv using `astral-sh/setup-uv@v6` with cache enabled for `pyproject.toml` and `uv.lock`
+- [x] 2.8 Add step to install Python 3.12 using `uv python install 3.12`
+- [x] 2.9 Add step to sync dependencies using `uv sync --all-groups --extra dev --frozen`
+- [x] 2.10 Add step to install build package using `uv pip install --system build`
+- [x] 2.11 Add step to build package using `uv run python -m build --wheel --sdist`
+- [x] 2.12 Add step to verify build artifacts exist (list `dist/` directory contents)
+- [x] 2.13 Add step to publish to Test PyPI using `pypa/gh-action-pypi-publish@v1.13.0` action with `pypi-url: https://test.pypi.org/legacy/` and `packages-dir: dist/`
+- [x] 2.14 Add step to publish to Production PyPI using `pypa/gh-action-pypi-publish@v1.13.0` action with `packages-dir: dist/` (default PyPI URL)
+- [x] 2.15 Add step to upload build artifacts (`.whl` and `.tar.gz` files) as GitHub release assets using `softprops/action-gh-release@v2` with `files` parameter set to `dist/*.whl` and `dist/*.tar.gz` (requires `contents: write` permission)
+- [x] 2.16 Verify workflow YAML syntax is valid and follows existing workflow patterns
+- [x] 2.17 Ensure workflow uses Trusted Publishing (OIDC) - no secrets required, only `id-token: write` permission
 
 ### [ ] 3.0 Update Package Metadata in pyproject.toml
 
