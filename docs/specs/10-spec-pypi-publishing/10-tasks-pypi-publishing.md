@@ -36,7 +36,7 @@
 - [x] 1.9 Verify markdown formatting is correct and consistent with existing README.md style
 - [x] 1.10 Run markdownlint to ensure formatting compliance
 
-### [~] 2.0 Create PyPI Publishing GitHub Actions Workflow
+### [x] 2.0 Create PyPI Publishing GitHub Actions Workflow
 
 #### 2.0 Proof Artifact(s)
 
