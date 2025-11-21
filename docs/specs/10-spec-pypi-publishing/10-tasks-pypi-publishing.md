@@ -16,7 +16,7 @@
 
 ## Tasks
 
-### [~] 1.0 Add Build Documentation to README.md
+### [x] 1.0 Add Build Documentation to README.md
 
 #### 1.0 Proof Artifact(s)
 
