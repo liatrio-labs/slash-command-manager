@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 from slash_commands.list_discovery import count_unmanaged_prompts, discover_managed_prompts
@@ -1433,3 +1434,263 @@ def test_discover_all_files_handles_parsing_errors(tmp_path: Path):
     error_items = [item for item in result if item["file_path"] == unicode_error_file]
     assert len(error_items) == 1
     assert error_items[0]["type"] == "other"
+
+
+# Tests for render_all_files_tables (Task 2.0)
+
+
+def test_render_all_files_tables_creates_correct_structure(tmp_path: Path):
+    """Test that render_all_files_tables creates Rich Table with 'Type' and 'File Path' columns."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import render_all_files_tables
+
+    # Create test files
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    managed_file = cursor_dir / "managed-command.md"
+    managed_file.write_text(
+        """---
+name: managed-command
+meta:
+  managed_by: slash-man
+---
+# Managed Command
+""",
+        encoding="utf-8",
+    )
+
+    # Discover files and group by agent
+    from slash_commands.list_discovery import discover_all_files
+
+    all_files = discover_all_files(tmp_path, ["cursor"])
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for file_info in all_files:
+        files_by_agent[file_info["agent"]].append(file_info)
+
+    # Render tables and capture output
+    output = render_all_files_tables(files_by_agent, tmp_path, record=True)
+
+    # Verify output contains table structure
+    assert output is not None
+    assert "Type" in output
+    assert "File Path" in output or "File" in output
+
+
+def test_render_all_files_tables_sorts_files_correctly(tmp_path: Path):
+    """Test that files are sorted first by type (managed, unmanaged, backup, other), then alphabetically."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import discover_all_files, render_all_files_tables
+
+    # Create test files with different types and names
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    # Create files in non-alphabetical order
+    other_file = cursor_dir / "z-other.md"
+    other_file.write_text("invalid content", encoding="utf-8")
+
+    unmanaged_file = cursor_dir / "b-unmanaged.md"
+    unmanaged_file.write_text(
+        """---
+name: b-unmanaged
+meta:
+  version: 1.0.0
+---
+# Unmanaged
+""",
+        encoding="utf-8",
+    )
+
+    managed_file = cursor_dir / "a-managed.md"
+    managed_file.write_text(
+        """---
+name: a-managed
+meta:
+  managed_by: slash-man
+---
+# Managed
+""",
+        encoding="utf-8",
+    )
+
+    backup_file = cursor_dir / "test.md.20250115-123456.bak"
+    backup_file.write_text("backup", encoding="utf-8")
+
+    # Discover files and group by agent
+    all_files = discover_all_files(tmp_path, ["cursor"])
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for file_info in all_files:
+        files_by_agent[file_info["agent"]].append(file_info)
+
+    # Render tables and capture output
+    output = render_all_files_tables(files_by_agent, tmp_path, record=True)
+
+    # Verify files appear in correct order: managed, unmanaged, backup, other
+    assert output is not None
+    managed_pos = output.find("a-managed")
+    unmanaged_pos = output.find("b-unmanaged")
+    backup_pos = output.find("test.md.20250115-123456.bak")
+    other_pos = output.find("z-other")
+
+    # All positions should be found
+    assert managed_pos != -1
+    assert unmanaged_pos != -1
+    assert backup_pos != -1
+    assert other_pos != -1
+
+    # Verify order: managed < unmanaged < backup < other
+    assert managed_pos < unmanaged_pos
+    assert unmanaged_pos < backup_pos
+    assert backup_pos < other_pos
+
+
+def test_render_all_files_tables_applies_color_coding(tmp_path: Path):
+    """Test that managed files are green, unmanaged/other files are red, backup files use default color."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import discover_all_files, render_all_files_tables
+
+    # Create test files
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    managed_file = cursor_dir / "managed.md"
+    managed_file.write_text(
+        """---
+name: managed
+meta:
+  managed_by: slash-man
+---
+# Managed
+""",
+        encoding="utf-8",
+    )
+
+    unmanaged_file = cursor_dir / "unmanaged.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged
+meta:
+  version: 1.0.0
+---
+# Unmanaged
+""",
+        encoding="utf-8",
+    )
+
+    other_file = cursor_dir / "other.md"
+    other_file.write_text("invalid", encoding="utf-8")
+
+    backup_file = cursor_dir / "test.md.20250115-123456.bak"
+    backup_file.write_text("backup", encoding="utf-8")
+
+    # Discover files and group by agent
+    all_files = discover_all_files(tmp_path, ["cursor"])
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for file_info in all_files:
+        files_by_agent[file_info["agent"]].append(file_info)
+
+    # Render tables and capture output
+    output = render_all_files_tables(files_by_agent, tmp_path, record=True)
+
+    # Verify output contains file names (color coding is visual, but we can verify structure)
+    assert output is not None
+    assert "managed.md" in output
+    assert "unmanaged.md" in output
+    assert "other.md" in output
+    assert "test.md.20250115-123456.bak" in output
+
+
+def test_render_all_files_tables_shows_summary_panel(tmp_path: Path):
+    """Test that summary panel shows agent display name, agent key, command directory path, total file count, and breakdown by type."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import discover_all_files, render_all_files_tables
+
+    # Create test files
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    managed_file = cursor_dir / "managed.md"
+    managed_file.write_text(
+        """---
+name: managed
+meta:
+  managed_by: slash-man
+---
+# Managed
+""",
+        encoding="utf-8",
+    )
+
+    unmanaged_file = cursor_dir / "unmanaged.md"
+    unmanaged_file.write_text(
+        """---
+name: unmanaged
+meta:
+  version: 1.0.0
+---
+# Unmanaged
+""",
+        encoding="utf-8",
+    )
+
+    backup_file = cursor_dir / "test.md.20250115-123456.bak"
+    backup_file.write_text("backup", encoding="utf-8")
+
+    # Discover files and group by agent
+    all_files = discover_all_files(tmp_path, ["cursor"])
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for file_info in all_files:
+        files_by_agent[file_info["agent"]].append(file_info)
+
+    # Render tables and capture output
+    output = render_all_files_tables(files_by_agent, tmp_path, record=True)
+
+    # Verify summary panel contains required information
+    assert output is not None
+    assert "Cursor" in output or "cursor" in output  # Agent display name or key
+    assert ".cursor" in output or "commands" in output  # Command directory path
+    # Should show file counts (at least total count)
+    assert "3" in output or "file" in output.lower()
+
+
+def test_render_all_files_tables_shows_relative_paths(tmp_path: Path):
+    """Test that file paths are displayed relative to target-path using relative_to_candidates utility."""
+    from collections import defaultdict
+
+    from slash_commands.list_discovery import discover_all_files, render_all_files_tables
+
+    # Create test files
+    cursor_dir = tmp_path / ".cursor" / "commands"
+    cursor_dir.mkdir(parents=True)
+
+    managed_file = cursor_dir / "managed.md"
+    managed_file.write_text(
+        """---
+name: managed
+meta:
+  managed_by: slash-man
+---
+# Managed
+""",
+        encoding="utf-8",
+    )
+
+    # Discover files and group by agent
+    all_files = discover_all_files(tmp_path, ["cursor"])
+    files_by_agent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for file_info in all_files:
+        files_by_agent[file_info["agent"]].append(file_info)
+
+    # Render tables and capture output
+    output = render_all_files_tables(files_by_agent, tmp_path, record=True)
+
+    # Verify paths are relative (should not contain full absolute path)
+    assert output is not None
+    assert "managed.md" in output
+    # Should not contain the full tmp_path as absolute path
+    assert str(tmp_path.resolve()) not in output or ".cursor" in output

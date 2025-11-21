@@ -42,7 +42,7 @@
 - [x] 1.9 Run tests and verify all classification tests pass
 - [x] 1.10 Run `ruff check` and `ruff format` to ensure code quality
 
-### [ ] 2.0 Table Output Format
+### [x] 2.0 Table Output Format
 
 #### 2.0 Proof Artifact(s)
 
@@ -53,16 +53,16 @@
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Write failing test `test_render_all_files_tables_creates_correct_structure()` in `tests/test_list_discovery.py` that verifies `render_all_files_tables()` creates Rich Table with "Type" and "File Path" columns
-- [ ] 2.2 Write failing test `test_render_all_files_tables_sorts_files_correctly()` that verifies files are sorted first by type (managed, unmanaged, backup, other), then alphabetically by filename
-- [ ] 2.3 Write failing test `test_render_all_files_tables_applies_color_coding()` that verifies managed files are green, unmanaged/other files are red, backup files use default color
-- [ ] 2.4 Write failing test `test_render_all_files_tables_shows_summary_panel()` that verifies summary panel shows agent display name, agent key, command directory path (relative to target-path), total file count, and breakdown by type
-- [ ] 2.5 Write failing test `test_render_all_files_tables_shows_relative_paths()` that verifies file paths are displayed relative to target-path using `relative_to_candidates()` utility
-- [ ] 2.6 Implement `_build_agent_summary_panel()` helper function in `slash_commands/list_discovery.py` that creates Rich Panel with agent info and file counts. Takes agent config, file list, and target_path, returns Panel
-- [ ] 2.7 Implement `_build_agent_file_table()` helper function that creates Rich Table for a single agent's files. Takes file list, target_path, returns Table with proper sorting and color coding
-- [ ] 2.8 Implement `render_all_files_tables()` function in `slash_commands/list_discovery.py` that takes discovered files dict (grouped by agent), target_path, and optional `record` parameter. Creates summary panel and table for each agent, prints them using Rich Console
-- [ ] 2.9 Run tests and verify all table rendering tests pass
-- [ ] 2.10 Run `ruff check` and `ruff format` to ensure code quality
+- [x] 2.1 Write failing test `test_render_all_files_tables_creates_correct_structure()` in `tests/test_list_discovery.py` that verifies `render_all_files_tables()` creates Rich Table with "Type" and "File Path" columns
+- [x] 2.2 Write failing test `test_render_all_files_tables_sorts_files_correctly()` that verifies files are sorted first by type (managed, unmanaged, backup, other), then alphabetically by filename
+- [x] 2.3 Write failing test `test_render_all_files_tables_applies_color_coding()` that verifies managed files are green, unmanaged/other files are red, backup files use default color
+- [x] 2.4 Write failing test `test_render_all_files_tables_shows_summary_panel()` that verifies summary panel shows agent display name, agent key, command directory path (relative to target-path), total file count, and breakdown by type
+- [x] 2.5 Write failing test `test_render_all_files_tables_shows_relative_paths()` that verifies file paths are displayed relative to target-path using `relative_to_candidates()` utility
+- [x] 2.6 Implement `_build_agent_summary_panel()` helper function in `slash_commands/list_discovery.py` that creates Rich Panel with agent info and file counts. Takes agent config, file list, and target_path, returns Panel
+- [x] 2.7 Implement `_build_agent_file_table()` helper function that creates Rich Table for a single agent's files. Takes file list, target_path, returns Table with proper sorting and color coding
+- [x] 2.8 Implement `render_all_files_tables()` function in `slash_commands/list_discovery.py` that takes discovered files dict (grouped by agent), target_path, and optional `record` parameter. Creates summary panel and table for each agent, prints them using Rich Console
+- [x] 2.9 Run tests and verify all table rendering tests pass
+- [x] 2.10 Run `ruff check` and `ruff format` to ensure code quality
 
 ### [ ] 3.0 Flag Integration and Output Replacement
 

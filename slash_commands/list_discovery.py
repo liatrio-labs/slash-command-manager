@@ -10,6 +10,7 @@ from typing import Any
 import yaml
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
@@ -417,6 +418,169 @@ def discover_all_files(base_path: Path, agents: list[str]) -> list[dict[str, Any
                     processed_files.add(file_path)
 
     return discovered
+
+
+def _build_agent_summary_panel(
+    agent: AgentConfig, files: list[dict[str, Any]], target_path: Path
+) -> Panel:
+    """Build Rich Panel with agent summary information.
+
+    Shows agent display name, agent key, command directory path (relative to target_path),
+    total file count, and breakdown by type.
+
+    Args:
+        agent: Agent configuration
+        files: List of file dicts for this agent
+        target_path: Base path for relative path calculation
+
+    Returns:
+        Rich Panel with summary information
+    """
+    # Count files by type
+    type_counts: dict[str, int] = {"managed": 0, "unmanaged": 0, "backup": 0, "other": 0}
+    for file_info in files:
+        file_type = file_info.get("type", "other")
+        if file_type in type_counts:
+            type_counts[file_type] += 1
+
+    total_files = len(files)
+
+    # Get command directory path relative to target_path
+    command_dir = target_path / agent.command_dir
+    from slash_commands.cli_utils import relative_to_candidates
+
+    relative_dir = relative_to_candidates(str(command_dir), [target_path])
+
+    # Build summary text
+    summary_lines = [
+        f"Agent: {agent.display_name} ({agent.key})",
+        f"Directory: {relative_dir}",
+        f"Total Files: {total_files}",
+        "",
+        "Breakdown:",
+        f"  Managed: {type_counts['managed']}",
+        f"  Unmanaged: {type_counts['unmanaged']}",
+        f"  Backup: {type_counts['backup']}",
+        f"  Other: {type_counts['other']}",
+    ]
+
+    summary_text = "\n".join(summary_lines)
+
+    return Panel(
+        summary_text,
+        title=f"{agent.display_name} Summary",
+        border_style="cyan",
+        width=LIST_PANEL_WIDTH,
+        expand=False,
+    )
+
+
+def _build_agent_file_table(files: list[dict[str, Any]], target_path: Path) -> Table:
+    """Build Rich Table for a single agent's files.
+
+    Creates a table with "Type" and "File Path" columns, sorted by type
+    (managed, unmanaged, backup, other) then alphabetically by filename.
+    Applies color coding: green for managed, red for unmanaged/other, default for backup.
+
+    Args:
+        files: List of file dicts for this agent
+        target_path: Base path for relative path calculation
+
+    Returns:
+        Rich Table with file information
+    """
+    from slash_commands.cli_utils import relative_to_candidates
+
+    # Create table
+    table = Table(show_header=True, header_style="bold cyan", width=LIST_PANEL_WIDTH)
+    table.add_column("Type", style="cyan", width=12)
+    table.add_column("File Path", style="white", overflow="fold")
+
+    # Define sort order for types
+    type_order = {"managed": 0, "unmanaged": 1, "backup": 2, "other": 3}
+
+    # Sort files: first by type order, then alphabetically by filename
+    def sort_key(file_info: dict[str, Any]) -> tuple[int, str]:
+        file_type = file_info.get("type", "other")
+        type_rank = type_order.get(file_type, 3)
+        file_path = file_info.get("file_path", Path())
+        filename = file_path.name
+        return (type_rank, filename.lower())
+
+    sorted_files = sorted(files, key=sort_key)
+
+    # Add rows to table with color coding
+    for file_info in sorted_files:
+        file_type = file_info.get("type", "other")
+        file_path = file_info.get("file_path", Path())
+
+        # Get relative path
+        relative_path = relative_to_candidates(str(file_path), [target_path])
+
+        # Determine color based on type
+        if file_type == "managed":
+            type_style = "green"
+            path_style = "green"
+        elif file_type in ("unmanaged", "other"):
+            type_style = "red"
+            path_style = "red"
+        else:  # backup
+            type_style = None  # Default color
+            path_style = None  # Default color
+
+        # Add row with appropriate styling
+        type_text = (
+            Text(file_type.capitalize(), style=type_style) if type_style else file_type.capitalize()
+        )
+        path_text = Text(relative_path, style=path_style) if path_style else relative_path
+
+        table.add_row(type_text, path_text)
+
+    return table
+
+
+def render_all_files_tables(
+    files_by_agent: dict[str, list[dict[str, Any]]],
+    target_path: Path,
+    *,
+    record: bool = False,
+) -> str | None:
+    """Render all files in Rich table format organized by agent.
+
+    Creates a summary panel and table for each agent, displaying files
+    with proper sorting and color coding.
+
+    Args:
+        files_by_agent: Dict mapping agent keys to lists of file dicts
+        target_path: Base path for relative path calculation
+        record: If True, record output and return as string instead of printing
+
+    Returns:
+        Rendered text if record=True, None otherwise
+    """
+    target_console = (
+        Console(record=True, width=LIST_PANEL_WIDTH) if record else Console(width=LIST_PANEL_WIDTH)
+    )
+
+    # Process each agent
+    for agent_key in sorted(files_by_agent.keys()):
+        files = files_by_agent[agent_key]
+        agent = get_agent_config(agent_key)
+
+        # Build and print summary panel
+        summary_panel = _build_agent_summary_panel(agent, files, target_path)
+        target_console.print(summary_panel)
+
+        # Build and print file table
+        file_table = _build_agent_file_table(files, target_path)
+        target_console.print(file_table)
+
+        # Add spacing between agents
+        target_console.print()
+
+    if record:
+        return target_console.export_text(clear=False)
+    return None
 
 
 def render_list_tree(data_structure: dict[str, Any], *, record: bool = False) -> str | None:
