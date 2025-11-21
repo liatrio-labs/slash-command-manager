@@ -63,7 +63,7 @@
 - [x] 2.16 Verify workflow YAML syntax is valid and follows existing workflow patterns
 - [x] 2.17 Ensure workflow uses Trusted Publishing (OIDC) - no secrets required, only `id-token: write` permission
 
-### [ ] 3.0 Update Package Metadata in pyproject.toml
+### [x] 3.0 Update Package Metadata in pyproject.toml
 
 #### 3.0 Proof Artifact(s)
 
@@ -72,20 +72,20 @@
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Review current `pyproject.toml` metadata to identify missing PyPI publishing requirements
-- [ ] 3.2 Add Apache License 2.0 classifier: `"License :: OSI Approved :: Apache Software License"` to the `classifiers` list
-- [ ] 3.3 Create `[project.urls]` section in `pyproject.toml` with the following keys:
+- [x] 3.1 Review current `pyproject.toml` metadata to identify missing PyPI publishing requirements
+- [x] 3.2 Add Apache License 2.0 classifier: `"License :: OSI Approved :: Apache Software License"` to the `classifiers` list
+- [x] 3.3 Create `[project.urls]` section in `pyproject.toml` with the following keys:
   - `Homepage = "https://github.com/liatrio-labs/slash-command-manager"`
   - `Repository = "https://github.com/liatrio-labs/slash-command-manager"`
   - `Documentation = "https://github.com/liatrio-labs/slash-command-manager#readme"`
   - `Issues = "https://github.com/liatrio-labs/slash-command-manager/issues"`
-- [ ] 3.4 Add topic classifier `"Topic :: Scientific/Engineering :: Artificial Intelligence"` to classifiers list
-- [ ] 3.5 Add topic classifier `"Topic :: Software Development :: Code Generators"` to classifiers list
-- [ ] 3.6 Add topic classifier `"Topic :: Software Development :: Build Tools"` to classifiers list
-- [ ] 3.7 Add environment classifier `"Environment :: Console"` to classifiers list
-- [ ] 3.8 Verify `license = { file = "LICENSE" }` is correctly configured (already present)
-- [ ] 3.9 Run `python -m build` locally to verify no metadata warnings are generated
-- [ ] 3.10 Verify TOML syntax is valid and properly formatted
+- [x] 3.4 Add topic classifier `"Topic :: Scientific/Engineering :: Artificial Intelligence"` to classifiers list
+- [x] 3.5 Add topic classifier `"Topic :: Software Development :: Code Generators"` to classifiers list
+- [x] 3.6 Add topic classifier `"Topic :: Software Development :: Build Tools"` to classifiers list
+- [x] 3.7 Add environment classifier `"Environment :: Console"` to classifiers list
+- [x] 3.8 Verify `license = { file = "LICENSE" }` is correctly configured (already present)
+- [x] 3.9 Run `python -m build` locally to verify no metadata warnings are generated
+- [x] 3.10 Verify TOML syntax is valid and properly formatted
 
 ### [ ] 4.0 Add Dev Release Job to CI Workflow for Test PyPI Publishing
 
