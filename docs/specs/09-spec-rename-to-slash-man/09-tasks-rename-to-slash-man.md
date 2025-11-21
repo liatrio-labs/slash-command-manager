@@ -61,7 +61,7 @@
 - [x] 2.11 Verify documentation updates: Run `grep -i "slash-command-manager" README.md` and confirm no user-facing references remain (repository URLs are acceptable)
 - [x] 2.12 Verify docs directory: Run `grep -r "slash-command-manager" docs/*.md` and confirm only historical/contextual references remain (repository URLs are acceptable)
 
-### [ ] 3.0 Update GitHub Workflows and Configuration Files
+### [x] 3.0 Update GitHub Workflows and Configuration Files
 
 #### 3.0 Proof Artifact(s)
 
@@ -70,10 +70,10 @@
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Verify `.github/workflows/ci.yml`: Check if Docker image name references need updating (line 207 already uses `slash-man-test`, verify no other references exist)
-- [ ] 3.2 Verify `.github/SECURITY.md`: Confirm it only contains repository URLs (line 19) and no package-specific references that need updating
-- [ ] 3.3 Verify `.github/ISSUE_TEMPLATE/config.yml`: Confirm it only contains repository URLs and no package-specific references that need updating
-- [ ] 3.4 Run verification grep: Execute `grep -r "slash-command-manager" .github/ --include="*.yml" --include="*.yaml" --include="*.md"` and confirm only repository URL references remain
+- [x] 3.1 Verify `.github/workflows/ci.yml`: Check if Docker image name references need updating (line 207 already uses `slash-man-test`, verify no other references exist)
+- [x] 3.2 Verify `.github/SECURITY.md`: Confirm it only contains repository URLs (line 19) and no package-specific references that need updating
+- [x] 3.3 Verify `.github/ISSUE_TEMPLATE/config.yml`: Confirm it only contains repository URLs and no package-specific references that need updating
+- [x] 3.4 Run verification grep: Execute `grep -r "slash-command-manager" .github/ --include="*.yml" --include="*.yaml" --include="*.md"` and confirm only repository URL references remain
 
 ### [ ] 4.0 Verify Package Builds and Tests Pass
 
