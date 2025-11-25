@@ -24,7 +24,8 @@ def test_detect_agents_returns_empty_when_no_matching_directories(tmp_path: Path
 def test_detect_agents_identifies_configured_directories(
     tmp_path: Path, supported_agents_by_key: dict[str, AgentConfig]
 ):
-    agent_keys = {"claude-code", "gemini-cli", "cursor"}
+    # Test all supported agents to ensure detection works for any new additions
+    agent_keys = {agent.key for agent in SUPPORTED_AGENTS}
     for key in agent_keys:
         agent = supported_agents_by_key[key]
         for directory in agent.detection_dirs:

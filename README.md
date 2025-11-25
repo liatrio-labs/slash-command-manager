@@ -189,6 +189,7 @@ The generator supports the following AI coding assistants:
 - **Codex CLI**: Commands installed to `~/.codex/prompts`
 - **Gemini CLI**: Commands installed to `~/.gemini/commands`
 - **VS Code**: Commands installed to `~/.config/Code/User/prompts`
+- **Amazon Q**: Commands installed to `~/.aws/amazonq/prompts` (Windows & macOS/Linux)
 
 ## Documentation
 
