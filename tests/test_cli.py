@@ -12,6 +12,14 @@ from slash_commands.cli import _resolve_detected_agents, app
 from slash_commands.config import AgentConfig, CommandFormat
 
 
+def _get_cli_output(result) -> str:
+    """Extract CLI output handling stderr/stdout compatibility across test environments."""
+    try:
+        return (result.stdout + result.stderr).lower()
+    except (ValueError, AttributeError):
+        return result.stdout.lower()
+
+
 @pytest.fixture
 def mock_prompts_dir(tmp_path):
     """Create a temporary prompts directory with test prompts."""
@@ -82,6 +90,7 @@ def test_cli_list_agents():
     assert "claude-code" in result.stdout
     assert "gemini-cli" in result.stdout
     assert "cursor" in result.stdout
+    assert "amazon-q" in result.stdout
 
 
 def test_cli_dry_run_flag(mock_prompts_dir, tmp_path):
@@ -248,12 +257,7 @@ def test_cli_handles_invalid_agent_key(mock_prompts_dir):
     )
 
     assert result.exit_code == 2  # Validation error
-    # Error messages are printed to stderr, but may be mixed in stdout by default
-    # Try to get stderr if available, otherwise just use stdout
-    try:
-        output = (result.stdout + result.stderr).lower()
-    except (ValueError, AttributeError):
-        output = result.stdout.lower()
+    output = _get_cli_output(result)
     assert "unsupported agent" in output or "invalid agent key" in output
 
 
@@ -301,13 +305,9 @@ def test_cli_explicit_path_shows_specific_directory_error(tmp_path):
         )
 
         assert result.exit_code == 3  # I/O error
-        # Error messages are printed to stderr, but may be mixed in stdout by default
-        try:
-            output = result.stdout + result.stderr
-        except (ValueError, AttributeError):
-            output = result.stdout
-        assert "Ensure the specified prompts directory exists" in output
-        assert f"current: {prompts_dir}" in output
+        output = _get_cli_output(result)
+        assert "ensure the specified prompts directory exists" in output
+        assert f"current: {prompts_dir}".lower() in output
 
 
 def test_cli_shows_summary(mock_prompts_dir, tmp_path):
@@ -564,11 +564,7 @@ def test_cli_interactive_agent_selection_cancels_on_no_selection(mock_prompts_di
 
         # Should exit with exit code 1 (user cancellation)
         assert result.exit_code == 1
-        # Cancellation messages are printed to stderr, but may be mixed in stdout by default
-        try:
-            output = (result.stdout + result.stderr).lower()
-        except (ValueError, AttributeError):
-            output = result.stdout.lower()
+        output = _get_cli_output(result)
         assert "no agents selected" in output
 
 
@@ -616,11 +612,7 @@ def test_cli_no_agents_detected_exit_code(tmp_path):
     )
 
     assert result.exit_code == 2  # Validation error
-    # Error messages are printed to stderr, but may be mixed in stdout by default
-    try:
-        output = (result.stdout + result.stderr).lower()
-    except (ValueError, AttributeError):
-        output = result.stdout.lower()
+    output = _get_cli_output(result)
     assert "no agents detected" in output
 
 
@@ -651,11 +643,7 @@ def test_cli_exit_code_user_cancellation(mock_prompts_dir, tmp_path):
         )
 
         assert result.exit_code == 1  # User cancellation
-        # Cancellation messages are printed to stderr, but may be mixed in stdout by default
-        try:
-            output = (result.stdout + result.stderr).lower()
-        except (ValueError, AttributeError):
-            output = result.stdout.lower()
+        output = _get_cli_output(result)
         assert "cancelled" in output or "cancel" in output
 
 
@@ -964,9 +952,9 @@ def test_mcp_invalid_transport_option(mock_create_app):
 
     # Should fail with validation error (Typer validates Literal types)
     assert result.exit_code == 2
-    output = result.stdout + result.stderr
+    output = _get_cli_output(result)
     # Typer's validation message for Literal types
-    assert ("invalid" in output.lower() or "Invalid" in output) and (
+    assert ("invalid" in output or "invalid" in output.lower()) and (
         "stdio" in output or "http" in output
     )
     mock_create_app.assert_not_called()
@@ -997,8 +985,8 @@ def test_mcp_port_out_of_range(mock_create_app):
 
     # Should fail with validation error
     assert result.exit_code == 2
-    output = result.stdout + result.stderr
-    assert "Invalid port" in output
+    output = _get_cli_output(result)
+    assert "Invalid port" in output or "invalid port" in output.lower()
     assert "1 and 65535" in output
     mock_create_app.assert_not_called()
 
@@ -1043,11 +1031,7 @@ def test_cli_interactive_agent_selection_cancels_on_ctrl_c(mock_prompts_dir, tmp
 
         # Should exit with exit code 1 (user cancellation)
         assert result.exit_code == 1
-        # Cancellation messages are printed to stderr, but may be mixed in stdout by default
-        try:
-            output = (result.stdout + result.stderr).lower()
-        except (ValueError, AttributeError):
-            output = result.stdout.lower()
+        output = _get_cli_output(result)
         assert "no agents selected" in output
 
 
@@ -1121,8 +1105,8 @@ def test_validate_github_repo_invalid_format():
     )
 
     assert result.exit_code == 2  # Validation error
-    output = result.stdout + result.stderr
-    assert "Repository must be in format owner/repo" in output
+    output = _get_cli_output(result)
+    assert "repository must be in format owner/repo" in output
     assert "liatrio-labs/spec-driven-workflow" in output
 
 
@@ -1146,8 +1130,8 @@ def test_cli_github_flags_missing_required():
     )
 
     assert result.exit_code == 2  # Validation error
-    output = result.stdout + result.stderr
-    assert "All GitHub flags must be provided together" in output
+    output = _get_cli_output(result)
+    assert "all github flags must be provided together" in output
     assert "--github-branch" in output
 
     # Test missing --github-path
@@ -1166,8 +1150,8 @@ def test_cli_github_flags_missing_required():
     )
 
     assert result.exit_code == 2  # Validation error
-    output = result.stdout + result.stderr
-    assert "All GitHub flags must be provided together" in output
+    output = _get_cli_output(result)
+    assert "all github flags must be provided together" in output
     assert "--github-path" in output
 
     # Test missing --github-repo
@@ -1186,8 +1170,8 @@ def test_cli_github_flags_missing_required():
     )
 
     assert result.exit_code == 2  # Validation error
-    output = result.stdout + result.stderr
-    assert "All GitHub flags must be provided together" in output
+    output = _get_cli_output(result)
+    assert "all github flags must be provided together" in output
     assert "--github-repo" in output
 
 
@@ -1213,8 +1197,8 @@ def test_cli_github_and_local_mutually_exclusive(mock_prompts_dir, tmp_path):
     )
 
     assert result.exit_code == 2  # Validation error
-    output = result.stdout + result.stderr
-    assert "Cannot specify both --prompts-dir and GitHub repository flags" in output
+    output = _get_cli_output(result)
+    assert "cannot specify both --prompts-dir and github repository flags" in output
     assert "--github-repo" in output
     assert "--github-branch" in output
     assert "--github-path" in output
