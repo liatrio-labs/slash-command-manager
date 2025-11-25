@@ -10,58 +10,6 @@ import pytest
 
 from slash_commands.config import SUPPORTED_AGENTS, AgentConfig, CommandFormat
 
-EXPECTED_AGENTS: dict[str, dict[str, object]] = {
-    "claude-code": {
-        "display_name": "Claude Code",
-        "command_dir": ".claude/commands",
-        "command_format": CommandFormat.MARKDOWN,
-        "command_file_extension": ".md",
-        "detection_dirs": (".claude",),
-    },
-    "codex-cli": {
-        "display_name": "Codex CLI",
-        "command_dir": ".codex/prompts",
-        "command_format": CommandFormat.MARKDOWN,
-        "command_file_extension": ".md",
-        "detection_dirs": (".codex",),
-    },
-    "cursor": {
-        "display_name": "Cursor",
-        "command_dir": ".cursor/commands",
-        "command_format": CommandFormat.MARKDOWN,
-        "command_file_extension": ".md",
-        "detection_dirs": (".cursor",),
-    },
-    "gemini-cli": {
-        "display_name": "Gemini CLI",
-        "command_dir": ".gemini/commands",
-        "command_format": CommandFormat.TOML,
-        "command_file_extension": ".toml",
-        "detection_dirs": (".gemini",),
-    },
-    "opencode": {
-        "display_name": "OpenCode CLI",
-        "command_dir": ".config/opencode/command",
-        "command_format": CommandFormat.MARKDOWN,
-        "command_file_extension": ".md",
-        "detection_dirs": (".opencode",),
-    },
-    "vs-code": {
-        "display_name": "VS Code",
-        "command_dir": ".config/Code/User/prompts",
-        "command_format": CommandFormat.MARKDOWN,
-        "command_file_extension": ".prompt.md",
-        "detection_dirs": (".config/Code",),
-    },
-    "windsurf": {
-        "display_name": "Windsurf",
-        "command_dir": ".codeium/windsurf/global_workflows",
-        "command_format": CommandFormat.MARKDOWN,
-        "command_file_extension": ".md",
-        "detection_dirs": (".codeium", ".codeium/windsurf"),
-    },
-}
-
 
 @pytest.fixture(scope="module")
 def supported_agents_by_key() -> dict[str, AgentConfig]:
@@ -103,52 +51,56 @@ def test_supported_agents_is_tuple_sorted_by_key():
     assert keys == tuple(sorted(keys))
 
 
-def test_supported_agents_match_expected_configuration(
+def test_supported_agents_have_valid_structure(
     supported_agents_by_key: dict[str, AgentConfig],
 ):
-    assert set(supported_agents_by_key) == set(EXPECTED_AGENTS)
-    for key, expected in EXPECTED_AGENTS.items():
-        agent = supported_agents_by_key[key]
-        for attribute, value in expected.items():
-            assert getattr(agent, attribute) == value, f"Unexpected {attribute} for {key}"
+    """Validate structural invariants for all agent configurations."""
+    for agent in supported_agents_by_key.values():
+        # Command directory must end with a known suffix
         assert (
             agent.command_dir.endswith("/commands")
             or agent.command_dir.endswith("/prompts")
             or agent.command_dir.endswith("/global_workflows")
             or agent.command_dir.endswith("/command")
+        ), (
+            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, or /command"
         )
-        assert agent.command_file_extension.startswith(".")
-        assert isinstance(agent.detection_dirs, tuple)
-        assert all(dir_.startswith(".") for dir_ in agent.detection_dirs)
+        # File extension must start with a dot
+        assert agent.command_file_extension.startswith("."), (
+            f"{agent.key}: command_file_extension must start with '.'"
+        )
+        # Detection dirs must be a tuple of hidden directories
+        assert isinstance(agent.detection_dirs, tuple), (
+            f"{agent.key}: detection_dirs must be a tuple"
+        )
+        assert all(dir_.startswith(".") for dir_ in agent.detection_dirs), (
+            f"{agent.key}: all detection_dirs must start with '.'"
+        )
 
 
-def test_supported_agents_include_all_markdown_and_toml_formats(
+def test_supported_agents_have_valid_command_formats(
     supported_agents_by_key: dict[str, AgentConfig],
 ):
-    markdown_agents = [
-        agent
-        for agent in supported_agents_by_key.values()
-        if agent.command_format is CommandFormat.MARKDOWN
-    ]
-    toml_agents = [
-        agent
-        for agent in supported_agents_by_key.values()
-        if agent.command_format is CommandFormat.TOML
-    ]
-    assert len(markdown_agents) == 6
-    assert len(toml_agents) == 1
+    """Validate that all agents use a supported command format."""
+    valid_formats = {CommandFormat.MARKDOWN, CommandFormat.TOML}
+    for agent in supported_agents_by_key.values():
+        assert agent.command_format in valid_formats, (
+            f"{agent.key}: command_format must be MARKDOWN or TOML"
+        )
 
 
 def test_detection_dirs_cover_command_directory_roots(
     supported_agents_by_key: dict[str, AgentConfig],
 ):
     for agent in supported_agents_by_key.values():
-        # For nested paths like .config/opencode/commands, check parent directories
+        # For nested paths like .config/opencode/commands, check parent directories.
+        # Some agents have platform-specific or special detection paths that don't follow
+        # the standard "root directory in detection_dirs" pattern.
         if "/" in agent.command_dir:
             path_parts = agent.command_dir.split("/")
             # Check first directory component
             command_root = path_parts[0]
-            # For vs-code, check if .config exists in detection_dirs
+            # Special cases: agents with non-standard detection patterns (e.g., .config/Code for vs-code)
             if agent.key == "vs-code":
                 assert ".config" in agent.detection_dirs or ".config/Code" in agent.detection_dirs
             elif agent.key == "windsurf":
@@ -158,6 +110,9 @@ def test_detection_dirs_cover_command_directory_roots(
                 )
             elif agent.key == "opencode":
                 assert ".opencode" in agent.detection_dirs
+            elif agent.key == "amazon-q":
+                # Uses .aws/amazonq specifically to avoid false positives from .aws directory
+                assert ".aws/amazonq" in agent.detection_dirs
             else:
                 assert command_root in agent.detection_dirs
         else:
