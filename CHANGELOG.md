@@ -2,6 +2,39 @@
 
 <!-- version list -->
 
+## v0.7.0 (2025-11-26)
+
+### Documentation
+
+- **agents**: Add minimal AGENTS.md file
+  ([#13](https://github.com/liatrio-labs/slash-command-manager/pull/13),
+  [`95022ff`](https://github.com/liatrio-labs/slash-command-manager/commit/95022ff99c83a13b185570d8d9715e1ac59d9664))
+
+- **agents**: Add missing documentation for opencode support
+  ([#13](https://github.com/liatrio-labs/slash-command-manager/pull/13),
+  [`95022ff`](https://github.com/liatrio-labs/slash-command-manager/commit/95022ff99c83a13b185570d8d9715e1ac59d9664))
+
+### Features
+
+- **agents**: Add Amazon Q support
+  ([#13](https://github.com/liatrio-labs/slash-command-manager/pull/13),
+  [`95022ff`](https://github.com/liatrio-labs/slash-command-manager/commit/95022ff99c83a13b185570d8d9715e1ac59d9664))
+
+- **agents**: Add Amazon Q support and improve test maintainability
+  ([#13](https://github.com/liatrio-labs/slash-command-manager/pull/13),
+  [`95022ff`](https://github.com/liatrio-labs/slash-command-manager/commit/95022ff99c83a13b185570d8d9715e1ac59d9664))
+
+### Refactoring
+
+- **tests**: Extract CLI output helper function
+  ([#13](https://github.com/liatrio-labs/slash-command-manager/pull/13),
+  [`95022ff`](https://github.com/liatrio-labs/slash-command-manager/commit/95022ff99c83a13b185570d8d9715e1ac59d9664))
+
+- **tests**: Replace hardcoded agent expectations with structural validation
+  ([#13](https://github.com/liatrio-labs/slash-command-manager/pull/13),
+  [`95022ff`](https://github.com/liatrio-labs/slash-command-manager/commit/95022ff99c83a13b185570d8d9715e1ac59d9664))
+
+
 ## v0.6.0 (2025-11-18)
 
 ### Bug Fixes
