@@ -20,7 +20,7 @@
 
 ## Tasks
 
-### [ ] 1.0 Write Parametrized Tests for Cross-Platform VS Code Detection (TDD Phase 1)
+### [x] 1.0 Write Parametrized Tests for Cross-Platform VS Code Detection (TDD Phase 1)
 
 #### 1.0 Proof Artifact(s)
 
@@ -51,7 +51,7 @@
   - Execute: `uv run pytest tests/test_detection.py::test_vs_code_detection_empty_when_no_directories -v -m "not integration"`
   - Verify tests pass (they should, since detection returns empty on empty paths regardless of platform)
 
-### [ ] 2.0 Write Test for get_command_dir() Method and Platform-Specific Paths (TDD Phase 1)
+### [x] 2.0 Write Test for get_command_dir() Method and Platform-Specific Paths (TDD Phase 1)
 
 #### 2.0 Proof Artifact(s)
 
@@ -79,7 +79,7 @@
   - Execute: `uv run pytest tests/test_detection.py::test_vs_code_get_command_dir_fallback_to_default -v -m "not integration"`
   - Verify test also fails
 
-### [ ] 3.0 Implement AgentConfig.get_command_dir() Method (TDD Phase 2 - Implementation)
+### [x] 3.0 Implement AgentConfig.get_command_dir() Method (TDD Phase 2 - Implementation)
 
 #### 3.0 Proof Artifact(s)
 
@@ -114,7 +114,7 @@
   - Execute: `uv run pytest tests/test_detection.py::test_vs_code_get_command_dir_fallback_to_default -v -m "not integration"`
   - Verify fallback test passes
 
-### [ ] 4.0 Add platform_command_dirs Field to AgentConfig (TDD Phase 2 - Implementation)
+### [x] 4.0 Add platform_command_dirs Field to AgentConfig (TDD Phase 2 - Implementation)
 
 #### 4.0 Proof Artifact(s)
 
@@ -134,7 +134,7 @@
   - Create commit: `test(config): add platform_command_dirs field and get_command_dir() method`
   - This marks completion of core implementation infrastructure
 
-### [ ] 5.0 Update VS Code Agent Configuration with Multi-Platform Paths (TDD Phase 2 - Implementation)
+### [x] 5.0 Update VS Code Agent Configuration with Multi-Platform Paths (TDD Phase 2 - Implementation)
 
 #### 5.0 Proof Artifact(s)
 
@@ -174,7 +174,7 @@
   - Create commit: `feat(config): add multi-platform detection and installation paths for VS Code`
   - Include proof of passing tests in commit message
 
-### [ ] 6.0 Verify Full Test Suite Passes and Backward Compatibility Maintained (Integration Verification)
+### [x] 6.0 Verify Full Test Suite Passes and Backward Compatibility Maintained (Integration Verification)
 
 #### 6.0 Proof Artifact(s)
 

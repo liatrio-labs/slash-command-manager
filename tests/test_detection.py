@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
 
-from slash_commands.config import SUPPORTED_AGENTS, AgentConfig
+from slash_commands.config import SUPPORTED_AGENTS, AgentConfig, get_agent_config
 from slash_commands.detection import detect_agents
 
 
@@ -58,3 +59,67 @@ def test_detect_agents_deduplicates_and_orders_results(tmp_path: Path):
 
     assert detected_keys == ["claude-code", "cursor"]
     assert all(detected_keys.count(key) == 1 for key in detected_keys)
+
+
+@pytest.mark.parametrize(
+    "platform_value,expected_dir",
+    [
+        ("linux", ".config/Code"),
+        ("darwin", "Library/Application Support/Code"),
+        ("win32", "AppData/Roaming/Code"),
+    ],
+)
+def test_vs_code_detection_multiplatform(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, platform_value: str, expected_dir: str
+) -> None:
+    """Test VS Code detection works on all platforms."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+    (tmp_path / expected_dir).mkdir(parents=True, exist_ok=True)
+
+    detected = detect_agents(tmp_path)
+    detected_keys = [agent.key for agent in detected]
+
+    assert "vs-code" in detected_keys
+
+
+@pytest.mark.parametrize("platform_value", ["linux", "darwin", "win32"])
+def test_vs_code_detection_empty_when_no_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, platform_value: str
+) -> None:
+    """Test VS Code detection returns nothing when paths don't exist."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+
+    detected = detect_agents(tmp_path)
+    detected_keys = [agent.key for agent in detected]
+
+    assert "vs-code" not in detected_keys
+
+
+@pytest.mark.parametrize(
+    "platform_value,expected_command_dir",
+    [
+        ("linux", ".config/Code/User/prompts"),
+        ("darwin", "Library/Application Support/Code/User/prompts"),
+        ("win32", "AppData/Roaming/Code/User/prompts"),
+    ],
+)
+def test_vs_code_get_command_dir_platform_specific(
+    monkeypatch: pytest.MonkeyPatch, platform_value: str, expected_command_dir: str
+) -> None:
+    """Test get_command_dir() returns correct platform-specific path."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+
+    vs_code_agent = get_agent_config("vs-code")
+    actual_dir = vs_code_agent.get_command_dir()
+
+    assert actual_dir == expected_command_dir
+
+
+def test_vs_code_get_command_dir_fallback_to_default() -> None:
+    """Test get_command_dir() falls back to command_dir when platform_command_dirs is None."""
+    claude_code_agent = get_agent_config("claude-code")
+    # Claude Code agent should have platform_command_dirs=None (not platform-specific)
+
+    actual_dir = claude_code_agent.get_command_dir()
+
+    assert actual_dir == claude_code_agent.command_dir

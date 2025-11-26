@@ -69,13 +69,15 @@ def test_supported_agents_have_valid_structure(
         assert agent.command_file_extension.startswith("."), (
             f"{agent.key}: command_file_extension must start with '.'"
         )
-        # Detection dirs must be a tuple of hidden directories
+        # Detection dirs must be a tuple of hidden directories or cross-platform paths
         assert isinstance(agent.detection_dirs, tuple), (
             f"{agent.key}: detection_dirs must be a tuple"
         )
-        assert all(dir_.startswith(".") for dir_ in agent.detection_dirs), (
-            f"{agent.key}: all detection_dirs must start with '.'"
-        )
+        # Allow hidden directories (starting with .) or cross-platform paths (macOS, Windows)
+        for dir_ in agent.detection_dirs:
+            assert dir_.startswith(".") or "Library" in dir_ or "AppData" in dir_, (
+                f"{agent.key}: detection_dir '{dir_}' must start with '.', contain 'Library' (macOS), or 'AppData' (Windows)"
+            )
 
 
 def test_supported_agents_have_valid_command_formats(
