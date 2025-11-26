@@ -37,6 +37,7 @@ def test_agent_config_is_frozen_dataclass():
         ("command_format", CommandFormat),
         ("command_file_extension", str),
         ("detection_dirs", tuple[str, ...]),
+        ("platform_command_dirs", dict[str, str] | None),
     ],
 )
 def test_agent_config_has_expected_field_types(field_name: str, field_type: object):

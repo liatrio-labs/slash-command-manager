@@ -123,3 +123,16 @@ def test_vs_code_get_command_dir_fallback_to_default() -> None:
     actual_dir = claude_code_agent.get_command_dir()
 
     assert actual_dir == claude_code_agent.command_dir
+
+
+def test_vs_code_get_command_dir_unknown_platform_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test get_command_dir() falls back to default command_dir for unknown platforms."""
+    monkeypatch.setattr(sys, "platform", "freebsd")
+
+    vs_code_agent = get_agent_config("vs-code")
+    actual_dir = vs_code_agent.get_command_dir()
+
+    # Should fall back to the default command_dir (Linux path)
+    assert actual_dir == vs_code_agent.command_dir

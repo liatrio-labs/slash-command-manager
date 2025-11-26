@@ -167,7 +167,7 @@
   - Execute: `uv run pytest tests/test_detection.py::test_vs_code_detection_multiplatform -v -m "not integration"`
   - Verify all three platform parametrization cases now pass (previously failing)
   - Execute: `uv run pytest tests/test_detection.py -v -k "vs_code" -m "not integration"`
-  - Verify all VS Code related tests pass
+  - Verify all VS Code-related tests pass
 
 - [ ] 5.4 Commit configuration changes
   - Stage changes to `slash_commands/config.py`
