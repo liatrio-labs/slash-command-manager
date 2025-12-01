@@ -10,7 +10,7 @@ import pytest
 import requests
 
 from slash_commands.config import CommandFormat
-from slash_commands.writer import SlashCommandWriter, _find_package_prompts_dir
+from slash_commands.writer import SlashCommandWriter
 
 
 @pytest.fixture
@@ -184,115 +184,8 @@ def test_writer_handles_missing_prompts_directory(tmp_path):
         base_path=tmp_path,
     )
 
-    # Mock the fallback function to return None to test the error case
-    with patch("slash_commands.writer._find_package_prompts_dir", return_value=None):
-        with pytest.raises(ValueError, match="Prompts directory does not exist"):
-            writer.generate()
-
-
-def test_writer_finds_bundled_prompts(tmp_path):
-    """Test that writer finds bundled prompts using importlib.resources."""
-    prompts_dir = tmp_path / "nonexistent"
-
-    # Create a mock package prompts directory
-    package_prompts_dir = tmp_path / "package_prompts"
-    package_prompts_dir.mkdir()
-    prompt_file = package_prompts_dir / "bundled-prompt.md"
-    prompt_file.write_text(
-        """---
-name: bundled-prompt
-description: Bundled prompt test
-tags:
-  - testing
-arguments: []
-enabled: true
----
-# Bundled Prompt
-
-This is a bundled test prompt.
-""",
-        encoding="utf-8",
-    )
-
-    writer = SlashCommandWriter(
-        prompts_dir=prompts_dir,
-        agents=["claude-code"],
-        dry_run=True,
-        base_path=tmp_path,
-        is_explicit_prompts_dir=False,  # Use default path to enable fallback
-    )
-
-    # Mock the fallback function to return the mock package prompts directory
-    with patch("slash_commands.writer._find_package_prompts_dir", return_value=package_prompts_dir):
-        result = writer.generate()
-        assert result["prompts_loaded"] == 1
-        assert len(result["prompts"]) == 1
-        assert result["prompts"][0]["name"] == "bundled-prompt"
-
-
-def test_find_package_prompts_dir_importlib(tmp_path: Path):
-    """Test that _find_package_prompts_dir can find prompts via importlib."""
-    with patch("importlib.resources.files") as mock_files:
-        # Create a mock traversable object for the prompts directory
-        mock_prompts_resource = MagicMock()
-        mock_prompts_resource.is_dir.return_value = True
-        mock_prompts_resource.__str__.return_value = str(tmp_path)
-
-        # Mock the anchor package traversable
-        mock_anchor = MagicMock()
-        # Mock the traversal to mcp_server/prompts (not parent/prompts)
-        mock_anchor.__truediv__.return_value = mock_prompts_resource
-
-        mock_files.return_value = mock_anchor
-
-        # Call the function being tested
-        result = _find_package_prompts_dir()
-
-        # Verify that importlib.resources.files was called correctly
-        mock_files.assert_called_once_with("mcp_server")
-
-        # Verify that the correct path was returned
-        assert result == tmp_path
-
-
-def test_writer_falls_back_to_package_prompts(tmp_path):
-    """Test that writer falls back to package prompts when specified directory doesn't exist."""
-    prompts_dir = tmp_path / "nonexistent"
-
-    # Create a mock package prompts directory
-    package_prompts_dir = tmp_path / "package_prompts"
-    package_prompts_dir.mkdir()
-    prompt_file = package_prompts_dir / "fallback-prompt.md"
-    prompt_file.write_text(
-        """---
-name: fallback-prompt
-description: Fallback prompt test
-tags:
-  - testing
-arguments: []
-enabled: true
----
-# Fallback Prompt
-
-This is a test prompt.
-""",
-        encoding="utf-8",
-    )
-
-    writer = SlashCommandWriter(
-        prompts_dir=prompts_dir,
-        agents=["claude-code"],
-        dry_run=True,
-        base_path=tmp_path,
-        is_explicit_prompts_dir=False,  # Use default path to enable fallback
-    )
-
-    # Mock the fallback function to return the mock package prompts directory
-    with patch("slash_commands.writer._find_package_prompts_dir", return_value=package_prompts_dir):
-        result = writer.generate()
-        assert result["prompts_loaded"] == 1
-        assert len(result["prompts"]) == 1
-        assert result["prompts"][0]["name"] == "fallback-prompt"
+    with pytest.raises(ValueError, match="Prompts directory does not exist"):
+        writer.generate()
 
 
 def test_writer_handles_invalid_agent_key(mock_prompt_load: Path, tmp_path):

@@ -1,13 +1,12 @@
-"""Pytest fixtures for MCP server tests."""
+"""Pytest fixtures for tests."""
 
 import tempfile
 from pathlib import Path
 from textwrap import dedent
 
 import pytest
-from fastmcp import FastMCP
 
-from mcp_server.prompt_utils import MarkdownPrompt, load_markdown_prompt
+from slash_commands.prompt_utils import MarkdownPrompt, load_markdown_prompt
 
 
 @pytest.fixture
@@ -87,16 +86,6 @@ meta:
         )
 
         yield prompts_dir
-
-
-@pytest.fixture
-def mcp_server():
-    """Create a basic FastMCP server instance for testing.
-
-    Returns:
-        FastMCP server instance
-    """
-    return FastMCP(name="test-server")
 
 
 @pytest.fixture

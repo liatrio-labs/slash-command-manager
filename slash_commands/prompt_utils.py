@@ -1,3 +1,9 @@
+"""Markdown prompt parsing utilities.
+
+Shared utilities for parsing markdown prompts with YAML frontmatter.
+Used by the CLI writer and generators.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -26,18 +32,6 @@ class MarkdownPrompt:
     arguments: list[PromptArgumentSpec]
     body: str
     agent_overrides: dict[str, Any] | None = None
-
-    def decorator_kwargs(self) -> dict[str, Any]:
-        kwargs: dict[str, Any] = {"name": self.name}
-        if self.description:
-            kwargs["description"] = self.description
-        if self.tags:
-            kwargs["tags"] = sorted(self.tags)
-        if self.meta:
-            kwargs["meta"] = self.meta
-        if not self.enabled:
-            kwargs["enabled"] = self.enabled
-        return kwargs
 
 
 def load_markdown_prompt(path: Path) -> MarkdownPrompt:

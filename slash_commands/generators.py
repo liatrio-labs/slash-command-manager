@@ -19,8 +19,8 @@ except ImportError:
     except PackageNotFoundError:
         __version__ = "0.0.0"
 
-from mcp_server.prompt_utils import MarkdownPrompt, PromptArgumentSpec
 from slash_commands.config import AgentConfig, CommandFormat
+from slash_commands.prompt_utils import MarkdownPrompt, PromptArgumentSpec
 
 
 class CommandGeneratorProtocol(Protocol):

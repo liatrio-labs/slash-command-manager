@@ -22,7 +22,6 @@ def test_main_help_command():
     assert "Manage slash commands" in result.stdout
     assert "generate" in result.stdout
     assert "cleanup" in result.stdout
-    assert "mcp" in result.stdout
 
 
 def test_main_version_command():
@@ -72,23 +71,7 @@ def test_cleanup_help_command():
     assert "--agent" in result.stdout
     assert "--dry-run" in result.stdout
     assert "--include-backups" in result.stdout
-
-
-def test_mcp_help_command():
-    """Test that slash-man mcp --help shows mcp command help."""
-    cmd = get_slash_man_command() + ["mcp", "--help"]
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        cwd=REPO_ROOT,
-    )
-
-    assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
-    assert "Start the MCP server" in result.stdout
-    assert "--transport" in result.stdout
-    assert "--port" in result.stdout
-    assert "--config" in result.stdout
+    assert "--target-path" in result.stdout
 
 
 def test_list_agents_command():

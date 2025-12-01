@@ -7,9 +7,9 @@ import tomllib
 import pytest
 import yaml
 
-from mcp_server.prompt_utils import load_markdown_prompt, parse_frontmatter
 from slash_commands.config import get_agent_config
 from slash_commands.generators import CommandGenerator
+from slash_commands.prompt_utils import load_markdown_prompt, parse_frontmatter
 
 
 def test_toml_round_trip_parsing(sample_prompt):

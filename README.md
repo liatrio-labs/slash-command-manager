@@ -1,15 +1,14 @@
 # Slash Command Manager
 
-A standalone CLI tool and MCP server for generating and managing slash commands as part of the Spec-Driven Development (SDD) workflow.
+A standalone CLI tool for generating and managing prompts as slash commands across AI coding assistants.
 
 ## Overview
 
-Slash Command Manager provides both a command-line interface (`slash-man`) for generating slash command definitions and an MCP server for programmatic access. This repository was extracted from the SDD Workflow repository to enable independent versioning and release cycles.
+Slash Command Manager provides a command-line interface (`slash-man`) for generating slash command definitions from markdown prompts with YAML frontmatter. It supports multiple AI coding assistants and can work with prompts sourced from local directories or GitHub repositories.
 
 ## Features
 
 - **CLI Generator**: Interactive command-line tool for creating slash command configurations
-- **MCP Server**: Programmatic API for generating slash commands via Model Context Protocol
 - **Code Detection**: Automatic detection of code patterns and generation of appropriate command structures
 - **Flexible Configuration**: Support for various configuration formats and customization options
 
@@ -161,24 +160,6 @@ uv run slash-man generate \
 # Error: Cannot specify both --prompts-dir and GitHub repository flags simultaneously
 ```
 
-### MCP Server Usage
-
-Run the MCP server for programmatic access:
-
-```bash
-# STDIO transport (for MCP clients)
-slash-man mcp
-
-# HTTP transport
-slash-man mcp --transport http --port 8000
-
-# With custom configuration
-slash-man mcp --config custom.toml --transport http --port 8080
-
-# Or via uvx (once published)
-uvx --from git+https://github.com/liatrio-labs/slash-command-manager slash-man mcp
-```
-
 ### Supported AI Tools
 
 The generator supports the following AI coding assistants:
@@ -199,7 +180,6 @@ The generator supports the following AI coding assistants:
 
 - [Generator Documentation](docs/slash-command-generator.md)
 - [Operations Guide](docs/operations.md)
-- [MCP Prompt Support](docs/mcp-prompt-support.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
@@ -271,7 +251,7 @@ docker run -it --rm slash-command-manager slash-man generate --list-agents
 uv run pytest
 
 # Run tests with coverage
-uv run pytest --cov=mcp_server --cov=slash_commands --cov-report=term-missing
+uv run pytest --cov=slash_commands --cov-report=term-missing
 
 # Run pre-commit hooks
 uv run pre-commit run --all-files
@@ -287,26 +267,37 @@ uv run python -m build
 pip install dist/*.whl
 ```
 
-## SDD Workflow Integration
+## Example Use Cases
 
-This package was extracted from the [SDD Workflow](https://github.com/liatrio-labs/spec-driven-workflow) repository to enable independent versioning and release cycles.
+Slash Command Manager can be used with any collection of markdown prompts. Here are some example use cases:
 
-### About SDD Workflow
+### Using Prompts from GitHub
 
-The [Spec-Driven Development (SDD) Workflow](https://github.com/liatrio-labs/spec-driven-workflow) provides a structured approach to AI-assisted software development using three core prompts:
+You can download prompts from any public GitHub repository:
 
-1. **`generate-spec`**: Creates detailed specifications from feature ideas
-2. **`generate-task-list-from-spec`**: Transforms specs into actionable task lists
-3. **`manage-tasks`**: Coordinates execution and tracks progress
+```bash
+# Download prompts from a GitHub repository
+slash-man generate \
+  --github-repo owner/repo-name \
+  --github-branch main \
+  --github-path prompts \
+  --agent claude-code
+```
 
-Slash Command Manager generates the slash commands that enable these prompts in your AI coding assistant. The workflow prompts themselves are maintained in the SDD Workflow repository.
+### Using Local Prompts
 
-### Usage with SDD Workflow
+Create slash commands from your own local prompts directory with markdown files containing YAML frontmatter:
 
-1. **Install Slash Command Manager** (this package) to generate slash commands
-2. **Reference SDD Workflow prompts** from the [SDD Workflow repository](https://github.com/liatrio-labs/spec-driven-workflow) when using the generated commands
+```bash
+# Generate commands from local prompts directory
+slash-man generate \
+  --prompts-dir ./my-prompts \
+  --agent cursor
+```
 
-For complete documentation on the SDD workflow, see the [SDD Workflow repository](https://github.com/liatrio-labs/spec-driven-workflow).
+### Creating Custom Prompts
+
+Prompts should be markdown files with YAML frontmatter. See the [Generator Documentation](docs/slash-command-generator.md) for details on prompt format and structure.
 
 ## License
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any
 
 import questionary
 import requests
@@ -16,7 +16,6 @@ from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
-from mcp_server import create_app
 from slash_commands import (
     NoPromptsDiscoveredError,
     SlashCommandWriter,
@@ -823,65 +822,6 @@ def cleanup(
             border_style="green" if not result.get("errors") else "red",
         )
     )
-
-
-@app.command()
-def mcp(
-    config_file: Annotated[
-        str | None,
-        typer.Option(
-            "--config",
-            help="Path to custom TOML configuration file",
-        ),
-    ] = None,
-    transport: Annotated[
-        Literal["stdio", "http"],
-        typer.Option(
-            "--transport",
-            help="Transport type (stdio or http)",
-        ),
-    ] = "stdio",
-    port: Annotated[
-        int,
-        typer.Option(
-            "--port",
-            help="HTTP server port (default: 8000)",
-        ),
-    ] = 8000,
-) -> None:
-    """Start the MCP server for spec-driven development workflows."""
-    # Validate port
-    if not (1 <= port <= 65535):
-        typer.echo(f"Error: Invalid port {port}. Must be between 1 and 65535", err=True)
-        raise typer.Exit(code=2)
-
-    # Handle custom configuration if provided
-    if config_file:
-        config_path = Path(config_file)
-        if not config_path.exists():
-            typer.echo(f"Error: Configuration file not found: {config_file}", err=True)
-            raise typer.Exit(code=1)
-
-        # TODO: Load custom TOML configuration when implemented
-        # For now, just acknowledge the config file was provided
-        typer.echo(f"Using custom configuration: {config_file}")
-
-    # Create the MCP server instance
-    try:
-        mcp_server = create_app()
-    except Exception as e:
-        typer.echo(f"Error: Failed to create MCP server: {e}", err=True)
-        raise typer.Exit(code=3) from None
-
-    # Run the server with the specified transport
-    try:
-        if transport == "http":
-            mcp_server.run(transport="http", port=port)
-        else:
-            mcp_server.run()
-    except Exception as e:
-        typer.echo(f"Error: Failed to start MCP server: {e}", err=True)
-        raise typer.Exit(code=3) from None
 
 
 def main() -> None:

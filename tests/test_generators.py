@@ -4,12 +4,12 @@ import tomllib
 
 import pytest
 
-from mcp_server.prompt_utils import parse_frontmatter
 from slash_commands.config import get_agent_config
 from slash_commands.generators import (
     MarkdownCommandGenerator,
     TomlCommandGenerator,
 )
+from slash_commands.prompt_utils import parse_frontmatter
 
 
 def _extract_frontmatter_and_body(content: str) -> tuple[dict, str]:

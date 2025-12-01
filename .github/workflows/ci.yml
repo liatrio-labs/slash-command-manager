@@ -42,7 +42,7 @@ jobs:
         run: uv sync --all-groups --extra dev --frozen
 
       - name: Run tests with coverage
-        run: uv run pytest -vv --cov=mcp_server --cov=slash_commands --cov-report=term-missing:skip-covered --cov-report=xml
+        run: uv run pytest -vv --cov=slash_commands --cov-report=term-missing:skip-covered --cov-report=xml
 
 
       - name: Upload coverage.xml artifact
@@ -147,8 +147,7 @@ jobs:
               print(f'✅ Wheel contains {len(files)} files')
               # Verify key files/directories are present
               # Directories use startswith, files check root or nested paths
-              required_dirs = ['slash_commands/', 'mcp_server/']
-              required_files = ['server.py']
+              required_dirs = ['slash_commands/']
               for req in required_dirs:
                   if any(f.startswith(req) for f in files):
                       print(f'✅ Contains {req}')

@@ -19,10 +19,6 @@ flowchart LR
         GITHUB[GitHub Repository]
     end
 
-    subgraph "Shared Utilities: mcp_server"
-        PUTIL[prompt_utils.py]
-    end
-
     subgraph "Output Targets"
         CLAUDE[Claude Code]
         CURSOR[Cursor]
@@ -40,6 +36,7 @@ flowchart LR
         DETECT[detection.py]
         WRITER[writer.py]
         GEN[generators.py]
+        PUTIL[prompt_utils.py]
         GH[github_utils.py]
     end
 
@@ -92,26 +89,18 @@ slash-command-manager/
 │   ├── detection.py         # Agent auto-detection
 │   ├── generators.py        # Format-specific generators
 │   ├── github_utils.py      # GitHub API integration
+│   ├── prompt_utils.py      # Markdown prompt parsing utilities
 │   └── writer.py            # Command generation orchestrator
-├── mcp_server/              # Shared utilities and MCP server (PoC)
-│   ├── __init__.py          # FastMCP application factory (MCP-specific)
-│   ├── config.py            # MCP server runtime configuration
-│   ├── prompt_utils.py      # Markdown prompt parsing (shared)
-│   ├── prompts_loader.py    # MCP prompt registration (MCP-specific)
-│   └── prompts/             # Bundled prompt files (shared)
-├── server.py                # MCP server entrypoint (PoC)
 ├── scripts/
 │   └── run_integration_tests.py  # Docker-based integration tests
 └── tests/                   # Unit and integration tests
 ```
 
-**Note:** The `mcp_server` package contains both shared utilities (`prompt_utils.py`, `prompts/`) used by the CLI and MCP-specific code. The MCP server functionality is a proof-of-concept and not the primary focus of this tool.
-
 ## Component Details
 
 ### CLI Module (`slash_commands/cli.py`)
 
-The CLI is built with [Typer](https://typer.tiangolo.com/) and provides three
+The CLI is built with [Typer](https://typer.tiangolo.com/) and provides two
 main commands:
 
 ```mermaid
@@ -430,9 +419,9 @@ sequenceDiagram
 - Null byte rejection
 - Whitelist character validation
 
-### Prompt Utilities (`mcp_server/prompt_utils.py`)
+### Prompt Utilities (`slash_commands/prompt_utils.py`)
 
-Shared utility module for parsing markdown prompts with YAML frontmatter. Used by both the CLI writer and generators:
+Utility module for parsing markdown prompts with YAML frontmatter. Used by the writer and generators:
 
 Parses markdown prompts with YAML frontmatter:
 
@@ -448,7 +437,6 @@ classDiagram
         +list[PromptArgumentSpec] arguments
         +str body
         +dict agent_overrides
-        +decorator_kwargs() dict
     }
 
     class PromptArgumentSpec {
