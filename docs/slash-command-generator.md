@@ -194,8 +194,16 @@ The following agents are supported:
 | `cursor` | Cursor | Markdown | `.md` | `.cursor/commands` | [Home](https://cursor.com/) · [Docs](https://cursor.com/docs) |
 | `gemini-cli` | Gemini CLI | TOML | `.toml` | `.gemini/commands` | [Home](https://github.com/google-gemini/gemini-cli) · [Docs](https://geminicli.com/docs/) |
 | `opencode` | OpenCode CLI | Markdown | `.md` | `.config/opencode/command` | [Home](https://opencode.ai) · [Docs](https://opencode.ai/docs/commands) |
-| `vs-code` | VS Code | Markdown | `.prompt.md` | `.config/Code/User/prompts` | [Home](https://code.visualstudio.com/) · [Docs](https://code.visualstudio.com/docs) |
+| `vs-code` | VS Code | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/) · [Docs](https://code.visualstudio.com/docs) |
 | `windsurf` | Windsurf | Markdown | `.md` | `.codeium/windsurf/global_workflows` | [Home](https://windsurf.com/editor) · [Docs](https://docs.windsurf.com/) |
+
+**Note**: VS Code uses platform-specific installation directories:
+
+- **Linux**: `~/.config/Code/User/prompts`
+- **macOS**: `~/Library/Application Support/Code/User/prompts`
+- **Windows**: `%APPDATA%\Code\User\prompts`
+
+The generator automatically detects your platform and installs commands to the correct location.
 
 ## Command File Formats
 
