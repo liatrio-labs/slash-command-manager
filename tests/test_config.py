@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterable
+from pathlib import Path
 from typing import get_type_hints
 
 import pytest
@@ -76,8 +77,13 @@ def test_supported_agents_have_valid_structure(
         )
         # Allow hidden directories (starting with .) or cross-platform paths (macOS, Windows)
         for dir_ in agent.detection_dirs:
-            assert dir_.startswith(".") or "Library" in dir_ or "AppData" in dir_, (
-                f"{agent.key}: detection_dir '{dir_}' must start with '.', contain 'Library' (macOS), or 'AppData' (Windows)"
+            is_hidden = dir_.startswith(".")
+            # Check for Library or AppData as actual path components, not substrings
+            path_parts = Path(dir_).parts
+            is_macos_library = "Library" in path_parts
+            is_windows_appdata = "AppData" in path_parts
+            assert is_hidden or is_macos_library or is_windows_appdata, (
+                f"{agent.key}: detection_dir '{dir_}' must start with '.', contain 'Library' (macOS), or 'AppData' (Windows) as path components"
             )
 
 
