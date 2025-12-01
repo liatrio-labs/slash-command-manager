@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -845,3 +846,42 @@ def test_writer_github_api_error_handling(mock_download, tmp_path):
 
     with pytest.raises(requests.exceptions.RequestException):
         writer._load_prompts()
+
+
+@pytest.mark.parametrize(
+    "platform_value,expected_dir",
+    [
+        ("linux", ".config/Code/User/prompts"),
+        ("darwin", "Library/Application Support/Code/User/prompts"),
+        ("win32", "AppData/Roaming/Code/User/prompts"),
+    ],
+)
+def test_writer_writes_vs_code_to_platform_specific_path(
+    mock_prompt_load: Path,
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    platform_value: str,
+    expected_dir: str,
+):
+    """Test that VS Code commands are written to platform-specific directories."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+
+    writer = SlashCommandWriter(
+        prompts_dir=mock_prompt_load,
+        agents=["vs-code"],
+        dry_run=False,
+        base_path=tmp_path,
+    )
+
+    result = writer.generate()
+
+    # Verify file was created in the correct platform-specific directory
+    expected_path = tmp_path / expected_dir / "test-prompt.prompt.md"
+    assert expected_path.exists(), f"Expected file at {expected_path} but it doesn't exist"
+    assert "Test Prompt" in expected_path.read_text()
+
+    # Verify result structure
+    assert result["files_written"] == 1
+    assert len(result["files"]) == 1
+    assert result["files"][0]["path"] == str(expected_path)
+    assert result["files"][0]["agent"] == "vs-code"
