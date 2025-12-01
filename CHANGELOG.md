@@ -2,6 +2,62 @@
 
 <!-- version list -->
 
+## v0.8.0 (2025-12-01)
+
+### Bug Fixes
+
+- **config**: Wire up get_command_dir() at all call sites for VS Code
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+- **writer**: Use get_command_dir() for VS Code platform-specific paths
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+### Chores
+
+- Remove obsolete changelog ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+### Documentation
+
+- Update VS Code installation paths for cross-platform support
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+- **spec**: Add cross-platform VS Code path detection specification
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+- **spec**: Add validation report for VS Code cross-platform detection
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+- **spec**: Restructure VS Code detection spec for TDD workflow and integrate AGENTS.md standards
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+- **tasks**: Add comprehensive TDD sub-tasks for VS Code cross-platform detection
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+### Features
+
+- **config**: Add cross-platform VS Code detection for macOS and Windows
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+- **config**: Implement cross-platform VS Code detection for Linux, macOS, and Windows
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+### Testing
+
+- **config**: Improve detection_dir validation to use path components
+  ([#14](https://github.com/liatrio-labs/slash-command-manager/pull/14),
+  [`306e3cc`](https://github.com/liatrio-labs/slash-command-manager/commit/306e3ccb1a7f8af947dce43d91f9e0ce8e0135b4))
+
+
 ## v0.7.0 (2025-11-26)
 
 ### Documentation
