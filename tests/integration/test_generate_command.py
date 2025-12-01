@@ -247,7 +247,7 @@ def test_generate_all_supported_agents(temp_test_dir, test_prompts_dir):
 
         # Verify file was created in correct agent-specific directory
         agent_config = get_agent_config(agent)
-        expected_dir = agent_temp_dir / agent_config.command_dir
+        expected_dir = agent_temp_dir / agent_config.get_command_dir()
         assert expected_dir.exists(), (
             f"Expected directory {expected_dir} does not exist for agent {agent}"
         )

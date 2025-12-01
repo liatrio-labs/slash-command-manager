@@ -487,14 +487,15 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
             try:
                 agent = get_agent_config(agent_key)
                 # Check if command directory exists
-                command_path = home_dir / agent.command_dir
+                command_dir = agent.get_command_dir()
+                command_path = home_dir / command_dir
                 exists = command_path.exists()
                 detected = "[green]✓[/green]" if exists else "[red]✗[/red]"
 
                 table.add_row(
                     agent_key,
                     agent.display_name,
-                    f"~/{agent.command_dir}",
+                    f"~/{command_dir}",
                     detected,
                 )
             except KeyError:

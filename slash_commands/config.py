@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
@@ -24,24 +25,59 @@ class AgentConfig:
     command_format: CommandFormat
     command_file_extension: str
     detection_dirs: tuple[str, ...]
+    platform_command_dirs: dict[str, str] | None = None
 
     def iter_detection_dirs(self) -> Iterable[str]:
         """Return an iterator over configured detection directories."""
 
         return iter(self.detection_dirs)
 
+    def get_command_dir(self) -> str:
+        """Return the command directory for the current platform.
 
-_SUPPORTED_AGENT_DATA: tuple[tuple[str, str, str, CommandFormat, str, tuple[str, ...]], ...] = (
-    ("claude-code", "Claude Code", ".claude/commands", CommandFormat.MARKDOWN, ".md", (".claude",)),
+        If platform_command_dirs is configured, returns the platform-specific path.
+        Otherwise, returns the default command_dir.
+        """
+        if self.platform_command_dirs is not None:
+            return self.platform_command_dirs.get(sys.platform, self.command_dir)
+        return self.command_dir
+
+
+_SUPPORTED_AGENT_DATA: tuple[
+    tuple[
+        str,
+        str,
+        str,
+        CommandFormat,
+        str,
+        tuple[str, ...],
+        dict[str, str] | None,
+    ],
+    ...,
+] = (
+    (
+        "claude-code",
+        "Claude Code",
+        ".claude/commands",
+        CommandFormat.MARKDOWN,
+        ".md",
+        (".claude",),
+        None,
+    ),
     (
         "vs-code",
         "VS Code",
         ".config/Code/User/prompts",
         CommandFormat.MARKDOWN,
         ".prompt.md",
-        (".config/Code",),
+        (".config/Code", "Library/Application Support/Code", "AppData/Roaming/Code"),
+        {
+            "linux": ".config/Code/User/prompts",
+            "darwin": "Library/Application Support/Code/User/prompts",
+            "win32": "AppData/Roaming/Code/User/prompts",
+        },
     ),
-    ("codex-cli", "Codex CLI", ".codex/prompts", CommandFormat.MARKDOWN, ".md", (".codex",)),
+    ("codex-cli", "Codex CLI", ".codex/prompts", CommandFormat.MARKDOWN, ".md", (".codex",), None),
     (
         "cursor",
         "Cursor",
@@ -49,8 +85,17 @@ _SUPPORTED_AGENT_DATA: tuple[tuple[str, str, str, CommandFormat, str, tuple[str,
         CommandFormat.MARKDOWN,
         ".md",
         (".cursor",),
+        None,
     ),
-    ("gemini-cli", "Gemini CLI", ".gemini/commands", CommandFormat.TOML, ".toml", (".gemini",)),
+    (
+        "gemini-cli",
+        "Gemini CLI",
+        ".gemini/commands",
+        CommandFormat.TOML,
+        ".toml",
+        (".gemini",),
+        None,
+    ),
     (
         "windsurf",
         "Windsurf",
@@ -58,6 +103,7 @@ _SUPPORTED_AGENT_DATA: tuple[tuple[str, str, str, CommandFormat, str, tuple[str,
         CommandFormat.MARKDOWN,
         ".md",
         (".codeium", ".codeium/windsurf"),
+        None,
     ),
     (
         "opencode",
@@ -66,6 +112,7 @@ _SUPPORTED_AGENT_DATA: tuple[tuple[str, str, str, CommandFormat, str, tuple[str,
         CommandFormat.MARKDOWN,
         ".md",
         (".opencode",),
+        None,
     ),
     (
         "amazon-q",
@@ -74,6 +121,7 @@ _SUPPORTED_AGENT_DATA: tuple[tuple[str, str, str, CommandFormat, str, tuple[str,
         CommandFormat.MARKDOWN,
         ".md",
         (".aws/amazonq",),
+        None,
     ),
 )
 
@@ -87,6 +135,7 @@ SUPPORTED_AGENTS: tuple[AgentConfig, ...] = tuple(
         command_format=command_format,
         command_file_extension=command_file_extension,
         detection_dirs=detection_dirs,
+        platform_command_dirs=platform_command_dirs,
     )
     for (
         key,
@@ -95,6 +144,7 @@ SUPPORTED_AGENTS: tuple[AgentConfig, ...] = tuple(
         command_format,
         command_file_extension,
         detection_dirs,
+        platform_command_dirs,
     ) in _SORTED_AGENT_DATA
 )
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Iterable
+from pathlib import Path
 from typing import get_type_hints
 
 import pytest
@@ -37,6 +38,7 @@ def test_agent_config_is_frozen_dataclass():
         ("command_format", CommandFormat),
         ("command_file_extension", str),
         ("detection_dirs", tuple[str, ...]),
+        ("platform_command_dirs", dict[str, str] | None),
     ],
 )
 def test_agent_config_has_expected_field_types(field_name: str, field_type: object):
@@ -69,13 +71,20 @@ def test_supported_agents_have_valid_structure(
         assert agent.command_file_extension.startswith("."), (
             f"{agent.key}: command_file_extension must start with '.'"
         )
-        # Detection dirs must be a tuple of hidden directories
+        # Detection dirs must be a tuple of hidden directories or cross-platform paths
         assert isinstance(agent.detection_dirs, tuple), (
             f"{agent.key}: detection_dirs must be a tuple"
         )
-        assert all(dir_.startswith(".") for dir_ in agent.detection_dirs), (
-            f"{agent.key}: all detection_dirs must start with '.'"
-        )
+        # Allow hidden directories (starting with .) or cross-platform paths (macOS, Windows)
+        for dir_ in agent.detection_dirs:
+            is_hidden = dir_.startswith(".")
+            # Check for Library or AppData as actual path components, not substrings
+            path_parts = Path(dir_).parts
+            is_macos_library = "Library" in path_parts
+            is_windows_appdata = "AppData" in path_parts
+            assert is_hidden or is_macos_library or is_windows_appdata, (
+                f"{agent.key}: detection_dir '{dir_}' must start with '.', contain 'Library' (macOS), or 'AppData' (Windows) as path components"
+            )
 
 
 def test_supported_agents_have_valid_command_formats(

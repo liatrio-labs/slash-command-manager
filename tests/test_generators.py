@@ -61,7 +61,7 @@ def test_markdown_generator_applies_agent_overrides(sample_prompt):
     assert meta["category"] == "generator-tests"
     assert meta["agent"] == "claude-code"
     assert meta["agent_display_name"] == agent.display_name
-    assert meta["command_dir"] == agent.command_dir
+    assert meta["command_dir"] == agent.get_command_dir()
     assert meta["command_format"] == agent.command_format.value
     assert meta["command_file_extension"] == agent.command_file_extension
     assert meta["source_prompt"] == "sample-prompt"

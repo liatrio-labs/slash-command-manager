@@ -188,7 +188,10 @@ The generator supports the following AI coding assistants:
 - **Windsurf**: Commands installed to `~/.codeium/windsurf/global_workflows`
 - **Codex CLI**: Commands installed to `~/.codex/prompts`
 - **Gemini CLI**: Commands installed to `~/.gemini/commands`
-- **VS Code**: Commands installed to `~/.config/Code/User/prompts`
+- **VS Code**: Commands installed to platform-specific directories:
+  - Linux: `~/.config/Code/User/prompts`
+  - macOS: `~/Library/Application Support/Code/User/prompts`
+  - Windows: `%APPDATA%\Code\User\prompts`
 - **OpenCode CLI**: Commands installed to `~/.config/opencode/command`
 - **Amazon Q**: Commands installed to `~/.aws/amazonq/prompts` (Windows & macOS/Linux)
 

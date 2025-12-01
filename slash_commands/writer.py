@@ -318,7 +318,7 @@ class SlashCommandWriter:
             for agent in agent_configs:
                 # Determine output path (same logic as _generate_file)
                 filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
-                output_path = self.base_path / agent.command_dir / filename
+                output_path = self.base_path / agent.get_command_dir() / filename
 
                 if output_path.exists():
                     existing_files.append(output_path)
@@ -380,7 +380,7 @@ class SlashCommandWriter:
         # Determine output path (resolve relative to base_path)
         # Sanitize file stem: drop any path components and restrict to safe chars
         filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
-        output_path = self.base_path / agent.command_dir / filename
+        output_path = self.base_path / agent.get_command_dir() / filename
 
         # Handle existing files
         if output_path.exists():
@@ -447,7 +447,7 @@ class SlashCommandWriter:
         for agent_key in agent_keys:
             try:
                 agent = get_agent_config(agent_key)
-                command_dir = self.base_path / agent.command_dir
+                command_dir = self.base_path / agent.get_command_dir()
 
                 if not command_dir.exists():
                     continue

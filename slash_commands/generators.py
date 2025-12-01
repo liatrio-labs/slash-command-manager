@@ -215,7 +215,7 @@ class MarkdownCommandGenerator:
             {
                 "agent": agent.key,
                 "agent_display_name": agent.display_name,
-                "command_dir": agent.command_dir,
+                "command_dir": agent.get_command_dir(),
                 "command_format": agent.command_format.value,
                 "command_file_extension": agent.command_file_extension,
                 "source_prompt": prompt.name,
