@@ -791,5 +791,4 @@ flowchart LR
 ## Related Documentation
 
 - [Generator Documentation](slash-command-generator.md) - Detailed generator usage
-- [Operations Guide](operations.md) - Operational procedures
 - [Contributing Guidelines](../CONTRIBUTING.md) - Development guidelines

@@ -179,7 +179,7 @@ The generator supports the following AI coding assistants:
 ## Documentation
 
 - [Generator Documentation](docs/slash-command-generator.md)
-- [Operations Guide](docs/operations.md)
+- [Architecture Documentation](docs/ARCHITECTURE.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
