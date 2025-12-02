@@ -98,9 +98,9 @@ Add the following to your Claude Desktop configuration (`~/Library/Application S
 ```json
 {
   "mcpServers": {
-    "slash-command-manager": {
+    "slash-man": {
       "command": "uvx",
-      "args": ["fastmcp", "run", "/path/to/slash-command-manager/slash_commands/cli.py", "mcp"]
+      "args": ["fastmcp", "run", "/path/to/slash-man/slash_commands/cli.py", "mcp"]
     }
   }
 }
@@ -114,9 +114,9 @@ Add the following to your Claude Desktop configuration (`~/Library/Application S
 ```json
 {
   "mcp.servers": {
-    "slash-command-manager": {
+    "slash-man": {
       "command": "uvx",
-      "args": ["fastmcp", "run", "/path/to/slash-command-manager/slash_commands/cli.py", "mcp"]
+      "args": ["fastmcp", "run", "/path/to/slash-man/slash_commands/cli.py", "mcp"]
     }
   }
 }
@@ -228,8 +228,8 @@ uv run pytest tests/test_prompts.py -v
 Build and run the Docker container:
 
 ```bash
-docker build -t slash-command-manager .
-docker run -p 8000:8000 slash-command-manager
+docker build -t slash-man .
+docker run -p 8000:8000 slash-man
 ```
 
 ### Kubernetes Deployment

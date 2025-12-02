@@ -147,7 +147,7 @@ class TestVersionDetection:
 
                 version = _get_version()
                 assert version == "2.0.0"
-                mock_version.assert_called_once_with("slash-command-manager")
+                mock_version.assert_called_once_with("slash-man")
 
     def test_version_with_commit_priority(self):
         """Test that build-time commit takes priority over runtime."""
