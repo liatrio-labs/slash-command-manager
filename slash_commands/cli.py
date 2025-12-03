@@ -16,6 +16,40 @@ from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
+from dotenv import load_dotenv
+from posthog import Posthog
+
+load_dotenv()
+
+# Check if telemetry is disabled (needed before PostHog initialization)
+def _is_telemetry_disabled() -> bool:
+    """Check if telemetry is disabled via environment variables."""
+    posthog_disabled = os.getenv("POSTHOG_DISABLED", "").lower()
+    if posthog_disabled in ("1", "t", "true", "y", "yes", "on", "enable", "enabled"):
+        return True
+    
+    do_not_track = os.getenv("DO_NOT_TRACK", "").lower()
+    if do_not_track in ("1", "t", "true", "y", "yes", "on", "enable", "enabled"):
+        return True
+    
+    return False
+
+def _before_send_hook(event: dict[str, Any]) -> dict[str, Any] | None:
+    """Ensure no PII leaks through telemetry events."""
+    # Ensure $process_person_profile is always False for anonymous tracking
+    if "properties" not in event:
+        event["properties"] = {}
+    event["properties"]["$process_person_profile"] = False
+    return event
+
+posthog = Posthog(
+    project_api_key=os.getenv('POSTHOG_API_KEY'),
+    host=os.getenv('POSTHOG_HOST'),
+    disabled=_is_telemetry_disabled(),
+    disable_geoip=True,
+    before_send=_before_send_hook,
+)
+
 from slash_commands import (
     NoPromptsDiscoveredError,
     SlashCommandWriter,
@@ -25,6 +59,13 @@ from slash_commands import (
 )
 from slash_commands.__version__ import __version_with_commit__
 from slash_commands.github_utils import validate_github_repo
+from slash_commands.telemetry import (
+    flush_telemetry,
+    track_app_start,
+    track_command,
+    _sanitize_flags_for_cleanup,
+    _sanitize_flags_for_generate,
+)
 
 app = typer.Typer(
     name="slash-man",
@@ -36,6 +77,11 @@ app = typer.Typer(
 def version_callback_impl(value: bool) -> None:
     """Print version and exit."""
     if value:
+        track_command(
+            posthog,
+            command="version",
+            flags={},
+        )
         typer.echo(f"slash-man {__version_with_commit__}")
         raise typer.Exit()
 
@@ -413,6 +459,16 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
     ] = None,
 ) -> None:
     """Generate slash commands for AI code assistants."""
+    # Track command execution
+    flags = _sanitize_flags_for_generate(
+        dry_run=dry_run,
+        yes=yes,
+        list_agents_flag=list_agents_flag,
+        github_repo=github_repo,
+        agents=agents,
+    )
+    track_command(posthog, command="generate", flags=flags)
+    
     # Validate GitHub flags
     github_flags_provided = [
         flag for flag in [github_repo, github_branch, github_path] if flag is not None
@@ -732,6 +788,15 @@ def cleanup(
     ] = True,
 ) -> None:
     """Clean up generated slash commands."""
+    # Track command execution
+    flags = _sanitize_flags_for_cleanup(
+        dry_run=dry_run,
+        yes=yes,
+        include_backups=include_backups,
+        agents=agents,
+    )
+    track_command(posthog, command="cleanup", flags=flags)
+    
     # Determine target path (default to home directory)
     actual_target_path = target_path if target_path is not None else Path.home()
 
@@ -826,7 +891,11 @@ def cleanup(
 
 def main() -> None:
     """Entry point for the CLI."""
-    app()
+    try:
+        track_app_start(posthog)
+        app()
+    finally:
+        flush_telemetry(posthog)
 
 
 if __name__ == "__main__":

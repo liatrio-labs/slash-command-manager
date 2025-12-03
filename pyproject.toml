@@ -26,6 +26,8 @@ dependencies = [
   "rich>=13.0.0",
   "typer>=0.9.0",
   "pyyaml>=6.0",
+  "posthog>=7.0.1",
+  "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]
