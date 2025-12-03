@@ -88,7 +88,7 @@ def _sanitize_flags_for_generate(
         "list_agents": list_agents_flag,
         "agent_count": len(agents) if agents else 0,
     }
-    
+
     # Add GitHub flags if provided
     if github_repo is not None:
         flags["github_repo"] = github_repo
@@ -96,7 +96,7 @@ def _sanitize_flags_for_generate(
         flags["github_branch"] = github_branch
     if github_path is not None:
         flags["github_path"] = github_path
-    
+
     # Add directory paths if provided (convert Path to string)
     if prompts_dir is not None:
         flags["prompts_dir"] = str(prompts_dir)
@@ -104,11 +104,11 @@ def _sanitize_flags_for_generate(
         flags["target_path"] = str(target_path)
     if detection_path is not None:
         flags["detection_path"] = str(detection_path)
-    
+
     # Add agent list if provided
     if agents:
         flags["agents"] = agents
-    
+
     return flags
 
 
@@ -138,15 +138,15 @@ def _sanitize_flags_for_cleanup(
         "include_backups": include_backups,
         "agent_count": len(agents) if agents else 0,
     }
-    
+
     # Add directory path if provided
     if target_path is not None:
         flags["target_path"] = str(target_path)
-    
+
     # Add agent list if provided
     if agents:
         flags["agents"] = agents
-    
+
     return flags
 
 
@@ -201,19 +201,23 @@ def track_command(
     Args:
         posthog_client: PostHog client instance
         command: Command name ("generate", "cleanup", "version")
-        flags: Dictionary of sanitized flags
+        flags: Dictionary of flag values (will be flattened as top-level properties)
     """
     if _is_telemetry_disabled():
         return
 
+    # Flatten flags as top-level properties for easier filtering in PostHog
+    properties = {
+        "$process_person_profile": False,
+        "command": command,
+        "app_version": __version_with_commit__,
+    }
+    # Add all flags as top-level properties
+    properties.update(flags)
+
     event_data = {
         "event": "cli_command_executed",
-        "properties": {
-            "$process_person_profile": False,
-            "command": command,
-            "app_version": __version_with_commit__,
-            "flags": flags,
-        },
+        "properties": properties,
     }
 
     if _is_debug_enabled():
@@ -223,7 +227,7 @@ def track_command(
     try:
         posthog_client.capture(
             event="cli_command_executed",
-            properties=event_data["properties"],
+            properties=properties,
         )
     except Exception:
         # Silently fail - telemetry should never break the app
@@ -245,4 +249,3 @@ def flush_telemetry(posthog_client: Any) -> None:
     except Exception:
         # Silently fail - telemetry should never break the app
         pass
-

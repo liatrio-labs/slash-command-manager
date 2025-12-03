@@ -35,13 +35,13 @@ def _is_telemetry_disabled() -> bool:
         if _is_debug_enabled():
             print("[DEBUG] PostHog telemetry disabled via POSTHOG_DISABLED environment variable", file=sys.stderr)
         return True
-    
+
     do_not_track = os.getenv("DO_NOT_TRACK", "").lower()
     if do_not_track in ("1", "t", "true", "y", "yes", "on", "enable", "enabled"):
         if _is_debug_enabled():
             print("[DEBUG] PostHog telemetry disabled via DO_NOT_TRACK environment variable", file=sys.stderr)
         return True
-    
+
     return False
 
 def _before_send_hook(event: dict[str, Any]) -> dict[str, Any] | None:
@@ -492,7 +492,7 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         agents=agents,
     )
     track_command(posthog, command="generate", flags=flags)
-    
+
     # Validate GitHub flags
     github_flags_provided = [
         flag for flag in [github_repo, github_branch, github_path] if flag is not None
@@ -821,7 +821,7 @@ def cleanup(
         agents=agents,
     )
     track_command(posthog, command="cleanup", flags=flags)
-    
+
     # Determine target path (default to home directory)
     actual_target_path = target_path if target_path is not None else Path.home()
 
@@ -922,11 +922,11 @@ def main() -> None:
         non_flag_args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
         # Check for help/version flags - these are valid even without a command
         has_help_or_version = any(arg in ("--help", "-h", "--version", "-v") for arg in sys.argv[1:])
-        
+
         if not non_flag_args and not has_help_or_version:
             # No command specified and no help/version flags - track as error state
             track_command(posthog, command="none", flags={"error_state": "no_command_specified"})
-        
+
         app()
     finally:
         flush_telemetry(posthog)
