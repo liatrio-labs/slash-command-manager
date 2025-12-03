@@ -21,15 +21,25 @@ from posthog import Posthog
 
 load_dotenv()
 
+# Check if debug mode is enabled
+def _is_debug_enabled() -> bool:
+    """Check if debug mode is enabled via DEBUG environment variable."""
+    debug = os.getenv("DEBUG", "").lower()
+    return debug in ("1", "t", "true", "y", "yes", "on", "enable", "enabled")
+
 # Check if telemetry is disabled (needed before PostHog initialization)
 def _is_telemetry_disabled() -> bool:
     """Check if telemetry is disabled via environment variables."""
     posthog_disabled = os.getenv("POSTHOG_DISABLED", "").lower()
     if posthog_disabled in ("1", "t", "true", "y", "yes", "on", "enable", "enabled"):
+        if _is_debug_enabled():
+            print("[DEBUG] PostHog telemetry disabled via POSTHOG_DISABLED environment variable", file=sys.stderr)
         return True
     
     do_not_track = os.getenv("DO_NOT_TRACK", "").lower()
     if do_not_track in ("1", "t", "true", "y", "yes", "on", "enable", "enabled"):
+        if _is_debug_enabled():
+            print("[DEBUG] PostHog telemetry disabled via DO_NOT_TRACK environment variable", file=sys.stderr)
         return True
     
     return False
@@ -61,7 +71,6 @@ from slash_commands.__version__ import __version_with_commit__
 from slash_commands.github_utils import validate_github_repo
 from slash_commands.telemetry import (
     flush_telemetry,
-    track_app_start,
     track_command,
     _sanitize_flags_for_cleanup,
     _sanitize_flags_for_generate,
@@ -88,6 +97,7 @@ def version_callback_impl(value: bool) -> None:
 
 @app.callback()
 def version_callback(
+    ctx: typer.Context,
     version: Annotated[
         bool,
         typer.Option(
@@ -100,6 +110,15 @@ def version_callback(
     ] = False,
 ) -> None:
     """Slash Command Manager - Generate and manage slash commands for AI code assistants."""
+    # Track command invocation only for --help cases
+    # This catches cases where --help is used, since Typer handles help before command functions run
+    # Actual command executions are tracked in the command functions themselves
+    if ctx.invoked_subcommand is not None:
+        help_requested = "--help" in sys.argv or "-h" in sys.argv
+        if help_requested:
+            # Only track in callback for help cases - actual executions tracked in command functions
+            command_name = ctx.invoked_subcommand
+            track_command(posthog, command=command_name, flags={"help_requested": True})
 
 
 console = Console(width=120)
@@ -465,6 +484,11 @@ def generate(  # noqa: PLR0913 PLR0912 PLR0915
         yes=yes,
         list_agents_flag=list_agents_flag,
         github_repo=github_repo,
+        github_branch=github_branch,
+        github_path=github_path,
+        prompts_dir=prompts_dir,
+        target_path=target_path,
+        detection_path=detection_path,
         agents=agents,
     )
     track_command(posthog, command="generate", flags=flags)
@@ -793,6 +817,7 @@ def cleanup(
         dry_run=dry_run,
         yes=yes,
         include_backups=include_backups,
+        target_path=target_path,
         agents=agents,
     )
     track_command(posthog, command="cleanup", flags=flags)
@@ -892,7 +917,16 @@ def cleanup(
 def main() -> None:
     """Entry point for the CLI."""
     try:
-        track_app_start(posthog)
+        # Check if no command was specified before running app
+        # Filter out flags to see if there's a command argument
+        non_flag_args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
+        # Check for help/version flags - these are valid even without a command
+        has_help_or_version = any(arg in ("--help", "-h", "--version", "-v") for arg in sys.argv[1:])
+        
+        if not non_flag_args and not has_help_or_version:
+            # No command specified and no help/version flags - track as error state
+            track_command(posthog, command="none", flags={"error_state": "no_command_specified"})
+        
         app()
     finally:
         flush_telemetry(posthog)
