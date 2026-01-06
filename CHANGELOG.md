@@ -2,6 +2,53 @@
 
 <!-- version list -->
 
+## v0.9.0 (2026-01-06)
+
+### Bug Fixes
+
+- Add language specifiers to fenced code blocks for markdownlint
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+- Adjust typo in task md for regression tests
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+- Run precommit markdown lint fix
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+### Chores
+
+- Mark all tasks complete for Spec 08
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+### Documentation
+
+- Add validation report for Spec 08 VS Code Insiders Support
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+- Add VS Code Insiders to user-facing documentation
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+### Features
+
+- Add cross-platform detection tests for VS Code Insiders
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+- Add VS Code Insiders agent configuration
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+- Add VS Code Insiders to integration test suite
+  ([#16](https://github.com/liatrio-labs/slash-command-manager/pull/16),
+  [`589c53d`](https://github.com/liatrio-labs/slash-command-manager/commit/589c53d45edfb0366d6cdf7466749cadf849bb9b))
+
+
 ## v0.8.0 (2025-12-01)
 
 ### Bug Fixes
