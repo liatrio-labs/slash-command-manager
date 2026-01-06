@@ -38,8 +38,8 @@ VS Code Insiders configuration added to `slash_commands/config.py`:
 Command: `uv run slash-man generate --list-agents`
 
 ```
-                                               Supported Agents            
-                                                                           
+                                               Supported Agents
+
 ┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
 ┃ Agent Key        ┃ Display Name     ┃ Target Path                                                ┃ Detected ┃
 ┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩

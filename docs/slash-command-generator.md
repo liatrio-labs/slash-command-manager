@@ -201,11 +201,13 @@ The following agents are supported:
 **Note**: VS Code and VS Code Insiders use platform-specific installation directories and operate independently:
 
 **VS Code:**
+
 - **Linux**: `~/.config/Code/User/prompts`
 - **macOS**: `~/Library/Application Support/Code/User/prompts`
 - **Windows**: `%APPDATA%\Code\User\prompts`
 
 **VS Code Insiders:**
+
 - **Linux**: `~/.config/Code - Insiders/User/prompts`
 - **macOS**: `~/Library/Application Support/Code - Insiders/User/prompts`
 - **Windows**: `%APPDATA%\Code - Insiders\User\prompts`

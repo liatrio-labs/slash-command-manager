@@ -62,11 +62,13 @@ TBD
 ### [x] 3.0 Add Integration Tests and Validate End-to-End Functionality
 
 Extend integration test suite to include VS Code Insiders in the list of agents validated during Docker-isolated tests, ensuring end-to-end file generation works correctly.
+
 - [x] 3.1 Add `"vs-code-insiders"` to the agents list in `test_generate_all_supported_agents` function in `tests/integration/test_generate_command.py`
 - [x] 3.2 Ensure the agent is added in alphabetical order within the list (should be after `"vs-code"`)
 - [x] 3.3 Run `uv run scripts/run_integration_tests.py` to execute all integration tests in Docker environment
 - [x] 3.4 Verify integration test output shows successful file generation for vs-code-insiders
 - [x] 3.5 Confirm no test failures or regressions in existing integration tests
+
 #### 3.0 Proof Artifact(s)
 
 - Test: `uv run scripts/run_integration_tests.py` passes demonstrates no regressions

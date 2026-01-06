@@ -74,11 +74,13 @@ Command: `uv run scripts/run_integration_tests.py`
 ### Note on Docker Requirement
 
 The integration tests are designed to run in Docker to:
+
 1. **Prevent overriding user prompt files** - Tests run in isolated container
 2. **Ensure consistent environment** - Same platform, dependencies, Python version
 3. **Enable safe testing** - No risk of modifying actual user configurations
 
 The integration tests will run automatically in CI/CD pipeline when:
+
 - Pull requests are created
 - Code is pushed to the repository
 - CI pipeline has Docker available

@@ -29,6 +29,7 @@ Add support for VS Code Insiders as an allowed agent in the slash command manage
 **Purpose:** Add VS Code Insiders to the supported agents list with correct cross-platform paths and detection directories.
 
 **Functional Requirements:**
+
 - The system shall add a `vs-code-insiders` entry to `_SUPPORTED_AGENT_DATA` in `slash_commands/config.py`
 - The system shall use display name "VS Code Insiders" for human-readable output
 - The system shall use `.prompt.md` file extension matching regular VS Code
@@ -44,6 +45,7 @@ Add support for VS Code Insiders as an allowed agent in the slash command manage
 - The configuration shall maintain alphabetical sorting in `SUPPORTED_AGENTS` tuple
 
 **Proof Artifacts:**
+
 - Code: Configuration entry in `slash_commands/config.py` demonstrates agent added to system
 - CLI: `slash-man generate --list-agents` output includes "vs-code-insiders" demonstrates discoverability
 - Test: Unit tests pass demonstrates configuration validity
@@ -53,6 +55,7 @@ Add support for VS Code Insiders as an allowed agent in the slash command manage
 **Purpose:** Validate VS Code Insiders detection works correctly on all three platforms using the same TDD patterns as regular VS Code.
 
 **Functional Requirements:**
+
 - The system shall detect VS Code Insiders when any platform-specific detection directory exists
 - The system shall return platform-appropriate command directories via `get_command_dir()` method
 - The system shall not detect VS Code Insiders when no detection directories exist
@@ -61,6 +64,7 @@ Add support for VS Code Insiders as an allowed agent in the slash command manage
 - Tests shall follow the naming and structure patterns from `tests/test_detection.py`
 
 **Proof Artifacts:**
+
 - Test: Parametrized detection tests for all platforms demonstrate cross-platform support
 - Test: `get_command_dir()` tests verify correct platform-specific paths
 - CLI: `uv run pytest tests/test_detection.py -v -k insiders` passes demonstrates detection logic works
@@ -70,6 +74,7 @@ Add support for VS Code Insiders as an allowed agent in the slash command manage
 **Purpose:** Ensure end-to-end functionality works and all documentation reflects the new agent.
 
 **Functional Requirements:**
+
 - The integration test suite shall include `vs-code-insiders` in the list of tested agents
 - The system shall successfully generate `.prompt.md` files in the correct Insiders directory
 - The README.md shall list VS Code Insiders in the supported agents section
@@ -78,6 +83,7 @@ Add support for VS Code Insiders as an allowed agent in the slash command manage
 - Documentation shall note that VS Code and VS Code Insiders operate independently
 
 **Proof Artifacts:**
+
 - Test: `test_generate_all_supported_agents` includes and passes for `vs-code-insiders` demonstrates end-to-end functionality
 - Documentation: README.md and slash-command-generator.md include VS Code Insiders demonstrates discoverability
 - CLI: Generated file exists in correct Insiders directory (in test environment) demonstrates correct path resolution
@@ -117,23 +123,27 @@ Based on codebase review and AGENTS.md, implementation shall follow:
 ## Technical Considerations
 
 **Implementation Approach:**
+
 - Add new tuple entry to `_SUPPORTED_AGENT_DATA` following the exact structure of the `vs-code` entry
 - The `_SORTED_AGENT_DATA` mechanism will automatically maintain alphabetical ordering
 - Use the same `platform_command_dirs` dictionary pattern with `linux`, `darwin`, `win32` keys
 - Leverage existing `get_command_dir()` method from spec 07 - no new methods needed
 
 **Dependencies:**
+
 - No new external dependencies required
 - Relies on existing `AgentConfig` dataclass and `get_command_dir()` method from spec 07
 - Detection logic in `slash_commands/detection.py` requires no modifications
 
 **Testing Strategy:**
+
 - Follow TDD workflow: write tests first, implement to make them pass, then refactor
 - Mirror the test structure from `test_vs_code_detection_multiplatform()` and related VS Code tests
 - Use monkeypatch for `sys.platform` to test all platforms without platform-specific test environments
 - Integration tests will validate actual file generation in Docker environment
 
 **File Modifications Required:**
+
 - `slash_commands/config.py`: Add agent configuration tuple entry
 - `tests/test_detection.py`: Add parametrized detection tests for VS Code Insiders
 - `tests/integration/test_generate_command.py`: Add `vs-code-insiders` to agents list
@@ -143,6 +153,7 @@ Based on codebase review and AGENTS.md, implementation shall follow:
 ## Security Considerations
 
 No specific security considerations identified. VS Code Insiders uses the same security model as regular VS Code:
+
 - Prompts are stored in user-specific directories with standard file permissions
 - No credentials or API keys are involved in this agent configuration
 - Proof artifacts will be code and test output - no sensitive data
