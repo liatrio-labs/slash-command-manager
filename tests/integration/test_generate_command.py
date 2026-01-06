@@ -220,7 +220,16 @@ def test_generate_all_supported_agents(temp_test_dir, test_prompts_dir):
     if get_agent_config is None:
         pytest.skip("get_agent_config not available")
 
-    agents = ["claude-code", "cursor", "gemini-cli", "vs-code", "codex-cli", "windsurf", "opencode"]
+    agents = [
+        "claude-code",
+        "cursor",
+        "gemini-cli",
+        "vs-code",
+        "vs-code-insiders",
+        "codex-cli",
+        "windsurf",
+        "opencode",
+    ]
 
     for agent in agents:
         agent_temp_dir = temp_test_dir / f"agent_{agent}"

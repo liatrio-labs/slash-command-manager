@@ -77,6 +77,23 @@ _SUPPORTED_AGENT_DATA: tuple[
             "win32": "AppData/Roaming/Code/User/prompts",
         },
     ),
+    (
+        "vs-code-insiders",
+        "VS Code Insiders",
+        ".config/Code - Insiders/User/prompts",
+        CommandFormat.MARKDOWN,
+        ".prompt.md",
+        (
+            ".config/Code - Insiders",
+            "Library/Application Support/Code - Insiders",
+            "AppData/Roaming/Code - Insiders",
+        ),
+        {
+            "linux": ".config/Code - Insiders/User/prompts",
+            "darwin": "Library/Application Support/Code - Insiders/User/prompts",
+            "win32": "AppData/Roaming/Code - Insiders/User/prompts",
+        },
+    ),
     ("codex-cli", "Codex CLI", ".codex/prompts", CommandFormat.MARKDOWN, ".md", (".codex",), None),
     (
         "cursor",
