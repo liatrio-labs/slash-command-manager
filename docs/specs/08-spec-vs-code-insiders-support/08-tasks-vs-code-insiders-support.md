@@ -18,7 +18,7 @@
 - [x] 1.2 Verify the configuration uses correct values: key=`vs-code-insiders`, display_name=`VS Code Insiders`, file_extension=`.prompt.md`, format=`CommandFormat.MARKDOWN`
 - [x] 1.3 Set platform-specific command directories: Linux=`.config/Code - Insiders/User/prompts`, macOS=`Library/Application Support/Code - Insiders/User/prompts`, Windows=`AppData/Roaming/Code - Insiders/User/prompts`
 - [x] 1.4 Set detection directories tuple: `.config/Code - Insiders`, `Library/Application Support/Code - Insiders`, `AppData/Roaming/Code - Insiders`
-- [x] 1.5 Run `uv run pytest tests/test_config.py -v` to verify configuration is valid and no regressions introducedollow pytest parametrization patterns from existing VS Code tests in `test_detection.py`
+- [x] 1.5 Run `uv run pytest tests/test_config.py -v` to verify configuration is valid and no regressions introduced
 - Maintain alphabetical ordering in `_SUPPORTED_AGENT_DATA` (automatic via `_SORTED_AGENT_DATA` mechanism)
 - Use `sys.platform` values: `linux`, `darwin`, `win32` for platform detection
 - Follow repository's PEP 8 style guidelines with 100 character line limit
