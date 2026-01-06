@@ -77,11 +77,7 @@ Extend integration test suite to include VS Code Insiders in the list of agents 
 
 TBD
 
-- [x] 4.1 Update `README.md` to add VS Code Insiders to the platform-specific directories section (near line 191 where VS Code is mentioned)
-- [x] 4.2 Add VS Code Insiders entry to the agents table in `docs/slash-command-generator.md` (after the `vs-code` row around line 197)
-- [x] 4.3 Include VS Code Insiders platform-specific path information in the documentation notes section (mirror the VS Code note pattern)
-- [x] 4.4 Verify documentation mentions that VS Code and VS Code Insiders operate independently with separate prompt directories
-- [x] 4.5 Review all documentation changes for consistency, accuracy, and proper markdown formatting [ ] 4.0 Update Documentation
+### [x] 4.0 Update Documentation
 
 Update all user-facing documentation to include VS Code Insiders as a supported agent, ensuring users can discover and use the new agent through documentation.
 
