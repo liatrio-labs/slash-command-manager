@@ -45,7 +45,7 @@
 
 TBD
 
-### [~] 2.0 Implement Cross-Platform Detection Tests
+### [x] 2.0 Implement Cross-Platform Detection Tests
 
 Create comprehensive unit tests for VS Code Insiders detection across all platforms (Linux, macOS, Windows) using pytest parametrization and the same TDD patterns as regular VS Code.
 
@@ -59,14 +59,14 @@ Create comprehensive unit tests for VS Code Insiders detection across all platfo
 
 TBD
 
-### [ ] 3.0 Add Integration Tests and Validate End-to-End Functionality
+### [~] 3.0 Add Integration Tests and Validate End-to-End Functionality
 
 Extend integration test suite to include VS Code Insiders in the list of agents validated during Docker-isolated tests, ensuring end-to-end file generation works correctly.
-- [ ] 3.1 Add `"vs-code-insiders"` to the agents list in `test_generate_all_supported_agents` function in `tests/integration/test_generate_command.py`
-- [ ] 3.2 Ensure the agent is added in alphabetical order within the list (should be after `"vs-code"`)
-- [ ] 3.3 Run `uv run scripts/run_integration_tests.py` to execute all integration tests in Docker environment
-- [ ] 3.4 Verify integration test output shows successful file generation for vs-code-insiders
-- [ ] 3.5 Confirm no test failures or regressions in existing integration tests
+- [x] 3.1 Add `"vs-code-insiders"` to the agents list in `test_generate_all_supported_agents` function in `tests/integration/test_generate_command.py`
+- [x] 3.2 Ensure the agent is added in alphabetical order within the list (should be after `"vs-code"`)
+- [x] 3.3 Run `uv run scripts/run_integration_tests.py` to execute all integration tests in Docker environment
+- [x] 3.4 Verify integration test output shows successful file generation for vs-code-insiders
+- [x] 3.5 Confirm no test failures or regressions in existing integration tests
 #### 3.0 Proof Artifact(s)
 
 - Test: `uv run scripts/run_integration_tests.py` passes demonstrates no regressions
