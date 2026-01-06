@@ -26,14 +26,14 @@
 
 ## Tasks
 
-### [~] 1.0 Add VS Code Insiders Agent Configuration
+### [x] 1.0 Add VS Code Insiders Agent Configuration
 
-- [ ] 2.1 Add parametrized test `test_vs_code_insiders_detection_multiplatform` to `tests/test_detection.py` that tests detection on linux, darwin, and win32 platforms (mirror existing `test_vs_code_detection_multiplatform`)
-- [ ] 2.2 Add parametrized test `test_vs_code_insiders_detection_empty_when_no_directories` to verify VS Code Insiders is not detected when directories don't exist
-- [ ] 2.3 Add parametrized test `test_vs_code_insiders_get_command_dir_platform_specific` to verify `get_command_dir()` returns correct platform-specific paths for linux, darwin, and win32
-- [ ] 2.4 Use `monkeypatch` fixture to simulate different `sys.platform` values in tests
-- [ ] 2.5 Run `uv run pytest tests/test_detection.py -v -k insiders` to verify all VS Code Insiders tests pass
-- [ ] 2.6 Run `uv run pytest tests/test_detection.py -v` to ensure no regressions in existing detection tests VS Code Insiders to the supported agents list in `slash_commands/config.py` with cross-platform path support following the exact pattern used for regular VS Code.
+- [x] 2.1 Add parametrized test `test_vs_code_insiders_detection_multiplatform` to `tests/test_detection.py` that tests detection on linux, darwin, and win32 platforms (mirror existing `test_vs_code_detection_multiplatform`)
+- [x] 2.2 Add parametrized test `test_vs_code_insiders_detection_empty_when_no_directories` to verify VS Code Insiders is not detected when directories don't exist
+- [x] 2.3 Add parametrized test `test_vs_code_insiders_get_command_dir_platform_specific` to verify `get_command_dir()` returns correct platform-specific paths for linux, darwin, and win32
+- [x] 2.4 Use `monkeypatch` fixture to simulate different `sys.platform` values in tests
+- [x] 2.5 Run `uv run pytest tests/test_detection.py -v -k insiders` to verify all VS Code Insiders tests pass
+- [x] 2.6 Run `uv run pytest tests/test_detection.py -v` to ensure no regressions in existing detection tests VS Code Insiders to the supported agents list in `slash_commands/config.py` with cross-platform path support following the exact pattern used for regular VS Code.
 
 #### 1.0 Proof Artifact(s)
 
@@ -45,7 +45,7 @@
 
 TBD
 
-### [ ] 2.0 Implement Cross-Platform Detection Tests
+### [~] 2.0 Implement Cross-Platform Detection Tests
 
 Create comprehensive unit tests for VS Code Insiders detection across all platforms (Linux, macOS, Windows) using pytest parametrization and the same TDD patterns as regular VS Code.
 

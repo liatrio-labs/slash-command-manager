@@ -96,6 +96,40 @@ def test_vs_code_detection_empty_when_no_directories(
 
 
 @pytest.mark.parametrize(
+    "platform_value,expected_dir",
+    [
+        ("linux", ".config/Code - Insiders"),
+        ("darwin", "Library/Application Support/Code - Insiders"),
+        ("win32", "AppData/Roaming/Code - Insiders"),
+    ],
+)
+def test_vs_code_insiders_detection_multiplatform(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, platform_value: str, expected_dir: str
+) -> None:
+    """Test VS Code Insiders detection works on all platforms."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+    (tmp_path / expected_dir).mkdir(parents=True, exist_ok=True)
+
+    detected = detect_agents(tmp_path)
+    detected_keys = [agent.key for agent in detected]
+
+    assert "vs-code-insiders" in detected_keys
+
+
+@pytest.mark.parametrize("platform_value", ["linux", "darwin", "win32"])
+def test_vs_code_insiders_detection_empty_when_no_directories(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, platform_value: str
+) -> None:
+    """Test VS Code Insiders detection returns nothing when paths don't exist."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+
+    detected = detect_agents(tmp_path)
+    detected_keys = [agent.key for agent in detected]
+
+    assert "vs-code-insiders" not in detected_keys
+
+
+@pytest.mark.parametrize(
     "platform_value,expected_command_dir",
     [
         ("linux", ".config/Code/User/prompts"),
@@ -111,6 +145,26 @@ def test_vs_code_get_command_dir_platform_specific(
 
     vs_code_agent = get_agent_config("vs-code")
     actual_dir = vs_code_agent.get_command_dir()
+
+    assert actual_dir == expected_command_dir
+
+
+@pytest.mark.parametrize(
+    "platform_value,expected_command_dir",
+    [
+        ("linux", ".config/Code - Insiders/User/prompts"),
+        ("darwin", "Library/Application Support/Code - Insiders/User/prompts"),
+        ("win32", "AppData/Roaming/Code - Insiders/User/prompts"),
+    ],
+)
+def test_vs_code_insiders_get_command_dir_platform_specific(
+    monkeypatch: pytest.MonkeyPatch, platform_value: str, expected_command_dir: str
+) -> None:
+    """Test get_command_dir() returns correct platform-specific path for VS Code Insiders."""
+    monkeypatch.setattr(sys, "platform", platform_value)
+
+    vs_code_insiders_agent = get_agent_config("vs-code-insiders")
+    actual_dir = vs_code_insiders_agent.get_command_dir()
 
     assert actual_dir == expected_command_dir
 
