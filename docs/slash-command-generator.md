@@ -195,15 +195,22 @@ The following agents are supported:
 | `gemini-cli` | Gemini CLI | TOML | `.toml` | `.gemini/commands` | [Home](https://github.com/google-gemini/gemini-cli) · [Docs](https://geminicli.com/docs/) |
 | `opencode` | OpenCode CLI | Markdown | `.md` | `.config/opencode/command` | [Home](https://opencode.ai) · [Docs](https://opencode.ai/docs/commands) |
 | `vs-code` | VS Code | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/) · [Docs](https://code.visualstudio.com/docs) |
+| `vs-code-insiders` | VS Code Insiders | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/insiders/) · [Docs](https://code.visualstudio.com/docs) |
 | `windsurf` | Windsurf | Markdown | `.md` | `.codeium/windsurf/global_workflows` | [Home](https://windsurf.com/editor) · [Docs](https://docs.windsurf.com/) |
 
-**Note**: VS Code uses platform-specific installation directories:
+**Note**: VS Code and VS Code Insiders use platform-specific installation directories and operate independently:
 
+**VS Code:**
 - **Linux**: `~/.config/Code/User/prompts`
 - **macOS**: `~/Library/Application Support/Code/User/prompts`
 - **Windows**: `%APPDATA%\Code\User\prompts`
 
-The generator automatically detects your platform and installs commands to the correct location.
+**VS Code Insiders:**
+- **Linux**: `~/.config/Code - Insiders/User/prompts`
+- **macOS**: `~/Library/Application Support/Code - Insiders/User/prompts`
+- **Windows**: `%APPDATA%\Code - Insiders\User\prompts`
+
+The generator automatically detects your platform and installs commands to the correct location. VS Code and VS Code Insiders maintain separate prompt directories and do not share configurations.
 
 ## Command File Formats
 

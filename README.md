@@ -192,6 +192,10 @@ The generator supports the following AI coding assistants:
   - Linux: `~/.config/Code/User/prompts`
   - macOS: `~/Library/Application Support/Code/User/prompts`
   - Windows: `%APPDATA%\Code\User\prompts`
+- **VS Code Insiders**: Commands installed to platform-specific directories:
+  - Linux: `~/.config/Code - Insiders/User/prompts`
+  - macOS: `~/Library/Application Support/Code - Insiders/User/prompts`
+  - Windows: `%APPDATA%\Code - Insiders\User\prompts`
 - **OpenCode CLI**: Commands installed to `~/.config/opencode/command`
 - **Amazon Q**: Commands installed to `~/.aws/amazonq/prompts` (Windows & macOS/Linux)
 
