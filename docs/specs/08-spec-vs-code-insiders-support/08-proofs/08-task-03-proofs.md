@@ -67,7 +67,7 @@ def test_generate_all_supported_agents(temp_test_dir, test_prompts_dir):
 
 Command: `uv run scripts/run_integration_tests.py`
 
-```
+```text
 ⚠️  Docker not available, skipping integration tests (CI will run them)
 ```
 

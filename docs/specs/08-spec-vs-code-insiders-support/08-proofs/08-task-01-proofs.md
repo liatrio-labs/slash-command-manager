@@ -37,7 +37,7 @@ VS Code Insiders configuration added to `slash_commands/config.py`:
 
 Command: `uv run slash-man generate --list-agents`
 
-```
+```text
                                                Supported Agents
 
 ┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
@@ -66,7 +66,7 @@ Command: `uv run slash-man generate --list-agents`
 
 Command: `uv run pytest tests/test_config.py -v`
 
-```
+```text
 =========================== test session starts ===========================
 platform darwin -- Python 3.13.4, pytest-8.4.2, pluggy-1.6.0 -- /Users/mitchschaller/Liatrio/slash-command-manager/.venv/bin/python3
 cachedir: .pytest_cache

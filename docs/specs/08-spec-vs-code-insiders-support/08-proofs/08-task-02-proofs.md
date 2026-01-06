@@ -71,7 +71,7 @@ def test_vs_code_insiders_get_command_dir_platform_specific(
 
 Command: `uv run pytest tests/test_detection.py -v -k insiders`
 
-```
+```text
 =========================== test session starts ===========================
 platform darwin -- Python 3.13.4, pytest-8.4.2, pluggy-1.6.0 -- /Users/mitchschaller/Liatrio/slash-command-manager/.venv/bin/python3
 cachedir: .pytest_cache
@@ -105,7 +105,7 @@ tests/test_detection.py::test_vs_code_insiders_get_command_dir_platform_specific
 
 Command: `uv run pytest tests/test_detection.py -v`
 
-```
+```text
 =========================== test session starts ===========================
 platform darwin -- Python 3.13.4, pytest-8.4.2, pluggy-1.6.0 -- /Users/mitchschaller/Liatrio/slash-command-manager/.venv/bin/python3
 cachedir: .pytest_cache

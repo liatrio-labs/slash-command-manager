@@ -94,7 +94,7 @@
 
 Implementation commits for Spec 08 (VS Code Insiders Support):
 
-```
+```text
 7e0f547 (2026-01-06) feat: add VS Code Insiders agent configuration
   - slash_commands/config.py (17 additions)
   - tests/test_config.py (5 additions)
@@ -149,7 +149,7 @@ d8bf039 (2026-01-06) feat: add VS Code Insiders to integration test suite
 
 **Evidence:**
 
-```
+```text
 ┃ vs-code          │ VS Code          │ ~/Library/Application Support/Code/User/prompts            │    ✓     │
 ┃ vs-code-insiders │ VS Code Insiders │ ~/Library/Application Support/Code - Insiders/User/prompts │    ✓     │
 ┃ windsurf         │ Windsurf         │ ~/.codeium/windsurf/global_workflows                       │    ✗     │
@@ -171,7 +171,7 @@ d8bf039 (2026-01-06) feat: add VS Code Insiders to integration test suite
 
 **Evidence:**
 
-```
+```text
 tests/test_config.py::test_supported_agents_is_tuple_sorted_by_key PASSED
 tests/test_config.py::test_supported_agents_have_valid_structure PASSED
 tests/test_config.py::test_supported_agents_have_valid_command_formats PASSED
@@ -193,7 +193,7 @@ tests/test_config.py::test_detection_dirs_cover_command_directory_roots PASSED
 
 **Evidence:**
 
-```
+```text
 tests/test_detection.py::test_vs_code_insiders_detection_multiplatform[linux-.config/Code - Insiders] PASSED
 tests/test_detection.py::test_vs_code_insiders_detection_multiplatform[darwin-Library/Application Support/Code - Insiders] PASSED
 tests/test_detection.py::test_vs_code_insiders_detection_multiplatform[win32-AppData/Roaming/Code - Insiders] PASSED
