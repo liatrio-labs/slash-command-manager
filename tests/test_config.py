@@ -112,6 +112,11 @@ def test_detection_dirs_cover_command_directory_roots(
             # Special cases: agents with non-standard detection patterns (e.g., .config/Code for vs-code)
             if agent.key == "vs-code":
                 assert ".config" in agent.detection_dirs or ".config/Code" in agent.detection_dirs
+            elif agent.key == "vs-code-insiders":
+                assert (
+                    ".config" in agent.detection_dirs
+                    or ".config/Code - Insiders" in agent.detection_dirs
+                )
             elif agent.key == "windsurf":
                 assert (
                     ".codeium" in agent.detection_dirs
