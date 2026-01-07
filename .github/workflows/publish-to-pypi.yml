@@ -1,0 +1,71 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies (frozen)
+        run: uv sync --all-groups --extra dev --frozen
+
+      - name: Install build package
+        run: uv pip install --system build
+
+      - name: Build package
+        run: uv run python -m build --wheel --sdist
+
+      - name: Verify build artifacts
+        run: |
+          echo "Build artifacts:"
+          ls -lh dist/
+          if [ -z "$(ls -A dist/*.whl 2>/dev/null)" ] || [ -z "$(ls -A dist/*.tar.gz 2>/dev/null)" ]; then
+            echo "❌ Build artifacts missing!"
+            exit 1
+          fi
+          echo "✅ Build artifacts verified"
+
+      - name: Publish to Test PyPI
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        with:
+          pypi-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+
+      - name: Publish to Production PyPI
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        with:
+          packages-dir: dist/
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.whl
+            dist/*.tar.gz

@@ -208,3 +208,84 @@ jobs:
 
       - name: Run integration tests
         run: docker run --rm --entrypoint="" slash-man-test sh -c "cd /app && uv run pytest tests/integration/ -v -m integration"
+
+  dev-release:
+    name: Dev Release (Test PyPI)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' && vars.RUN_DEV_RELEASE_JOBS == 'true' }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies (frozen)
+        run: uv sync --all-groups --extra dev --frozen
+
+      - name: Install python-semantic-release
+        run: uv pip install "python-semantic-release>=10.0.0,<11.0.0"
+
+      - name: Generate dev version
+        id: dev-version
+        run: |
+          VERSION=$(uv run semantic-release -c .releaserc.toml version --as-prerelease --prerelease-token dev --build-metadata $(git rev-parse --short HEAD) --no-changelog --no-vcs-release --no-commit --no-tag --print)
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+
+      - name: Verify version was generated
+        run: |
+          VERSION="${{ steps.dev-version.outputs.version }}"
+          SHA_SHORT="${{ github.sha }}"
+          SHA_SHORT="${SHA_SHORT:0:7}"
+          if [[ ! "$VERSION" =~ dev ]] || [[ ! "$VERSION" =~ $SHA_SHORT ]]; then
+            echo "❌ Version verification failed: $VERSION"
+            echo "Expected version to contain 'dev' and SHA prefix '$SHA_SHORT'"
+            exit 1
+          fi
+          echo "✅ Version verified: $VERSION"
+
+      - name: Verify uv.lock and pyproject.toml were updated
+        run: |
+          if ! git diff --exit-code uv.lock pyproject.toml; then
+            echo "❌ uv.lock and pyproject.toml were not updated"
+            exit 1
+          fi
+          echo "✅ uv.lock and pyproject.toml were updated"
+
+      - name: Build package
+        run: uv run python -m build --wheel --sdist
+
+      - name: Verify build artifacts
+        run: |
+          echo "Build artifacts:"
+          ls -lh dist/
+          if [ -z "$(ls -A dist/*.whl 2>/dev/null)" ] || [ -z "$(ls -A dist/*.tar.gz 2>/dev/null)" ]; then
+            echo "❌ Build artifacts missing!"
+            exit 1
+          fi
+          echo "✅ Build artifacts verified"
+
+      - name: Publish to Test PyPI
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        with:
+          verbose: true
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
