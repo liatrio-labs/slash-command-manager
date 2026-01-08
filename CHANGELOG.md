@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.10.0 (2026-01-08)
+
+### Features
+
+- **ci**: Add Claude Code GitHub Action workflow
+  ([#18](https://github.com/liatrio-labs/slash-command-manager/pull/18),
+  [`60a7887`](https://github.com/liatrio-labs/slash-command-manager/commit/60a7887878d46a3f654821d600ba4d48bee0e278))
+
+
 ## v0.9.0 (2026-01-06)
 
 ### Bug Fixes
