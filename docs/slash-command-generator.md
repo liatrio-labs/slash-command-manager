@@ -223,7 +223,7 @@ Kiro CLI prompts are plain markdown files and do not support declaring tool perm
 
 **Workaround**: Run `/tools trust-all` at the start of your Kiro CLI session to auto-approve all tool operations for that session. This only needs to be done once per session.
 
-```
+```text
 > /tools trust-all
 ```
 
