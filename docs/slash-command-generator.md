@@ -217,9 +217,45 @@ The following agents are supported:
 
 The generator automatically detects your platform and installs commands to the correct location. VS Code and VS Code Insiders maintain separate prompt directories and do not share configurations.
 
-### Kiro CLI Tool Permissions
+### Kiro (CLI and IDE)
 
-Kiro CLI prompts are plain markdown files and do not support declaring tool permissions. By default, Kiro CLI will prompt you to confirm every `write` and `shell` operation, which interrupts workflows like SDD that need to create files automatically.
+Kiro has two separate products that use different command formats. You can install for one or both:
+
+| Product | What it does | Install path | Invocation |
+|---------|-------------|--------------|------------|
+| **Kiro CLI** | Terminal-based AI assistant | `~/.kiro/prompts/*.md` | `@prompt-name` |
+| **Kiro IDE** | VS Code-based IDE with AI agents | `~/.kiro/agents/*.md` | `/agent-name` |
+
+#### Quick Start
+
+```bash
+# Install for Kiro CLI only
+uv run slash-man --agents kiro-cli --yes
+
+# Install for Kiro IDE only
+uv run slash-man --agents kiro-ide --yes
+
+# Install for both
+uv run slash-man --agents kiro-cli --agents kiro-ide --yes
+
+# Install SDD workflow prompts from GitHub
+uv run slash-man --agents kiro-cli --agents kiro-ide \
+  --github-repo liatrio-labs/spec-driven-workflow \
+  --github-branch main --github-path prompts --yes
+```
+
+#### How It Works
+
+The generator automatically adapts prompts for Kiro's conventions:
+
+- **Command references are rewritten**: Source prompts that reference `/SDD-2-generate-task-list-from-spec` (Claude Code syntax) are automatically converted to `@generate-task-list-from-spec` for Kiro
+- **Ordering prefixes are stripped**: A source prompt named `SDD-1-generate-spec` becomes `generate-spec.md` so you invoke it as `@generate-spec` (CLI) or `/generate-spec` (IDE)
+- **Kiro IDE agents get YAML frontmatter** with `name`, `description`, and `tools: ["*"]` (wildcard tool access)
+- **Kiro CLI prompts are plain markdown** with no frontmatter — just the prompt body
+
+#### Kiro CLI Tool Permissions
+
+Kiro CLI prompts do not support declaring tool permissions. By default, Kiro CLI will prompt you to confirm every `write` and `shell` operation, which interrupts workflows like SDD that need to create files automatically.
 
 **Workaround**: Run `/tools trust-all` at the start of your Kiro CLI session to auto-approve all tool operations for that session. This only needs to be done once per session.
 
