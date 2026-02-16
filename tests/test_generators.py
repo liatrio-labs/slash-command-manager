@@ -7,6 +7,8 @@ import pytest
 from mcp_server.prompt_utils import parse_frontmatter
 from slash_commands.config import get_agent_config
 from slash_commands.generators import (
+    KiroCommandGenerator,
+    KiroIdeCommandGenerator,
     MarkdownCommandGenerator,
     TomlCommandGenerator,
 )
@@ -304,3 +306,231 @@ def test_prompt_metadata_no_source_metadata(sample_prompt):
     # But should still have other metadata
     assert "source_prompt" in meta
     assert "agent" in meta
+
+
+# -- Kiro CLI prompt generator tests -------------------------------------------
+
+
+def test_kiro_generator_produces_plain_markdown(sample_prompt):
+    """Test that KiroCommandGenerator produces plain markdown with no frontmatter."""
+    agent = get_agent_config("kiro-cli")
+    generator = KiroCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    # Should NOT have YAML frontmatter
+    assert not generated.startswith("---")
+    # Should contain prompt body
+    assert "# Sample Prompt" in generated
+    assert "Use the provided instructions" in generated
+
+
+def test_kiro_generator_includes_tracking_comment(sample_prompt):
+    """Test that tracking metadata is appended as a trailing HTML comment."""
+    agent = get_agent_config("kiro-cli")
+    generator = KiroCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    assert "<!-- slash-command-manager:" in generated
+    assert "source: sample-prompt" in generated
+    assert "version:" in generated
+    assert "updated:" in generated
+
+
+def test_kiro_generator_replaces_placeholders(prompt_with_placeholder_body):
+    """Test that argument placeholders are replaced in the prompt body."""
+    agent = get_agent_config("kiro-cli")
+    generator = KiroCommandGenerator()
+
+    generated = generator.generate(prompt_with_placeholder_body, agent)
+
+    assert "$ARGUMENTS" not in generated
+    # Kiro replaces {{args}} with comma-separated names
+    assert "{{args}}" not in generated
+    assert "query" in generated
+
+
+def test_kiro_generator_rewrites_command_references(tmp_path):
+    """Test that /SDD-N-name command references are rewritten to @name for Kiro."""
+    from mcp_server.prompt_utils import load_markdown_prompt
+
+    prompt_path = tmp_path / "workflow-prompt.md"
+    prompt_path.write_text(
+        "---\n"
+        "name: SDD-1-generate-spec\n"
+        "description: Generate a spec\n"
+        "arguments: []\n"
+        "---\n\n"
+        "# Generate Spec\n\n"
+        "When done, run `/SDD-2-generate-task-list-from-spec` to continue.\n"
+        "Then use `/SDD-3-manage-tasks` for implementation.\n"
+        "Finally run `/SDD-4-validate-spec-implementation` to verify.\n",
+        encoding="utf-8",
+    )
+    prompt = load_markdown_prompt(prompt_path)
+    agent = get_agent_config("kiro-cli")
+    generator = KiroCommandGenerator()
+
+    generated = generator.generate(prompt, agent)
+
+    assert "/SDD-2-" not in generated
+    assert "/SDD-3-" not in generated
+    assert "/SDD-4-" not in generated
+    assert "@generate-task-list-from-spec" in generated
+    assert "@manage-tasks" in generated
+    assert "@validate-spec-implementation" in generated
+
+
+def test_kiro_generator_github_source_metadata(sample_prompt):
+    """Test that GitHub repo is included in tracking comment."""
+    agent = get_agent_config("kiro-cli")
+    generator = KiroCommandGenerator()
+
+    source_metadata = {
+        "github_repo": "liatrio-labs/spec-driven-workflow",
+    }
+
+    generated = generator.generate(sample_prompt, agent, source_metadata)
+
+    assert "repo: liatrio-labs/spec-driven-workflow" in generated
+
+
+def test_kiro_generator_snapshot_regression(sample_prompt):
+    """Snapshot-style test to catch unintended changes in Kiro output format."""
+    agent = get_agent_config("kiro-cli")
+    generator = KiroCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    # Must end with newline
+    assert generated.endswith("\n")
+
+    # No trailing whitespace in lines
+    for line in generated.splitlines():
+        assert line == line.rstrip(), "Line contains trailing whitespace"
+
+    # Consistent line endings (LF only)
+    assert "\r" not in generated
+
+    # Must have tracking comment at end
+    assert generated.strip().endswith("-->")
+
+    # Must NOT have frontmatter
+    assert not generated.startswith("---")
+
+
+# -- Kiro IDE agent generator tests --------------------------------------------
+
+
+def test_kiro_ide_generator_produces_frontmatter_with_tools(sample_prompt):
+    """Test that KiroIdeCommandGenerator produces markdown with Kiro IDE frontmatter."""
+    agent = get_agent_config("kiro-ide")
+    generator = KiroIdeCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+    frontmatter, body = _extract_frontmatter_and_body(generated)
+
+    assert frontmatter["name"] == "sample-prompt"
+    assert "description" in frontmatter
+    assert frontmatter["tools"] == ["*"]
+    # Should NOT have markdown-generator fields
+    assert "tags" not in frontmatter
+    assert "arguments" not in frontmatter
+    assert "meta" not in frontmatter
+    assert "enabled" not in frontmatter
+
+    assert "# Sample Prompt" in body
+
+
+def test_kiro_ide_generator_includes_tracking_comment(sample_prompt):
+    """Test that tracking metadata is appended as a trailing HTML comment."""
+    agent = get_agent_config("kiro-ide")
+    generator = KiroIdeCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    assert "<!-- slash-command-manager:" in generated
+    assert "source: sample-prompt" in generated
+    assert "version:" in generated
+    assert "updated:" in generated
+
+
+def test_kiro_ide_generator_rewrites_command_references(tmp_path):
+    """Test that /SDD-N-name references are rewritten to @name."""
+    from mcp_server.prompt_utils import load_markdown_prompt
+
+    prompt_path = tmp_path / "workflow-prompt.md"
+    prompt_path.write_text(
+        "---\n"
+        "name: SDD-1-generate-spec\n"
+        "description: Generate a spec\n"
+        "arguments: []\n"
+        "---\n\n"
+        "# Generate Spec\n\n"
+        "When done, run `/SDD-2-generate-task-list-from-spec` to continue.\n",
+        encoding="utf-8",
+    )
+    prompt = load_markdown_prompt(prompt_path)
+    agent = get_agent_config("kiro-ide")
+    generator = KiroIdeCommandGenerator()
+
+    generated = generator.generate(prompt, agent)
+
+    assert "/SDD-2-" not in generated
+    assert "@generate-task-list-from-spec" in generated
+
+    # Frontmatter name should have ordering prefix stripped
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+    assert frontmatter["name"] == "generate-spec"
+
+
+def test_kiro_ide_generator_replaces_placeholders(prompt_with_placeholder_body):
+    """Test that argument placeholders are replaced."""
+    agent = get_agent_config("kiro-ide")
+    generator = KiroIdeCommandGenerator()
+
+    generated = generator.generate(prompt_with_placeholder_body, agent)
+
+    assert "$ARGUMENTS" not in generated
+    assert "{{args}}" not in generated
+    assert "query" in generated
+
+
+def test_kiro_ide_generator_github_source_metadata(sample_prompt):
+    """Test that GitHub repo is included in tracking comment."""
+    agent = get_agent_config("kiro-ide")
+    generator = KiroIdeCommandGenerator()
+
+    source_metadata = {
+        "github_repo": "liatrio-labs/spec-driven-workflow",
+    }
+
+    generated = generator.generate(sample_prompt, agent, source_metadata)
+
+    assert "repo: liatrio-labs/spec-driven-workflow" in generated
+
+
+def test_kiro_ide_generator_snapshot_regression(sample_prompt):
+    """Snapshot-style test to catch unintended changes in Kiro IDE output format."""
+    agent = get_agent_config("kiro-ide")
+    generator = KiroIdeCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    # Must have frontmatter
+    assert generated.startswith("---\n")
+    assert "\n---\n" in generated
+
+    # Must end with newline
+    assert generated.endswith("\n")
+
+    # No trailing whitespace in lines
+    for line in generated.splitlines():
+        assert line == line.rstrip(), "Line contains trailing whitespace"
+
+    # Consistent line endings (LF only)
+    assert "\r" not in generated
+
+    # Must have tracking comment at end
+    assert generated.strip().endswith("-->")

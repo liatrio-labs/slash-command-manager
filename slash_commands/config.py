@@ -13,6 +13,8 @@ class CommandFormat(str, Enum):
 
     MARKDOWN = "markdown"
     TOML = "toml"
+    KIRO = "kiro"
+    KIRO_IDE = "kiro-ide"
 
 
 @dataclass(frozen=True)
@@ -138,6 +140,24 @@ _SUPPORTED_AGENT_DATA: tuple[
         CommandFormat.MARKDOWN,
         ".md",
         (".aws/amazonq",),
+        None,
+    ),
+    (
+        "kiro-cli",
+        "Kiro CLI",
+        ".kiro/prompts",
+        CommandFormat.KIRO,
+        ".md",
+        (".kiro",),
+        None,
+    ),
+    (
+        "kiro-ide",
+        "Kiro IDE",
+        ".kiro/agents",
+        CommandFormat.KIRO_IDE,
+        ".md",
+        (".kiro",),
         None,
     ),
 )

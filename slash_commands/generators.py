@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
 from typing import Any, Protocol
 
@@ -291,6 +292,126 @@ class TomlCommandGenerator:
         return tomli_w.dumps(data)
 
 
+def _strip_ordering_prefix(name: str) -> str:
+    """Strip ordering prefixes like 'SDD-1-' from a prompt name."""
+    return re.sub(r"^[A-Z]+-\d+-", "", name)
+
+
+def _rewrite_kiro_command_references(body: str) -> str:
+    """Rewrite /SDD-N-command-name references to @command-name for Kiro CLI."""
+    return re.sub(r"/[A-Z]+-\d+-([a-z0-9-]+)", r"@\1", body)
+
+
+class KiroCommandGenerator:
+    """Generator for Kiro CLI prompts.
+
+    Kiro CLI expects simple markdown files with no frontmatter.
+    The prompt content is injected directly when the user invokes @prompt_name.
+    Tracking metadata is appended as a trailing HTML comment so it does not
+    interfere with the prompt instructions the model sees first.
+    """
+
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Generate a Kiro CLI prompt file.
+
+        Args:
+            prompt: The source prompt to generate from
+            agent: The agent configuration
+            source_metadata: Optional source metadata (local or GitHub)
+
+        Returns:
+            Simple markdown content for Kiro CLI
+        """
+        _description, arguments, _enabled = _apply_agent_overrides(prompt, agent)
+
+        # Replace placeholders in body
+        body = _replace_placeholders(prompt.body, arguments, replace_double_braces=True)
+
+        # Rewrite command cross-references for Kiro's @prompt-name syntax
+        body = _rewrite_kiro_command_references(body)
+
+        # Output the prompt body directly — no extra headers or preamble.
+        # The body already contains its own structure (headings, sections, etc.)
+        output = body + "\n"
+
+        # Append tracking metadata as a trailing HTML comment.
+        # Placed at the end so it doesn't pollute the instructions the model sees first.
+        meta_lines = [
+            f"source: {prompt.name}",
+            f"version: {__version__}",
+            f"updated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
+        ]
+        if source_metadata:
+            if "github_repo" in source_metadata:
+                meta_lines.append(f"repo: {source_metadata['github_repo']}")
+
+        output += "\n<!-- slash-command-manager: " + " | ".join(meta_lines) + " -->\n"
+
+        return _normalize_output(output)
+
+
+class KiroIdeCommandGenerator:
+    """Generator for Kiro IDE custom subagents.
+
+    Kiro IDE expects markdown files with YAML frontmatter containing
+    name, description, and tools fields. The prompt body goes below
+    the frontmatter. Files are stored at ~/.kiro/agents/*.md and
+    invoked with /agent-name in the IDE.
+    """
+
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Generate a Kiro IDE agent file.
+
+        Args:
+            prompt: The source prompt to generate from
+            agent: The agent configuration
+            source_metadata: Optional source metadata (local or GitHub)
+
+        Returns:
+            Markdown with Kiro IDE frontmatter
+        """
+        description, arguments, _enabled = _apply_agent_overrides(prompt, agent)
+
+        # Build Kiro IDE frontmatter (strip ordering prefix for clean /agent-name invocation)
+        frontmatter: dict[str, Any] = {
+            "name": _strip_ordering_prefix(prompt.name),
+            "description": description,
+            "tools": ["*"],
+        }
+
+        # Replace placeholders and rewrite command references
+        body = _replace_placeholders(prompt.body, arguments, replace_double_braces=True)
+        body = _rewrite_kiro_command_references(body)
+
+        # Format as YAML frontmatter + body
+        yaml_content = yaml.safe_dump(frontmatter, allow_unicode=True, sort_keys=False)
+        output = f"---\n{yaml_content}---\n\n{body}\n"
+
+        # Append tracking metadata as a trailing HTML comment
+        meta_lines = [
+            f"source: {prompt.name}",
+            f"version: {__version__}",
+            f"updated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
+        ]
+        if source_metadata:
+            if "github_repo" in source_metadata:
+                meta_lines.append(f"repo: {source_metadata['github_repo']}")
+
+        output += "\n<!-- slash-command-manager: " + " | ".join(meta_lines) + " -->\n"
+
+        return _normalize_output(output)
+
+
 class CommandGenerator:
     """Base class for command generators."""
 
@@ -301,5 +422,9 @@ class CommandGenerator:
             return MarkdownCommandGenerator()
         elif format == CommandFormat.TOML:
             return TomlCommandGenerator()
+        elif format == CommandFormat.KIRO:
+            return KiroCommandGenerator()
+        elif format == CommandFormat.KIRO_IDE:
+            return KiroIdeCommandGenerator()
         else:
             raise ValueError(f"Unsupported command format: {format}")

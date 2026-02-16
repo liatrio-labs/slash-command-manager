@@ -6,7 +6,7 @@ The Slash Command Generator automates the creation of slash command files for AI
 
 The generator reads markdown prompts from the `prompts/` directory and produces command files in the appropriate format for each configured AI assistant. It supports:
 
-- **Multiple agents**: 7 supported AI assistants with different command formats
+- **Multiple agents**: 11 supported AI assistants with different command formats
 - **Auto-detection**: Automatically detects configured agents in your workspace
 - **Dry run mode**: Preview changes without writing files
 - **Safe overwrite handling**: Prompts before overwriting existing files with backup support
@@ -189,10 +189,13 @@ The following agents are supported:
 
 | Agent | Display Name | Format | Extension | Target Directory | Reference |
 |-------|--------------|--------|-----------|------------------|-----------|
+| `amazon-q` | Amazon Q | Markdown | `.md` | `.aws/amazonq/prompts` | [Home](https://aws.amazon.com/q/) · [Docs](https://docs.aws.amazon.com/amazonq/) |
 | `claude-code` | Claude Code | Markdown | `.md` | `.claude/commands` | [Home](https://docs.claude.com/) · [Docs](https://docs.claude.com/en/docs/claude-code/overview) |
 | `codex-cli` | Codex CLI | Markdown | `.md` | `.codex/prompts` | [Home](https://developers.openai.com/codex) · [Docs](https://developers.openai.com/codex/cli/) |
 | `cursor` | Cursor | Markdown | `.md` | `.cursor/commands` | [Home](https://cursor.com/) · [Docs](https://cursor.com/docs) |
 | `gemini-cli` | Gemini CLI | TOML | `.toml` | `.gemini/commands` | [Home](https://github.com/google-gemini/gemini-cli) · [Docs](https://geminicli.com/docs/) |
+| `kiro-cli` | Kiro CLI | Kiro | `.md` | `.kiro/prompts` | [Home](https://kiro.dev/cli/) · [Docs](https://kiro.dev/docs/cli/) |
+| `kiro-ide` | Kiro IDE | Kiro IDE | `.md` | `.kiro/agents` | [Home](https://kiro.dev/) · [Docs](https://kiro.dev/docs/) |
 | `opencode` | OpenCode CLI | Markdown | `.md` | `.config/opencode/command` | [Home](https://opencode.ai) · [Docs](https://opencode.ai/docs/commands) |
 | `vs-code` | VS Code | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/) · [Docs](https://code.visualstudio.com/docs) |
 | `vs-code-insiders` | VS Code Insiders | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/insiders/) · [Docs](https://code.visualstudio.com/docs) |
@@ -213,6 +216,18 @@ The following agents are supported:
 - **Windows**: `%APPDATA%\Code - Insiders\User\prompts`
 
 The generator automatically detects your platform and installs commands to the correct location. VS Code and VS Code Insiders maintain separate prompt directories and do not share configurations.
+
+### Kiro CLI Tool Permissions
+
+Kiro CLI prompts are plain markdown files and do not support declaring tool permissions. By default, Kiro CLI will prompt you to confirm every `write` and `shell` operation, which interrupts workflows like SDD that need to create files automatically.
+
+**Workaround**: Run `/tools trust-all` at the start of your Kiro CLI session to auto-approve all tool operations for that session. This only needs to be done once per session.
+
+```
+> /tools trust-all
+```
+
+See the [Kiro CLI permissions documentation](https://kiro.dev/docs/cli/chat/permissions/) for more details.
 
 ## Command File Formats
 

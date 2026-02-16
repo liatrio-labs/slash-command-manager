@@ -198,6 +198,9 @@ The generator supports the following AI coding assistants:
   - Windows: `%APPDATA%\Code - Insiders\User\prompts`
 - **OpenCode CLI**: Commands installed to `~/.config/opencode/command`
 - **Amazon Q**: Commands installed to `~/.aws/amazonq/prompts` (Windows & macOS/Linux)
+- **Kiro CLI**: Commands installed to `~/.kiro/prompts`
+  > **Note**: Kiro CLI prompts do not support tool permissions. Run `/tools trust-all` at the start of your session to auto-approve file operations (write, shell, etc.).
+- **Kiro IDE**: Agents installed to `~/.kiro/agents`
 
 ## Documentation
 

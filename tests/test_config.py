@@ -17,10 +17,12 @@ def supported_agents_by_key() -> dict[str, AgentConfig]:
     return {agent.key: agent for agent in SUPPORTED_AGENTS}
 
 
-def test_command_format_defines_markdown_and_toml():
+def test_command_format_defines_markdown_toml_and_kiro():
     assert CommandFormat.MARKDOWN.value == "markdown"
     assert CommandFormat.TOML.value == "toml"
-    assert {member.value for member in CommandFormat} == {"markdown", "toml"}
+    assert CommandFormat.KIRO.value == "kiro"
+    assert CommandFormat.KIRO_IDE.value == "kiro-ide"
+    assert {member.value for member in CommandFormat} == {"markdown", "toml", "kiro", "kiro-ide"}
 
 
 def test_agent_config_is_frozen_dataclass():
@@ -64,8 +66,9 @@ def test_supported_agents_have_valid_structure(
             or agent.command_dir.endswith("/prompts")
             or agent.command_dir.endswith("/global_workflows")
             or agent.command_dir.endswith("/command")
+            or agent.command_dir.endswith("/agents")
         ), (
-            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, or /command"
+            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, /command, or /agents"
         )
         # File extension must start with a dot
         assert agent.command_file_extension.startswith("."), (
@@ -91,10 +94,15 @@ def test_supported_agents_have_valid_command_formats(
     supported_agents_by_key: dict[str, AgentConfig],
 ):
     """Validate that all agents use a supported command format."""
-    valid_formats = {CommandFormat.MARKDOWN, CommandFormat.TOML}
+    valid_formats = {
+        CommandFormat.MARKDOWN,
+        CommandFormat.TOML,
+        CommandFormat.KIRO,
+        CommandFormat.KIRO_IDE,
+    }
     for agent in supported_agents_by_key.values():
         assert agent.command_format in valid_formats, (
-            f"{agent.key}: command_format must be MARKDOWN or TOML"
+            f"{agent.key}: command_format must be MARKDOWN, TOML, KIRO, or KIRO_IDE"
         )
 
 
