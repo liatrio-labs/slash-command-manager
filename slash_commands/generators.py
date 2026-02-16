@@ -347,8 +347,8 @@ class KiroCommandGenerator:
             f"updated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
         ]
         if source_metadata:
-            if "github_repo" in source_metadata:
-                meta_lines.append(f"repo: {source_metadata['github_repo']}")
+            if "source_repo" in source_metadata:
+                meta_lines.append(f"repo: {source_metadata['source_repo']}")
 
         output += "\n<!-- slash-command-manager: " + " | ".join(meta_lines) + " -->\n"
 
@@ -404,8 +404,8 @@ class KiroIdeCommandGenerator:
             f"updated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
         ]
         if source_metadata:
-            if "github_repo" in source_metadata:
-                meta_lines.append(f"repo: {source_metadata['github_repo']}")
+            if "source_repo" in source_metadata:
+                meta_lines.append(f"repo: {source_metadata['source_repo']}")
 
         output += "\n<!-- slash-command-manager: " + " | ".join(meta_lines) + " -->\n"
 

@@ -388,7 +388,7 @@ def test_kiro_generator_github_source_metadata(sample_prompt):
     generator = KiroCommandGenerator()
 
     source_metadata = {
-        "github_repo": "liatrio-labs/spec-driven-workflow",
+        "source_repo": "liatrio-labs/spec-driven-workflow",
     }
 
     generated = generator.generate(sample_prompt, agent, source_metadata)
@@ -503,7 +503,7 @@ def test_kiro_ide_generator_github_source_metadata(sample_prompt):
     generator = KiroIdeCommandGenerator()
 
     source_metadata = {
-        "github_repo": "liatrio-labs/spec-driven-workflow",
+        "source_repo": "liatrio-labs/spec-driven-workflow",
     }
 
     generated = generator.generate(sample_prompt, agent, source_metadata)
