@@ -154,7 +154,7 @@ _SUPPORTED_AGENT_DATA: tuple[
     (
         "kiro-ide",
         "Kiro IDE",
-        ".kiro/agents",
+        ".kiro/steering",
         CommandFormat.KIRO_IDE,
         ".md",
         (".kiro",),

@@ -67,8 +67,9 @@ def test_supported_agents_have_valid_structure(
             or agent.command_dir.endswith("/global_workflows")
             or agent.command_dir.endswith("/command")
             or agent.command_dir.endswith("/agents")
+            or agent.command_dir.endswith("/steering")
         ), (
-            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, /command, or /agents"
+            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, /command, /agents, or /steering"
         )
         # File extension must start with a dot
         assert agent.command_file_extension.startswith("."), (
