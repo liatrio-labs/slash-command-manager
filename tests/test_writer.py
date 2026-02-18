@@ -960,7 +960,9 @@ def test_writer_finds_generated_kiro_ide_agent_files(tmp_path):
 
     # Create a non-generated file (no tracking comment)
     non_generated_file = command_dir / "manual-agent.md"
-    non_generated_file.write_text("---\ninclusion: manual\nname: manual\ntools: ['*']\n---\n\n# Manual\n")
+    non_generated_file.write_text(
+        "---\ninclusion: manual\nname: manual\ntools: ['*']\n---\n\n# Manual\n"
+    )
 
     writer = SlashCommandWriter(
         prompts_dir=tmp_path / "prompts",
