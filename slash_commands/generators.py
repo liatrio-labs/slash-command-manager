@@ -360,7 +360,7 @@ class KiroIdeCommandGenerator:
 
     Kiro IDE expects markdown files with YAML frontmatter containing
     inclusion mode. Files are stored at ~/.kiro/steering/*.md and
-    are manually included via # context markers in chat.
+    are manually included via / command markers in chat.
     """
 
     def generate(
