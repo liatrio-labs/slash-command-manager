@@ -459,7 +459,7 @@ def test_kiro_ide_generator_includes_tracking_comment(sample_prompt):
 
 
 def test_kiro_ide_generator_rewrites_command_references(tmp_path):
-    """Test that /SDD-N-name references are rewritten to @name."""
+    """Test that /SDD-N-name references are rewritten to /name for steering files."""
     from mcp_server.prompt_utils import load_markdown_prompt
 
     prompt_path = tmp_path / "workflow-prompt.md"
@@ -480,7 +480,7 @@ def test_kiro_ide_generator_rewrites_command_references(tmp_path):
     generated = generator.generate(prompt, agent)
 
     assert "/SDD-2-" not in generated
-    assert "@generate-task-list-from-spec" in generated
+    assert "/generate-task-list-from-spec" in generated
 
     # Frontmatter name should have ordering prefix stripped
     frontmatter, _ = _extract_frontmatter_and_body(generated)

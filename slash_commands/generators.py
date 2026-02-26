@@ -297,9 +297,14 @@ def _strip_ordering_prefix(name: str) -> str:
     return re.sub(r"^[A-Z]+-\d+-", "", name)
 
 
-def _rewrite_kiro_command_references(body: str) -> str:
-    """Rewrite /SDD-N-command-name references to @command-name for Kiro CLI."""
-    return re.sub(r"/[A-Z]+-\d+-([a-z0-9-]+)", r"@\1", body)
+def _rewrite_kiro_command_references(body: str, prefix: str = "@") -> str:
+    """Rewrite /SDD-N-command-name references for Kiro.
+
+    Args:
+        body: The prompt body text
+        prefix: The prefix for command references ('@' for CLI, '/' for IDE steering)
+    """
+    return re.sub(r"/[A-Z]+-\d+-([a-z0-9-]+)", rf"{prefix}\1", body)
 
 
 class KiroCommandGenerator:
@@ -389,9 +394,9 @@ class KiroIdeCommandGenerator:
             "tools": ["*"],
         }
 
-        # Replace placeholders and rewrite command references
+        # Replace placeholders and rewrite command references (/ prefix for steering files)
         body = _replace_placeholders(prompt.body, arguments, replace_double_braces=True)
-        body = _rewrite_kiro_command_references(body)
+        body = _rewrite_kiro_command_references(body, prefix="/")
 
         # Format as YAML frontmatter + body
         yaml_content = yaml.safe_dump(frontmatter, allow_unicode=True, sort_keys=False)
