@@ -947,20 +947,22 @@ def test_writer_generates_kiro_prompt_files(mock_prompt_load: Path, tmp_path):
 
 
 def test_writer_finds_generated_kiro_ide_agent_files(tmp_path):
-    """Test that writer can find generated Kiro IDE agent files."""
-    command_dir = tmp_path / ".kiro" / "agents"
+    """Test that writer can find generated Kiro IDE steering files."""
+    command_dir = tmp_path / ".kiro" / "steering"
     command_dir.mkdir(parents=True, exist_ok=True)
 
     generated_file = command_dir / "test-agent.md"
     generated_file.write_text(
-        "---\nname: test-agent\ndescription: Test agent\ntools:\n- '*'\n---\n\n"
+        "---\ninclusion: manual\nname: test-agent\ndescription: Test agent\ntools:\n- '*'\n---\n\n"
         "# Test Agent\n\nDo things.\n\n"
         "<!-- slash-command-manager: source: test-prompt | version: 1.0.0 | updated: 2026-02-16 -->\n"
     )
 
     # Create a non-generated file (no tracking comment)
     non_generated_file = command_dir / "manual-agent.md"
-    non_generated_file.write_text("---\nname: manual\ntools: ['*']\n---\n\n# Manual\n")
+    non_generated_file.write_text(
+        "---\ninclusion: manual\nname: manual\ntools: ['*']\n---\n\n# Manual\n"
+    )
 
     writer = SlashCommandWriter(
         prompts_dir=tmp_path / "prompts",
@@ -978,7 +980,7 @@ def test_writer_finds_generated_kiro_ide_agent_files(tmp_path):
 
 
 def test_writer_generates_kiro_ide_agent_files(mock_prompt_load: Path, tmp_path):
-    """Test that writer generates Kiro IDE agent markdown files."""
+    """Test that writer generates Kiro IDE steering markdown files."""
     prompts_dir = mock_prompt_load
 
     writer = SlashCommandWriter(
@@ -990,14 +992,15 @@ def test_writer_generates_kiro_ide_agent_files(mock_prompt_load: Path, tmp_path)
 
     writer.generate()
 
-    agents_output_dir = tmp_path / ".kiro" / "agents"
-    assert agents_output_dir.exists()
+    steering_output_dir = tmp_path / ".kiro" / "steering"
+    assert steering_output_dir.exists()
 
-    md_files = list(agents_output_dir.glob("*.md"))
+    md_files = list(steering_output_dir.glob("*.md"))
     assert len(md_files) > 0
 
     for md_file in md_files:
         content = md_file.read_text()
         assert content.startswith("---")  # Has frontmatter
+        assert "inclusion: manual" in content  # Has inclusion field
         assert "tools:" in content  # Has tools field
         assert "<!-- slash-command-manager:" in content  # Has tracking comment

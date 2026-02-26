@@ -356,12 +356,11 @@ class KiroCommandGenerator:
 
 
 class KiroIdeCommandGenerator:
-    """Generator for Kiro IDE custom subagents.
+    """Generator for Kiro IDE steering files.
 
     Kiro IDE expects markdown files with YAML frontmatter containing
-    name, description, and tools fields. The prompt body goes below
-    the frontmatter. Files are stored at ~/.kiro/agents/*.md and
-    invoked with /agent-name in the IDE.
+    inclusion mode. Files are stored at ~/.kiro/steering/*.md and
+    are manually included via / command markers in chat.
     """
 
     def generate(
@@ -370,7 +369,7 @@ class KiroIdeCommandGenerator:
         agent: AgentConfig,
         source_metadata: dict[str, Any] | None = None,
     ) -> str:
-        """Generate a Kiro IDE agent file.
+        """Generate a Kiro IDE steering file.
 
         Args:
             prompt: The source prompt to generate from
@@ -378,12 +377,13 @@ class KiroIdeCommandGenerator:
             source_metadata: Optional source metadata (local or GitHub)
 
         Returns:
-            Markdown with Kiro IDE frontmatter
+            Markdown with Kiro IDE steering frontmatter
         """
         description, arguments, _enabled = _apply_agent_overrides(prompt, agent)
 
-        # Build Kiro IDE frontmatter (strip ordering prefix for clean /agent-name invocation)
+        # Build Kiro IDE steering frontmatter with inclusion first, then name, description, tools
         frontmatter: dict[str, Any] = {
+            "inclusion": "manual",
             "name": _strip_ordering_prefix(prompt.name),
             "description": description,
             "tools": ["*"],

@@ -424,13 +424,15 @@ def test_kiro_generator_snapshot_regression(sample_prompt):
 
 
 def test_kiro_ide_generator_produces_frontmatter_with_tools(sample_prompt):
-    """Test that KiroIdeCommandGenerator produces markdown with Kiro IDE frontmatter."""
+    """Test that KiroIdeCommandGenerator produces markdown with Kiro IDE steering frontmatter."""
     agent = get_agent_config("kiro-ide")
     generator = KiroIdeCommandGenerator()
 
     generated = generator.generate(sample_prompt, agent)
     frontmatter, body = _extract_frontmatter_and_body(generated)
 
+    # Check that inclusion is first, then name, description, tools
+    assert frontmatter["inclusion"] == "manual"
     assert frontmatter["name"] == "sample-prompt"
     assert "description" in frontmatter
     assert frontmatter["tools"] == ["*"]
