@@ -195,7 +195,7 @@ The following agents are supported:
 | `cursor` | Cursor | Markdown | `.md` | `.cursor/commands` | [Home](https://cursor.com/) · [Docs](https://cursor.com/docs) |
 | `gemini-cli` | Gemini CLI | TOML | `.toml` | `.gemini/commands` | [Home](https://github.com/google-gemini/gemini-cli) · [Docs](https://geminicli.com/docs/) |
 | `kiro-cli` | Kiro CLI | Kiro | `.md` | `.kiro/prompts` | [Home](https://kiro.dev/cli/) · [Docs](https://kiro.dev/docs/cli/) |
-| `kiro-ide` | Kiro IDE | Kiro IDE | `.md` | `.kiro/agents` | [Home](https://kiro.dev/) · [Docs](https://kiro.dev/docs/) |
+| `kiro-ide` | Kiro IDE | Kiro IDE | `.md` | `.kiro/steering` | [Home](https://kiro.dev/) · [Docs](https://kiro.dev/docs/) |
 | `opencode` | OpenCode CLI | Markdown | `.md` | `.config/opencode/command` | [Home](https://opencode.ai) · [Docs](https://opencode.ai/docs/commands) |
 | `vs-code` | VS Code | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/) · [Docs](https://code.visualstudio.com/docs) |
 | `vs-code-insiders` | VS Code Insiders | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/insiders/) · [Docs](https://code.visualstudio.com/docs) |
@@ -224,22 +224,22 @@ Kiro has two separate products that use different command formats. You can insta
 | Product | What it does | Install path | Invocation |
 |---------|-------------|--------------|------------|
 | **Kiro CLI** | Terminal-based AI assistant | `~/.kiro/prompts/*.md` | `@prompt-name` |
-| **Kiro IDE** | VS Code-based IDE with AI agents | `~/.kiro/agents/*.md` | `/agent-name` |
+| **Kiro IDE** | VS Code-based IDE with steering files | `~/.kiro/steering/*.md` | `/steering-name` |
 
 #### Quick Start
 
 ```bash
 # Install for Kiro CLI only
-uv run slash-man --agents kiro-cli --yes
+uv run slash-man generate --agent kiro-cli --yes
 
 # Install for Kiro IDE only
-uv run slash-man --agents kiro-ide --yes
+uv run slash-man generate --agent kiro-ide --yes
 
 # Install for both
-uv run slash-man --agents kiro-cli --agents kiro-ide --yes
+uv run slash-man generate --agent kiro-cli --agent kiro-ide --yes
 
 # Install SDD workflow prompts from GitHub
-uv run slash-man --agents kiro-cli --agents kiro-ide \
+uv run slash-man generate --agent kiro-cli --agent kiro-ide \
   --github-repo liatrio-labs/spec-driven-workflow \
   --github-branch main --github-path prompts --yes
 ```
@@ -248,9 +248,9 @@ uv run slash-man --agents kiro-cli --agents kiro-ide \
 
 The generator automatically adapts prompts for Kiro's conventions:
 
-- **Command references are rewritten**: Source prompts that reference `/SDD-2-generate-task-list-from-spec` (Claude Code syntax) are automatically converted to `@generate-task-list-from-spec` for Kiro
+- **Command references are rewritten**: Source prompts that reference `/SDD-2-generate-task-list-from-spec` (Claude Code syntax) are converted to `@generate-task-list-from-spec` for Kiro CLI and `/generate-task-list-from-spec` for Kiro IDE
 - **Ordering prefixes are stripped**: A source prompt named `SDD-1-generate-spec` becomes `generate-spec.md` so you invoke it as `@generate-spec` (CLI) or `/generate-spec` (IDE)
-- **Kiro IDE agents get YAML frontmatter** with `name`, `description`, and `tools: ["*"]` (wildcard tool access)
+- **Kiro IDE steering files get YAML frontmatter** with `inclusion: manual`, `name`, `description`, and `tools: ["*"]` (wildcard tool access)
 - **Kiro CLI prompts are plain markdown** with no frontmatter — just the prompt body
 
 #### Kiro CLI Tool Permissions
