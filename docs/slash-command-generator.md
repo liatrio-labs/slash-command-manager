@@ -224,7 +224,7 @@ Kiro has two separate products that use different command formats. You can insta
 | Product | What it does | Install path | Invocation |
 |---------|-------------|--------------|------------|
 | **Kiro CLI** | Terminal-based AI assistant | `~/.kiro/prompts/*.md` | `@prompt-name` |
-| **Kiro IDE** | VS Code-based IDE with steering files | `~/.kiro/steering/*.md` | `/steering-name` |
+| **Kiro IDE** | VS Code-based IDE with steering files | `~/.kiro/steering/*.md` | `/prompt-name` |
 
 #### Quick Start
 

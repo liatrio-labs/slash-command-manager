@@ -198,9 +198,12 @@ The generator supports the following AI coding assistants:
   - Windows: `%APPDATA%\Code - Insiders\User\prompts`
 - **OpenCode CLI**: Commands installed to `~/.config/opencode/command`
 - **Amazon Q**: Commands installed to `~/.aws/amazonq/prompts` (Windows & macOS/Linux)
-- **Kiro CLI**: Commands installed to `~/.kiro/prompts`
-  > **Note**: Kiro CLI prompts do not support tool permissions. Run `/tools trust-all` at the start of your session to auto-approve file operations (write, shell, etc.).
+- **Kiro CLI**: Prompts installed to `~/.kiro/prompts`
+  - Invoke with `@prompt-name` (e.g., `@generate-spec`)
+  - **Note**: Kiro CLI prompts do not support tool permissions. Run `/tools trust-all` at the start of your session to auto-approve file operations (write, shell, etc.).
 - **Kiro IDE**: Steering files installed to `~/.kiro/steering`
+  - Invoke with `/prompt-name` slash command (e.g., `/generate-spec`)
+  - Files have `inclusion: manual` frontmatter for manual inclusion
 
 ## Documentation
 
