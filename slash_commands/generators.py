@@ -311,7 +311,7 @@ class KiroCommandGenerator:
     """Generator for Kiro CLI prompts.
 
     Kiro CLI expects simple markdown files with no frontmatter.
-    The prompt content is injected directly when the user invokes @prompt_name.
+    The prompt content is injected directly when the user invokes @prompt-name.
     Tracking metadata is appended as a trailing HTML comment so it does not
     interfere with the prompt instructions the model sees first.
     """
