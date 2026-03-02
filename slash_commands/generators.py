@@ -296,17 +296,6 @@ def _strip_ordering_prefix(name: str) -> str:
     """Strip ordering prefixes like 'SDD-1-' from a prompt name."""
     return re.sub(r"^[A-Z]+-\d+-", "", name)
 
-
-def _rewrite_kiro_command_references(body: str, prefix: str = "@") -> str:
-    """Rewrite /SDD-N-command-name references for Kiro.
-
-    Args:
-        body: The prompt body text
-        prefix: The prefix for command references ('@' for CLI, '/' for IDE steering)
-    """
-    return re.sub(r"/[A-Z]+-\d+-([a-z0-9-]+)", rf"{prefix}\1", body)
-
-
 class KiroCommandGenerator:
     """Generator for Kiro CLI prompts.
 
@@ -336,9 +325,6 @@ class KiroCommandGenerator:
 
         # Replace placeholders in body
         body = _replace_placeholders(prompt.body, arguments, replace_double_braces=True)
-
-        # Rewrite command cross-references for Kiro's @prompt-name syntax
-        body = _rewrite_kiro_command_references(body)
 
         # Output the prompt body directly — no extra headers or preamble.
         # The body already contains its own structure (headings, sections, etc.)
@@ -389,14 +375,13 @@ class KiroIdeCommandGenerator:
         # Build Kiro IDE steering frontmatter with inclusion first, then name, description, tools
         frontmatter: dict[str, Any] = {
             "inclusion": "manual",
-            "name": _strip_ordering_prefix(prompt.name),
+            "name": prompt.name,
             "description": description,
             "tools": ["*"],
         }
 
         # Replace placeholders and rewrite command references (/ prefix for steering files)
         body = _replace_placeholders(prompt.body, arguments, replace_double_braces=True)
-        body = _rewrite_kiro_command_references(body, prefix="/")
 
         # Format as YAML frontmatter + body
         yaml_content = yaml.safe_dump(frontmatter, allow_unicode=True, sort_keys=False)

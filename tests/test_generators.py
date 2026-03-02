@@ -351,37 +351,6 @@ def test_kiro_generator_replaces_placeholders(prompt_with_placeholder_body):
     assert "query" in generated
 
 
-def test_kiro_generator_rewrites_command_references(tmp_path):
-    """Test that /SDD-N-name command references are rewritten to @name for Kiro."""
-    from mcp_server.prompt_utils import load_markdown_prompt
-
-    prompt_path = tmp_path / "workflow-prompt.md"
-    prompt_path.write_text(
-        "---\n"
-        "name: SDD-1-generate-spec\n"
-        "description: Generate a spec\n"
-        "arguments: []\n"
-        "---\n\n"
-        "# Generate Spec\n\n"
-        "When done, run `/SDD-2-generate-task-list-from-spec` to continue.\n"
-        "Then use `/SDD-3-manage-tasks` for implementation.\n"
-        "Finally run `/SDD-4-validate-spec-implementation` to verify.\n",
-        encoding="utf-8",
-    )
-    prompt = load_markdown_prompt(prompt_path)
-    agent = get_agent_config("kiro-cli")
-    generator = KiroCommandGenerator()
-
-    generated = generator.generate(prompt, agent)
-
-    assert "/SDD-2-" not in generated
-    assert "/SDD-3-" not in generated
-    assert "/SDD-4-" not in generated
-    assert "@generate-task-list-from-spec" in generated
-    assert "@manage-tasks" in generated
-    assert "@validate-spec-implementation" in generated
-
-
 def test_kiro_generator_github_source_metadata(sample_prompt):
     """Test that GitHub repo is included in tracking comment."""
     agent = get_agent_config("kiro-cli")
@@ -456,36 +425,6 @@ def test_kiro_ide_generator_includes_tracking_comment(sample_prompt):
     assert "source: sample-prompt" in generated
     assert "version:" in generated
     assert "updated:" in generated
-
-
-def test_kiro_ide_generator_rewrites_command_references(tmp_path):
-    """Test that /SDD-N-name references are rewritten to /name for steering files."""
-    from mcp_server.prompt_utils import load_markdown_prompt
-
-    prompt_path = tmp_path / "workflow-prompt.md"
-    prompt_path.write_text(
-        "---\n"
-        "name: SDD-1-generate-spec\n"
-        "description: Generate a spec\n"
-        "arguments: []\n"
-        "---\n\n"
-        "# Generate Spec\n\n"
-        "When done, run `/SDD-2-generate-task-list-from-spec` to continue.\n",
-        encoding="utf-8",
-    )
-    prompt = load_markdown_prompt(prompt_path)
-    agent = get_agent_config("kiro-ide")
-    generator = KiroIdeCommandGenerator()
-
-    generated = generator.generate(prompt, agent)
-
-    assert "/SDD-2-" not in generated
-    assert "/generate-task-list-from-spec" in generated
-
-    # Frontmatter name should have ordering prefix stripped
-    frontmatter, _ = _extract_frontmatter_and_body(generated)
-    assert frontmatter["name"] == "generate-spec"
-
 
 def test_kiro_ide_generator_replaces_placeholders(prompt_with_placeholder_body):
     """Test that argument placeholders are replaced."""

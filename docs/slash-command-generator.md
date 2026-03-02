@@ -248,10 +248,9 @@ uv run slash-man generate --agent kiro-cli --agent kiro-ide \
 
 The generator automatically adapts prompts for Kiro's conventions:
 
-- **Command references are rewritten**: Source prompts that reference `/SDD-2-generate-task-list-from-spec` (Claude Code syntax) are converted to `@generate-task-list-from-spec` for Kiro CLI and `/generate-task-list-from-spec` for Kiro IDE
-- **Ordering prefixes are stripped**: A source prompt named `SDD-1-generate-spec` becomes `generate-spec.md` so you invoke it as `@generate-spec` (CLI) or `/generate-spec` (IDE)
 - **Kiro IDE steering files get YAML frontmatter** with `inclusion: manual`, `name`, `description`, and `tools: ["*"]` (wildcard tool access)
 - **Kiro CLI prompts are plain markdown** with no frontmatter — just the prompt body
+- **Prompt names are preserved**: A source prompt named `SDD-1-generate-spec` becomes `SDD-1-generate-spec.md` and is invoked as `@SDD-1-generate-spec` (CLI) or `/SDD-1-generate-spec` (IDE)
 
 #### Kiro CLI Tool Permissions
 

@@ -284,23 +284,6 @@ class SlashCommandWriter:
 
         return prompts
 
-    def _get_output_name(self, prompt_name: str, agent: AgentConfig) -> str:
-        """Get the output name for a prompt, applying agent-specific transforms.
-
-        Args:
-            prompt_name: Original prompt name (e.g. "SDD-1-generate-spec")
-            agent: Agent configuration
-
-        Returns:
-            Transformed name suitable for this agent (e.g. "generate-spec" for Kiro)
-        """
-        name = prompt_name
-        if agent.command_format.value in ("kiro", "kiro-ide"):
-            from slash_commands.generators import _strip_ordering_prefix
-
-            name = _strip_ordering_prefix(name)
-        return name
-
     def _sanitize_filename(self, name: str, extension: str) -> str:
         """Sanitize a filename by removing path components and unsafe characters.
 
@@ -334,8 +317,7 @@ class SlashCommandWriter:
                 continue
             for agent in agent_configs:
                 # Determine output path (same logic as _generate_file)
-                name = self._get_output_name(prompt.name, agent)
-                filename = self._sanitize_filename(name, agent.command_file_extension)
+                filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
                 output_path = self.base_path / agent.get_command_dir() / filename
 
                 if output_path.exists():
@@ -397,8 +379,7 @@ class SlashCommandWriter:
 
         # Determine output path (resolve relative to base_path)
         # Sanitize file stem: drop any path components and restrict to safe chars
-        name = self._get_output_name(prompt.name, agent)
-        filename = self._sanitize_filename(name, agent.command_file_extension)
+        filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
         output_path = self.base_path / agent.get_command_dir() / filename
 
         # Handle existing files
