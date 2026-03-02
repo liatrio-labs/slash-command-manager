@@ -426,6 +426,7 @@ def test_kiro_ide_generator_includes_tracking_comment(sample_prompt):
     assert "version:" in generated
     assert "updated:" in generated
 
+
 def test_kiro_ide_generator_replaces_placeholders(prompt_with_placeholder_body):
     """Test that argument placeholders are replaced."""
     agent = get_agent_config("kiro-ide")

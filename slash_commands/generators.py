@@ -296,6 +296,7 @@ def _strip_ordering_prefix(name: str) -> str:
     """Strip ordering prefixes like 'SDD-1-' from a prompt name."""
     return re.sub(r"^[A-Z]+-\d+-", "", name)
 
+
 class KiroCommandGenerator:
     """Generator for Kiro CLI prompts.
 
