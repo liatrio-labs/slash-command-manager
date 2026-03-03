@@ -55,7 +55,7 @@ To update this document:
 
 ### Testing Steps
 
-1. Install the slash-command-manager MCP server
+1. Install the slash-man MCP server
 2. Configure your AI tool to connect to the MCP server
 3. Try each of the three prompts:
    - Generate a spec from an idea

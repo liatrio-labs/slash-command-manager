@@ -80,7 +80,7 @@ def _get_version() -> str:
             return data["project"]["version"]
     else:
         # Installed package mode
-        return get_package_version("slash-command-manager")
+        return get_package_version("slash-man")
 
 
 def _get_version_with_commit() -> str:
