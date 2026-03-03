@@ -2,6 +2,71 @@
 
 <!-- version list -->
 
+## v0.11.0 (2026-03-03)
+
+### Bug Fixes
+
+- Formatting of the test_writer
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- Removing extra functionality to strip kiro prompts of prefix
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- Updated documentation after reviewing cli installation and usage
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- **docs**: Add language specifier to fenced code block
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- **generators**: Use / prefix for Kiro IDE steering file cross-references
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- **generators**: Use correct source_repo key in Kiro tracking comments
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- **generators**: Use hyphen in Kiro CLI docstring example
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+### Chores
+
+- Fix comment to / command ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- Run formatter ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+### Documentation
+
+- Add Kiro quick start and detailed usage guide
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- Update Kiro IDE references from agents to steering files
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+### Features
+
+- Adding in support for kiro ide
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- Using steering folder for kiro ide support
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+- **agents**: Add Kiro CLI and Kiro IDE support
+  ([#21](https://github.com/liatrio-labs/slash-command-manager/pull/21),
+  [`b927173`](https://github.com/liatrio-labs/slash-command-manager/commit/b92717336129889253fe93e0caf7d9f3d901ae6e))
+
+
 ## v0.10.0 (2026-01-08)
 
 ### Features
