@@ -15,6 +15,7 @@ class CommandFormat(str, Enum):
     TOML = "toml"
     KIRO = "kiro"
     KIRO_IDE = "kiro-ide"
+    JUNIE = "junie"
 
 
 @dataclass(frozen=True)
@@ -28,6 +29,8 @@ class AgentConfig:
     command_file_extension: str
     detection_dirs: tuple[str, ...]
     platform_command_dirs: dict[str, str] | None = None
+    use_subdirectory_layout: bool = False
+    fixed_filename: str | None = None
 
     def iter_detection_dirs(self) -> Iterable[str]:
         """Return an iterator over configured detection directories."""
@@ -143,6 +146,15 @@ _SUPPORTED_AGENT_DATA: tuple[
         None,
     ),
     (
+        "jetbrains-ai-assistant",
+        "JetBrains AI Assistant",
+        ".aiassistant/rules",
+        CommandFormat.KIRO,
+        ".md",
+        (".aiassistant",),
+        None,
+    ),
+    (
         "kiro-cli",
         "Kiro CLI",
         ".kiro/prompts",
@@ -164,25 +176,44 @@ _SUPPORTED_AGENT_DATA: tuple[
 
 _SORTED_AGENT_DATA = tuple(sorted(_SUPPORTED_AGENT_DATA, key=lambda item: item[0]))
 
-SUPPORTED_AGENTS: tuple[AgentConfig, ...] = tuple(
+_EXTRA_AGENTS: tuple[AgentConfig, ...] = (
     AgentConfig(
-        key=key,
-        display_name=display_name,
-        command_dir=command_dir,
-        command_format=command_format,
-        command_file_extension=command_file_extension,
-        detection_dirs=detection_dirs,
-        platform_command_dirs=platform_command_dirs,
+        key="junie",
+        display_name="Junie",
+        command_dir=".junie/skills",
+        command_format=CommandFormat.JUNIE,
+        command_file_extension=".md",
+        detection_dirs=(".junie",),
+        use_subdirectory_layout=True,
+        fixed_filename="SKILL.md",
+    ),
+)
+
+SUPPORTED_AGENTS: tuple[AgentConfig, ...] = tuple(
+    sorted(
+        [
+            AgentConfig(
+                key=key,
+                display_name=display_name,
+                command_dir=command_dir,
+                command_format=command_format,
+                command_file_extension=command_file_extension,
+                detection_dirs=detection_dirs,
+                platform_command_dirs=platform_command_dirs,
+            )
+            for (
+                key,
+                display_name,
+                command_dir,
+                command_format,
+                command_file_extension,
+                detection_dirs,
+                platform_command_dirs,
+            ) in _SORTED_AGENT_DATA
+        ]
+        + list(_EXTRA_AGENTS),
+        key=lambda a: a.key,
     )
-    for (
-        key,
-        display_name,
-        command_dir,
-        command_format,
-        command_file_extension,
-        detection_dirs,
-        platform_command_dirs,
-    ) in _SORTED_AGENT_DATA
 )
 
 _AGENT_LOOKUP: Mapping[str, AgentConfig] = {agent.key: agent for agent in SUPPORTED_AGENTS}

@@ -979,6 +979,111 @@ def test_writer_finds_generated_kiro_ide_agent_files(tmp_path):
     assert found_files[0]["type"] == "command"
 
 
+def test_writer_generates_jetbrains_rules_files(mock_prompt_load: Path, tmp_path):
+    """Test that writer generates JetBrains AI Assistant project rule files."""
+    prompts_dir = mock_prompt_load
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=["jetbrains-ai-assistant"],
+        dry_run=False,
+        base_path=tmp_path,
+    )
+
+    writer.generate()
+
+    rules_output_dir = tmp_path / ".aiassistant" / "rules"
+    assert rules_output_dir.exists()
+
+    md_files = list(rules_output_dir.glob("*.md"))
+    assert len(md_files) > 0
+
+    for md_file in md_files:
+        content = md_file.read_text()
+        assert not content.startswith("---")  # No frontmatter (plain markdown)
+        assert "<!-- slash-command-manager:" in content  # Has tracking comment
+
+
+def test_writer_generates_junie_skill_in_subdirectory(mock_prompt_load: Path, tmp_path):
+    """Test that writer generates Junie skills in subdirectory layout."""
+    prompts_dir = mock_prompt_load
+
+    writer = SlashCommandWriter(
+        prompts_dir=prompts_dir,
+        agents=["junie"],
+        dry_run=False,
+        base_path=tmp_path,
+    )
+
+    writer.generate()
+
+    skills_output_dir = tmp_path / ".junie" / "skills"
+    assert skills_output_dir.exists()
+
+    # Should create a subdirectory with SKILL.md inside
+    skill_file = skills_output_dir / "test-prompt" / "SKILL.md"
+    assert skill_file.exists()
+
+    content = skill_file.read_text()
+    assert content.startswith("---")  # Has frontmatter
+    assert "name:" in content
+    assert "description:" in content
+    assert "<!-- slash-command-manager:" in content  # Has tracking comment
+
+
+def test_writer_finds_generated_junie_skill_files(tmp_path):
+    """Test that writer can find generated Junie skill files in subdirectories."""
+    skill_dir = tmp_path / ".junie" / "skills" / "test-skill"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+
+    generated_file = skill_dir / "SKILL.md"
+    generated_file.write_text(
+        "---\nname: test-skill\ndescription: Test skill\n---\n\n"
+        "# Test Skill\n\nDo things.\n\n"
+        "<!-- slash-command-manager: source: test-prompt | version: 1.0.0 | updated: 2026-04-02 -->\n"
+    )
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=[],
+        dry_run=False,
+        base_path=tmp_path,
+    )
+
+    found_files = writer.find_generated_files(agents=["junie"], include_backups=False)
+
+    assert len(found_files) == 1
+    assert found_files[0]["path"] == str(generated_file)
+    assert found_files[0]["agent"] == "junie"
+    assert found_files[0]["type"] == "command"
+
+
+def test_writer_cleanup_junie_removes_empty_subdirectory(tmp_path):
+    """Test that cleanup removes empty parent subdirectory after deleting SKILL.md."""
+    skill_dir = tmp_path / ".junie" / "skills" / "test-skill"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+
+    generated_file = skill_dir / "SKILL.md"
+    generated_file.write_text(
+        "---\nname: test-skill\ndescription: Test skill\n---\n\n"
+        "# Test Skill\n\n"
+        "<!-- slash-command-manager: source: test-prompt | version: 1.0.0 | updated: 2026-04-02 -->\n"
+    )
+
+    writer = SlashCommandWriter(
+        prompts_dir=tmp_path / "prompts",
+        agents=[],
+        dry_run=False,
+        base_path=tmp_path,
+    )
+
+    result = writer.cleanup(agents=["junie"], include_backups=False, dry_run=False)
+
+    assert result["files_deleted"] == 1
+    assert not generated_file.exists()
+    assert not skill_dir.exists()  # Empty parent should be removed
+
+
 def test_writer_generates_kiro_ide_agent_files(mock_prompt_load: Path, tmp_path):
     """Test that writer generates Kiro IDE steering markdown files."""
     prompts_dir = mock_prompt_load
