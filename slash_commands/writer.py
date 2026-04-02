@@ -299,6 +299,21 @@ class SlashCommandWriter:
         safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "-", safe_stem).strip("-_.") or "command"
         return f"{safe_stem}{extension}"
 
+    def _build_output_path(self, prompt_name: str, agent: AgentConfig) -> Path:
+        """Build the output file path for a prompt and agent.
+
+        For agents with subdirectory layout (e.g. Junie), the path is:
+            base_path / command_dir / <sanitized-name> / SKILL.md
+
+        For flat agents, the path is:
+            base_path / command_dir / <sanitized-name>.ext
+        """
+        if agent.use_subdirectory_layout and agent.fixed_filename:
+            dir_name = self._sanitize_filename(prompt_name, "")
+            return self.base_path / agent.get_command_dir() / dir_name / agent.fixed_filename
+        filename = self._sanitize_filename(prompt_name, agent.command_file_extension)
+        return self.base_path / agent.get_command_dir() / filename
+
     def _find_existing_files(
         self, prompts: list[MarkdownPrompt], agent_configs: list[AgentConfig]
     ) -> list[Path]:
@@ -316,10 +331,7 @@ class SlashCommandWriter:
             if not prompt.enabled:
                 continue
             for agent in agent_configs:
-                # Determine output path (same logic as _generate_file)
-                filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
-                output_path = self.base_path / agent.get_command_dir() / filename
-
+                output_path = self._build_output_path(prompt.name, agent)
                 if output_path.exists():
                     existing_files.append(output_path)
         return existing_files
@@ -378,9 +390,7 @@ class SlashCommandWriter:
         content = generator.generate(prompt, agent, self._source_metadata)
 
         # Determine output path (resolve relative to base_path)
-        # Sanitize file stem: drop any path components and restrict to safe chars
-        filename = self._sanitize_filename(prompt.name, agent.command_file_extension)
-        output_path = self.base_path / agent.get_command_dir() / filename
+        output_path = self._build_output_path(prompt.name, agent)
 
         # Handle existing files
         if output_path.exists():
@@ -453,7 +463,12 @@ class SlashCommandWriter:
                     continue
 
                 # Check for regular command files
-                for file_path in command_dir.glob(f"*{agent.command_file_extension}"):
+                if agent.use_subdirectory_layout and agent.fixed_filename:
+                    glob_pattern = f"*/{agent.fixed_filename}"
+                else:
+                    glob_pattern = f"*{agent.command_file_extension}"
+
+                for file_path in command_dir.glob(glob_pattern):
                     if self._is_generated_file(file_path, agent):
                         # Convert Path to string explicitly using os.fspath
                         path_str = os.fspath(file_path)
@@ -469,22 +484,41 @@ class SlashCommandWriter:
 
                 # Check for backup files
                 if include_backups:
-                    # Look for files matching the backup pattern: *.extension.timestamp.bak
-                    escaped_ext = re.escape(agent.command_file_extension)
-                    pattern = re.compile(rf".*{escaped_ext}\.\d{{8}}-\d{{6}}\.bak$")
-                    for file_path in command_dir.iterdir():
-                        if file_path.is_file() and pattern.match(file_path.name):
-                            # Convert Path to string explicitly using os.fspath
-                            path_str = os.fspath(file_path)
-                            found_files.append(
-                                {
-                                    "path": path_str,
-                                    "agent": agent.key,
-                                    "agent_display_name": agent.display_name,
-                                    "type": "backup",
-                                    "reason": "Matches backup pattern",
-                                }
-                            )
+                    if agent.use_subdirectory_layout and agent.fixed_filename:
+                        # For subdirectory layout, backups are inside subdirectories
+                        escaped_fn = re.escape(agent.fixed_filename)
+                        pattern = re.compile(rf".*{escaped_fn}\.\d{{8}}-\d{{6}}\.bak$")
+                        for subdir in command_dir.iterdir():
+                            if subdir.is_dir():
+                                for file_path in subdir.iterdir():
+                                    if file_path.is_file() and pattern.match(file_path.name):
+                                        path_str = os.fspath(file_path)
+                                        found_files.append(
+                                            {
+                                                "path": path_str,
+                                                "agent": agent.key,
+                                                "agent_display_name": agent.display_name,
+                                                "type": "backup",
+                                                "reason": "Matches backup pattern",
+                                            }
+                                        )
+                    else:
+                        # Look for files matching the backup pattern: *.extension.timestamp.bak
+                        escaped_ext = re.escape(agent.command_file_extension)
+                        pattern = re.compile(rf".*{escaped_ext}\.\d{{8}}-\d{{6}}\.bak$")
+                        for file_path in command_dir.iterdir():
+                            if file_path.is_file() and pattern.match(file_path.name):
+                                # Convert Path to string explicitly using os.fspath
+                                path_str = os.fspath(file_path)
+                                found_files.append(
+                                    {
+                                        "path": path_str,
+                                        "agent": agent.key,
+                                        "agent_display_name": agent.display_name,
+                                        "type": "backup",
+                                        "reason": "Matches backup pattern",
+                                    }
+                                )
             except KeyError:
                 # Agent key not found, skip
                 continue
@@ -510,7 +544,7 @@ class SlashCommandWriter:
             return self._is_generated_markdown(content)
         elif agent.command_format.value == "toml":
             return self._is_generated_toml(content)
-        elif agent.command_format.value in ("kiro", "kiro-ide"):
+        elif agent.command_format.value in ("kiro", "kiro-ide", "junie"):
             return self._is_generated_kiro(content)
         return False
 
@@ -598,6 +632,15 @@ class SlashCommandWriter:
             if not dry_run:
                 try:
                     file_path.unlink()
+                    # Remove empty parent subdirectory for subdirectory-layout agents
+                    try:
+                        agent = get_agent_config(file_info["agent"])
+                        if agent.use_subdirectory_layout:
+                            parent = file_path.parent
+                            if parent.exists() and not any(parent.iterdir()):
+                                parent.rmdir()
+                    except (KeyError, OSError):
+                        pass
                     deleted_files.append(file_info)
                 except OSError as e:
                     errors.append({"path": str(file_path), "error": str(e)})

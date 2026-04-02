@@ -403,6 +403,66 @@ class KiroIdeCommandGenerator:
         return _normalize_output(output)
 
 
+class JunieCommandGenerator:
+    """Generator for Junie Agent Skills (SKILL.md with YAML frontmatter).
+
+    Junie expects skills in subdirectories with a SKILL.md file containing
+    YAML frontmatter with required ``name`` and ``description`` fields per
+    the Agent Skills specification (https://agentskills.io/specification).
+    """
+
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Generate a Junie SKILL.md file.
+
+        Args:
+            prompt: The source prompt to generate from
+            agent: The agent configuration
+            source_metadata: Optional source metadata (local or GitHub)
+
+        Returns:
+            Markdown with Junie Agent Skills frontmatter
+        """
+        description, arguments, _enabled = _apply_agent_overrides(prompt, agent)
+
+        # Sanitize name per Agent Skills spec: lowercase a-z, numbers, hyphens only,
+        # 1-64 chars, no leading/trailing hyphens, no consecutive hyphens.
+        skill_name = _strip_ordering_prefix(prompt.name).lower()
+        skill_name = re.sub(r"[^a-z0-9-]", "-", skill_name)
+        skill_name = re.sub(r"-{2,}", "-", skill_name).strip("-")[:64]
+
+        # Build Junie YAML frontmatter
+        frontmatter: dict[str, Any] = {
+            "name": skill_name,
+            "description": (description or prompt.name)[:1024],
+        }
+
+        # Replace placeholders in body
+        body = _replace_placeholders(prompt.body, arguments, replace_double_braces=True)
+
+        # Format as YAML frontmatter + body
+        yaml_content = yaml.safe_dump(frontmatter, allow_unicode=True, sort_keys=False)
+        output = f"---\n{yaml_content}---\n\n{body}\n"
+
+        # Append tracking metadata as a trailing HTML comment
+        meta_lines = [
+            f"source: {prompt.name}",
+            f"version: {__version__}",
+            f"updated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
+        ]
+        if source_metadata:
+            if "source_repo" in source_metadata:
+                meta_lines.append(f"repo: {source_metadata['source_repo']}")
+
+        output += "\n<!-- slash-command-manager: " + " | ".join(meta_lines) + " -->\n"
+
+        return _normalize_output(output)
+
+
 class CommandGenerator:
     """Base class for command generators."""
 
@@ -417,5 +477,7 @@ class CommandGenerator:
             return KiroCommandGenerator()
         elif format == CommandFormat.KIRO_IDE:
             return KiroIdeCommandGenerator()
+        elif format == CommandFormat.JUNIE:
+            return JunieCommandGenerator()
         else:
             raise ValueError(f"Unsupported command format: {format}")

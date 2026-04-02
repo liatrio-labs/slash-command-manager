@@ -7,6 +7,8 @@ import pytest
 from mcp_server.prompt_utils import parse_frontmatter
 from slash_commands.config import get_agent_config
 from slash_commands.generators import (
+    CommandGenerator,
+    JunieCommandGenerator,
     KiroCommandGenerator,
     KiroIdeCommandGenerator,
     MarkdownCommandGenerator,
@@ -389,6 +391,32 @@ def test_kiro_generator_snapshot_regression(sample_prompt):
     assert not generated.startswith("---")
 
 
+# -- JetBrains AI Assistant generator tests ------------------------------------
+
+
+def test_jetbrains_rules_uses_kiro_generator():
+    """Test that JetBrains AI Assistant uses KiroCommandGenerator via factory."""
+    from slash_commands.config import CommandFormat
+
+    generator = CommandGenerator.create(CommandFormat.KIRO)
+    assert isinstance(generator, KiroCommandGenerator)
+
+
+def test_jetbrains_rules_produces_plain_markdown(sample_prompt):
+    """Test that JetBrains AI Assistant produces plain markdown with tracking comment."""
+    agent = get_agent_config("jetbrains-ai-assistant")
+    generator = KiroCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    # Should NOT have YAML frontmatter
+    assert not generated.startswith("---")
+    # Should contain prompt body
+    assert "# Sample Prompt" in generated
+    # Should have tracking comment
+    assert "<!-- slash-command-manager:" in generated
+
+
 # -- Kiro IDE agent generator tests --------------------------------------------
 
 
@@ -457,6 +485,126 @@ def test_kiro_ide_generator_snapshot_regression(sample_prompt):
     """Snapshot-style test to catch unintended changes in Kiro IDE output format."""
     agent = get_agent_config("kiro-ide")
     generator = KiroIdeCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    # Must have frontmatter
+    assert generated.startswith("---\n")
+    assert "\n---\n" in generated
+
+    # Must end with newline
+    assert generated.endswith("\n")
+
+    # No trailing whitespace in lines
+    for line in generated.splitlines():
+        assert line == line.rstrip(), "Line contains trailing whitespace"
+
+    # Consistent line endings (LF only)
+    assert "\r" not in generated
+
+    # Must have tracking comment at end
+    assert generated.strip().endswith("-->")
+
+
+# -- Junie agent skill generator tests ----------------------------------------
+
+
+def test_junie_generator_produces_frontmatter(sample_prompt):
+    """Test that JunieCommandGenerator produces markdown with required frontmatter fields."""
+    agent = get_agent_config("junie")
+    generator = JunieCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+    frontmatter, body = _extract_frontmatter_and_body(generated)
+
+    assert frontmatter["name"] == "sample-prompt"
+    assert "description" in frontmatter
+    # Should NOT have markdown-generator fields
+    assert "tags" not in frontmatter
+    assert "arguments" not in frontmatter
+    assert "meta" not in frontmatter
+    assert "enabled" not in frontmatter
+
+    assert "# Sample Prompt" in body
+
+
+def test_junie_generator_sanitizes_name():
+    """Test that Junie generator sanitizes name per Agent Skills spec."""
+    from pathlib import Path
+
+    from mcp_server.prompt_utils import MarkdownPrompt
+
+    prompt = MarkdownPrompt(
+        name="SDD-1-My_Complex.Prompt!Name",
+        description="Test",
+        tags=[],
+        arguments=[],
+        enabled=True,
+        body="# Test",
+        path=Path("test.md"),
+        meta={},
+    )
+
+    agent = get_agent_config("junie")
+    generator = JunieCommandGenerator()
+
+    generated = generator.generate(prompt, agent)
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+
+    name = frontmatter["name"]
+    # Must be lowercase, a-z, 0-9, hyphens only
+    assert name == name.lower()
+    assert all(c in "abcdefghijklmnopqrstuvwxyz0123456789-" for c in name)
+    # No leading/trailing hyphens
+    assert not name.startswith("-")
+    assert not name.endswith("-")
+    # No consecutive hyphens
+    assert "--" not in name
+
+
+def test_junie_generator_includes_tracking_comment(sample_prompt):
+    """Test that tracking metadata is appended as a trailing HTML comment."""
+    agent = get_agent_config("junie")
+    generator = JunieCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    assert "<!-- slash-command-manager:" in generated
+    assert "source: sample-prompt" in generated
+    assert "version:" in generated
+    assert "updated:" in generated
+
+
+def test_junie_generator_replaces_placeholders(prompt_with_placeholder_body):
+    """Test that argument placeholders are replaced in the prompt body."""
+    agent = get_agent_config("junie")
+    generator = JunieCommandGenerator()
+
+    generated = generator.generate(prompt_with_placeholder_body, agent)
+
+    assert "$ARGUMENTS" not in generated
+    assert "{{args}}" not in generated
+    assert "query" in generated
+
+
+def test_junie_generator_github_source_metadata(sample_prompt):
+    """Test that GitHub repo is included in tracking comment."""
+    agent = get_agent_config("junie")
+    generator = JunieCommandGenerator()
+
+    source_metadata = {
+        "source_repo": "liatrio-labs/spec-driven-workflow",
+    }
+
+    generated = generator.generate(sample_prompt, agent, source_metadata)
+
+    assert "repo: liatrio-labs/spec-driven-workflow" in generated
+
+
+def test_junie_generator_snapshot_regression(sample_prompt):
+    """Snapshot-style test to catch unintended changes in Junie output format."""
+    agent = get_agent_config("junie")
+    generator = JunieCommandGenerator()
 
     generated = generator.generate(sample_prompt, agent)
 

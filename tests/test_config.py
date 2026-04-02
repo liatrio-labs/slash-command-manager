@@ -22,7 +22,14 @@ def test_command_format_defines_markdown_toml_and_kiro():
     assert CommandFormat.TOML.value == "toml"
     assert CommandFormat.KIRO.value == "kiro"
     assert CommandFormat.KIRO_IDE.value == "kiro-ide"
-    assert {member.value for member in CommandFormat} == {"markdown", "toml", "kiro", "kiro-ide"}
+    assert CommandFormat.JUNIE.value == "junie"
+    assert {member.value for member in CommandFormat} == {
+        "markdown",
+        "toml",
+        "kiro",
+        "kiro-ide",
+        "junie",
+    }
 
 
 def test_agent_config_is_frozen_dataclass():
@@ -68,8 +75,10 @@ def test_supported_agents_have_valid_structure(
             or agent.command_dir.endswith("/command")
             or agent.command_dir.endswith("/agents")
             or agent.command_dir.endswith("/steering")
+            or agent.command_dir.endswith("/rules")
+            or agent.command_dir.endswith("/skills")
         ), (
-            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, /command, /agents, or /steering"
+            f"{agent.key}: command_dir must end with /commands, /prompts, /global_workflows, /command, /agents, /steering, /rules, or /skills"
         )
         # File extension must start with a dot
         assert agent.command_file_extension.startswith("."), (
@@ -100,10 +109,11 @@ def test_supported_agents_have_valid_command_formats(
         CommandFormat.TOML,
         CommandFormat.KIRO,
         CommandFormat.KIRO_IDE,
+        CommandFormat.JUNIE,
     }
     for agent in supported_agents_by_key.values():
         assert agent.command_format in valid_formats, (
-            f"{agent.key}: command_format must be MARKDOWN, TOML, KIRO, or KIRO_IDE"
+            f"{agent.key}: command_format must be MARKDOWN, TOML, KIRO, KIRO_IDE, or JUNIE"
         )
 
 
@@ -142,3 +152,23 @@ def test_detection_dirs_cover_command_directory_roots(
             command_root = agent.command_dir.split("/", 1)[0]
             assert command_root in agent.detection_dirs
         assert isinstance(agent.detection_dirs, Iterable)
+
+
+def test_junie_agent_has_subdirectory_layout(
+    supported_agents_by_key: dict[str, AgentConfig],
+):
+    """Validate that junie agent uses subdirectory layout."""
+    junie = supported_agents_by_key["junie"]
+    assert junie.use_subdirectory_layout is True
+    assert junie.fixed_filename == "SKILL.md"
+
+
+def test_default_agents_have_flat_layout(
+    supported_agents_by_key: dict[str, AgentConfig],
+):
+    """Validate that non-junie agents default to flat file layout."""
+    for agent in supported_agents_by_key.values():
+        if agent.key == "junie":
+            continue
+        assert agent.use_subdirectory_layout is False
+        assert agent.fixed_filename is None
