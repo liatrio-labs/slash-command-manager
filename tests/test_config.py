@@ -23,7 +23,13 @@ def test_command_format_defines_markdown_toml_and_kiro():
     assert CommandFormat.KIRO.value == "kiro"
     assert CommandFormat.KIRO_IDE.value == "kiro-ide"
     assert CommandFormat.JUNIE.value == "junie"
-    assert {member.value for member in CommandFormat} == {"markdown", "toml", "kiro", "kiro-ide", "junie"}
+    assert {member.value for member in CommandFormat} == {
+        "markdown",
+        "toml",
+        "kiro",
+        "kiro-ide",
+        "junie",
+    }
 
 
 def test_agent_config_is_frozen_dataclass():
