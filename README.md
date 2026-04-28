@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/liatrio-labs-slash-command-manager-badge.png)](https://mseep.ai/app/liatrio-labs-slash-command-manager)
+
 # Slash Command Manager
 
 A standalone CLI tool and MCP server for generating and managing slash commands as part of the Spec-Driven Development (SDD) workflow.
