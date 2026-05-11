@@ -58,3 +58,6 @@ log/
 # .env
 # .env.local
 # .env.*.local
+
+# Weave planning tool runtime state
+.weave/
