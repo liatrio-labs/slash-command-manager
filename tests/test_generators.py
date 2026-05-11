@@ -6,10 +6,13 @@ import pytest
 
 from mcp_server.prompt_utils import parse_frontmatter
 from slash_commands.config import get_agent_config
+from slash_commands.config import CommandFormat
 from slash_commands.generators import (
+    CommandGenerator,
     KiroCommandGenerator,
     KiroIdeCommandGenerator,
     MarkdownCommandGenerator,
+    PiCommandGenerator,
     TomlCommandGenerator,
 )
 
@@ -476,3 +479,145 @@ def test_kiro_ide_generator_snapshot_regression(sample_prompt):
 
     # Must have tracking comment at end
     assert generated.strip().endswith("-->")
+
+
+# -- Pi agent generator tests --------------------------------------------------
+
+
+def test_pi_generator_basic_generation(sample_prompt):
+    """Test that PiCommandGenerator produces minimal frontmatter with only description."""
+    agent = get_agent_config("pi")
+    generator = PiCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+    frontmatter, body = _extract_frontmatter_and_body(generated)
+
+    assert "description" in frontmatter
+    # Must NOT contain markdown-generator fields
+    assert "name" not in frontmatter
+    assert "enabled" not in frontmatter
+    assert "tags" not in frontmatter
+    assert "arguments" not in frontmatter
+    assert "meta" not in frontmatter
+    # Body must be present
+    assert "Use the provided instructions" in body
+
+
+def test_pi_generator_applies_agent_overrides(sample_prompt, tmp_path):
+    """Test that Pi generator applies agent-specific description overrides."""
+    from textwrap import dedent
+
+    from mcp_server.prompt_utils import load_markdown_prompt
+
+    prompt_path = tmp_path / "pi-override-prompt.md"
+    prompt_path.write_text(
+        dedent(
+            """\
+            ---
+            name: pi-override-prompt
+            description: Default description
+            agent_overrides:
+              pi:
+                description: Pi-specific description override
+            ---
+
+            # Pi Override Prompt
+
+            Body content here.
+            """
+        ),
+        encoding="utf-8",
+    )
+    prompt = load_markdown_prompt(prompt_path)
+
+    agent = get_agent_config("pi")
+    generator = PiCommandGenerator()
+
+    generated = generator.generate(prompt, agent)
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+
+    assert frontmatter["description"] == "Pi-specific description override"
+
+
+def test_pi_generator_argument_hint_with_args(prompt_with_placeholder_body):
+    """Test that argument-hint is built correctly from required/optional args."""
+    agent = get_agent_config("pi")
+    generator = PiCommandGenerator()
+
+    generated = generator.generate(prompt_with_placeholder_body, agent)
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+
+    assert "argument-hint" in frontmatter
+    assert frontmatter["argument-hint"] == "<query> [format]"
+
+
+def test_pi_generator_no_argument_hint_when_no_args(tmp_path):
+    """Test that argument-hint is absent when the prompt has no arguments."""
+    from textwrap import dedent
+
+    from mcp_server.prompt_utils import load_markdown_prompt
+
+    prompt_path = tmp_path / "no-args-prompt.md"
+    prompt_path.write_text(
+        dedent(
+            """\
+            ---
+            name: no-args-prompt
+            description: A prompt with no arguments
+            ---
+
+            # No Args Prompt
+
+            Just a body with no argument placeholders.
+            """
+        ),
+        encoding="utf-8",
+    )
+    prompt = load_markdown_prompt(prompt_path)
+
+    agent = get_agent_config("pi")
+    generator = PiCommandGenerator()
+
+    generated = generator.generate(prompt, agent)
+    frontmatter, _ = _extract_frontmatter_and_body(generated)
+
+    assert "argument-hint" not in frontmatter
+
+
+def test_pi_generator_preserves_arguments_placeholder(prompt_with_placeholder_body):
+    """Test that $ARGUMENTS is preserved in the body (Pi handles it natively)."""
+    agent = get_agent_config("pi")
+    generator = PiCommandGenerator()
+
+    generated = generator.generate(prompt_with_placeholder_body, agent)
+    _, body = _extract_frontmatter_and_body(generated)
+
+    assert "$ARGUMENTS" in body
+
+
+def test_pi_generator_snapshot_regression(sample_prompt):
+    """Snapshot-style test to catch unintended changes in Pi output format."""
+    agent = get_agent_config("pi")
+    generator = PiCommandGenerator()
+
+    generated = generator.generate(sample_prompt, agent)
+
+    # Must have frontmatter
+    assert generated.startswith("---\n")
+    assert "\n---\n" in generated
+
+    # Must end with newline
+    assert generated.endswith("\n")
+
+    # No trailing whitespace in lines
+    for line in generated.splitlines():
+        assert line == line.rstrip(), "Line contains trailing whitespace"
+
+    # Consistent line endings (LF only)
+    assert "\r" not in generated
+
+
+def test_command_generator_factory_creates_pi_generator():
+    """Test that CommandGenerator.create(CommandFormat.PI) returns a PiCommandGenerator."""
+    generator = CommandGenerator.create(CommandFormat.PI)
+    assert isinstance(generator, PiCommandGenerator)

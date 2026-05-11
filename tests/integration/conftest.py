@@ -67,6 +67,7 @@ def clean_agent_dirs(temp_test_dir):
         ".config/Code",
         ".codeium/windsurf",
         ".opencode",
+        ".pi",
     ]
 
     for agent_dir in agent_dirs:

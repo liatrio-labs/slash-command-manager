@@ -197,6 +197,7 @@ The generator supports the following AI coding assistants:
   - macOS: `~/Library/Application Support/Code - Insiders/User/prompts`
   - Windows: `%APPDATA%\Code - Insiders\User\prompts`
 - **OpenCode CLI**: Commands installed to `~/.config/opencode/command`
+- **Pi**: Commands installed to `~/.pi/prompts`
 - **Amazon Q**: Commands installed to `~/.aws/amazonq/prompts` (Windows & macOS/Linux)
 - **Kiro CLI**: Prompts installed to `~/.kiro/prompts`
   - Invoke with `@prompt-name` (e.g., `@generate-spec`)

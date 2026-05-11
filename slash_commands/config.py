@@ -15,6 +15,7 @@ class CommandFormat(str, Enum):
     TOML = "toml"
     KIRO = "kiro"
     KIRO_IDE = "kiro-ide"
+    PI = "pi"
 
 
 @dataclass(frozen=True)
@@ -160,6 +161,7 @@ _SUPPORTED_AGENT_DATA: tuple[
         (".kiro",),
         None,
     ),
+    ("pi", "Pi", ".pi/prompts", CommandFormat.PI, ".md", (".pi",), None),
 )
 
 _SORTED_AGENT_DATA = tuple(sorted(_SUPPORTED_AGENT_DATA, key=lambda item: item[0]))

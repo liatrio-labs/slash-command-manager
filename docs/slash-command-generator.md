@@ -197,6 +197,7 @@ The following agents are supported:
 | `kiro-cli` | Kiro CLI | Kiro | `.md` | `.kiro/prompts` | [Home](https://kiro.dev/cli/) · [Docs](https://kiro.dev/docs/cli/) |
 | `kiro-ide` | Kiro IDE | Kiro IDE | `.md` | `.kiro/steering` | [Home](https://kiro.dev/) · [Docs](https://kiro.dev/docs/) |
 | `opencode` | OpenCode CLI | Markdown | `.md` | `.config/opencode/command` | [Home](https://opencode.ai) · [Docs](https://opencode.ai/docs/commands) |
+| `pi` | Pi | Pi | `.md` | `.pi/prompts` | [Home](https://pi.ai/) |
 | `vs-code` | VS Code | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/) · [Docs](https://code.visualstudio.com/docs) |
 | `vs-code-insiders` | VS Code Insiders | Markdown | `.prompt.md` | Platform-specific (see note below) | [Home](https://code.visualstudio.com/insiders/) · [Docs](https://code.visualstudio.com/docs) |
 | `windsurf` | Windsurf | Markdown | `.md` | `.codeium/windsurf/global_workflows` | [Home](https://windsurf.com/editor) · [Docs](https://docs.windsurf.com/) |
