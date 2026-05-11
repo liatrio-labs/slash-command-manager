@@ -127,7 +127,10 @@ def _build_arguments_section_markdown(arguments: list[PromptArgumentSpec]) -> st
 
 
 def _replace_placeholders(
-    body: str, arguments: list[PromptArgumentSpec], replace_double_braces: bool = True
+    body: str,
+    arguments: list[PromptArgumentSpec],
+    replace_double_braces: bool = True,
+    preserve_dollar_arguments: bool = False,
 ) -> str:
     """Replace argument placeholders in the body text.
 
@@ -135,11 +138,12 @@ def _replace_placeholders(
         body: The body text to process
         arguments: List of argument specs
         replace_double_braces: If True, replace {{args}} with comma-separated names
+        preserve_dollar_arguments: If True, leave $ARGUMENTS as-is (e.g. for Pi)
     """
     result = body
 
-    # Replace $ARGUMENTS with markdown-formatted arguments
-    if "$ARGUMENTS" in result:
+    # Replace $ARGUMENTS with markdown-formatted arguments (unless preserved)
+    if not preserve_dollar_arguments and "$ARGUMENTS" in result:
         args_section = _build_arguments_section_markdown(arguments)
         # Replace `$ARGUMENTS` first (with backticks), then $ARGUMENTS (without backticks)
         result = result.replace("`$ARGUMENTS`", args_section)
@@ -403,6 +407,59 @@ class KiroIdeCommandGenerator:
         return _normalize_output(output)
 
 
+class PiCommandGenerator:
+    """Generator for Pi agent prompt files.
+
+    Pi expects YAML frontmatter with only ``description`` (and optionally
+    ``argument-hint``).  No ``name``, ``enabled``, ``tags``, ``arguments``,
+    or ``meta`` fields are included.  ``$ARGUMENTS`` is preserved as-is
+    because Pi handles it natively.
+    """
+
+    def generate(
+        self,
+        prompt: MarkdownPrompt,
+        agent: AgentConfig,
+        source_metadata: dict[str, Any] | None = None,
+    ) -> str:
+        """Generate a Pi-compatible prompt file.
+
+        Args:
+            prompt: The source prompt to generate from
+            agent: The agent configuration
+            source_metadata: Optional source metadata (unused for Pi)
+
+        Returns:
+            Markdown file with minimal YAML frontmatter for Pi
+        """
+        description, arguments, _enabled = _apply_agent_overrides(prompt, agent)
+
+        # Build minimal frontmatter — only description (required)
+        frontmatter: dict[str, Any] = {"description": description}
+
+        # Add argument-hint only when arguments are present
+        if arguments:
+            hint_parts = []
+            for arg in arguments:
+                if arg.required:
+                    hint_parts.append(f"<{arg.name}>")
+                else:
+                    hint_parts.append(f"[{arg.name}]")
+            frontmatter["argument-hint"] = " ".join(hint_parts)
+
+        # Preserve $ARGUMENTS as-is (Pi handles it natively); process {{args}} if present
+        body = _replace_placeholders(
+            prompt.body,
+            arguments,
+            replace_double_braces=False,
+            preserve_dollar_arguments=True,
+        )
+
+        yaml_content = yaml.safe_dump(frontmatter, allow_unicode=True, sort_keys=False)
+        output = f"---\n{yaml_content}---\n\n{body}\n"
+        return _normalize_output(output)
+
+
 class CommandGenerator:
     """Base class for command generators."""
 
@@ -417,5 +474,7 @@ class CommandGenerator:
             return KiroCommandGenerator()
         elif format == CommandFormat.KIRO_IDE:
             return KiroIdeCommandGenerator()
+        elif format == CommandFormat.PI:
+            return PiCommandGenerator()
         else:
             raise ValueError(f"Unsupported command format: {format}")

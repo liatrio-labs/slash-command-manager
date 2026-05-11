@@ -17,12 +17,13 @@ def supported_agents_by_key() -> dict[str, AgentConfig]:
     return {agent.key: agent for agent in SUPPORTED_AGENTS}
 
 
-def test_command_format_defines_markdown_toml_and_kiro():
+def test_command_format_defines_all_formats():
     assert CommandFormat.MARKDOWN.value == "markdown"
     assert CommandFormat.TOML.value == "toml"
     assert CommandFormat.KIRO.value == "kiro"
     assert CommandFormat.KIRO_IDE.value == "kiro-ide"
-    assert {member.value for member in CommandFormat} == {"markdown", "toml", "kiro", "kiro-ide"}
+    assert CommandFormat.PI.value == "pi"
+    assert {member.value for member in CommandFormat} == {"markdown", "toml", "kiro", "kiro-ide", "pi"}
 
 
 def test_agent_config_is_frozen_dataclass():
@@ -100,10 +101,11 @@ def test_supported_agents_have_valid_command_formats(
         CommandFormat.TOML,
         CommandFormat.KIRO,
         CommandFormat.KIRO_IDE,
+        CommandFormat.PI,
     }
     for agent in supported_agents_by_key.values():
         assert agent.command_format in valid_formats, (
-            f"{agent.key}: command_format must be MARKDOWN, TOML, KIRO, or KIRO_IDE"
+            f"{agent.key}: command_format must be MARKDOWN, TOML, KIRO, KIRO_IDE, or PI"
         )
 
 

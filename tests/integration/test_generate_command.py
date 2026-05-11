@@ -229,6 +229,7 @@ def test_generate_all_supported_agents(temp_test_dir, test_prompts_dir):
         "codex-cli",
         "windsurf",
         "opencode",
+        "pi",
     ]
 
     for agent in agents:
