@@ -24,7 +24,7 @@ jobs:
       group: semantic-release-${{ github.ref }}
       cancel-in-progress: false
     steps:
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+      - uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
         with:
           scope: ${{ github.repository }}
@@ -58,7 +58,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.15"
 
       - name: Install uv (with cache)
         uses: astral-sh/setup-uv@v6
